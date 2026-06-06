@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="PICU Reckoner">
+<meta name="theme-color" content="#0f1117">
+<title>KMCT PICU Ready Reckoner</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#ffffff;--bg2:#f4f6fb;--bg3:#eaecf5;--bg4:#dfe2f0;--bdr:#c8cce0;--text:#1a1d2e;--text2:#2d3155;--dim:#5a6080;--dim2:#8890b0;--green:#166c38;--red:#e63946;--font:'IBM Plex Mono','Courier New',monospace}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;padding-bottom:56px}
+input{font-family:var(--font)}
+button{font-family:var(--font);cursor:pointer}
+
+/* HEADER */
+#hdr{background:linear-gradient(135deg,#e63946,#c1121f);border-bottom:1px solid #b01020;padding:13px 15px}
+.hdr-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logo{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:#fff}
+.hdr-title{flex:1}
+.hdr-title h1{margin:0;font-size:14px;font-weight:700;letter-spacing:.06em;color:#ffffff}
+.hdr-title p{margin:0;font-size:10px;color:rgba(255,255,255,0.75);letter-spacing:.09em}
+.wt-wrap{display:flex;align-items:center;gap:6px}
+.wt-wrap label{font-size:11px;color:rgba(255,255,255,0.85);font-weight:600}
+#wt-input{width:68px;padding:6px 8px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);border-radius:7px;color:#fff;font-size:18px;font-weight:700;text-align:center;outline:none;transition:border-color .2s,background .2s}
+#wt-input::placeholder{color:rgba(255,255,255,0.5)}
+#wt-input.has-val{background:rgba(255,255,255,0.3);border-color:#fff}
+.wt-unit{font-size:13px;color:#fff;font-weight:700}
+#search{margin-top:10px;width:100%;padding:9px 14px;background:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:9px;color:var(--text);font-size:14px;outline:none}
+
+/* TABS */
+#tabs{background:#fff;border-bottom:2px solid var(--bdr);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#tabs::-webkit-scrollbar{display:none}
+.tab-btn{padding:12px 13px;background:none;border:none;border-bottom:3px solid transparent;color:var(--dim);font-size:11px;letter-spacing:.05em;white-space:nowrap;transition:all .15s;font-weight:500}
+.tab-btn.active{border-bottom-color:var(--red);color:var(--text);font-weight:700}
+
+/* WEIGHT PROMPT */
+#wt-prompt{margin:10px 13px 0;text-align:center;padding:9px;background:var(--bg3);border-radius:7px;border:1px dashed var(--bdr);font-size:13px;color:var(--dim)}
+
+/* GIR WIDGET */
+#gir-wrap{padding:10px 13px 0}
+.gir-box{background:#f0faf2;border:2px solid #4caf70;border-radius:11px;padding:13px}
+.gir-title{font-size:13px;color:#1a6b35;font-weight:700;letter-spacing:.05em;margin-bottom:11px}
+.gir-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gir-panel{background:#fff;border-radius:8px;padding:10px;border:1px solid #c8e6d0}
+.gir-panel h4{margin:0 0 8px;font-size:11px;color:var(--dim);font-weight:600;letter-spacing:.06em}
+.gir-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.gir-row label{font-size:11px;color:var(--dim);width:82px;flex-shrink:0}
+.gir-row input{width:72px;padding:5px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;color:var(--text);font-size:13px;font-family:var(--font);outline:none}
+.gir-result{background:#e6f5ec;border:2px solid #4caf70;border-radius:7px;padding:6px 10px;margin-top:6px;text-align:center}
+.gir-result .r-label{font-size:10px;color:#2d7a50;letter-spacing:.08em;font-weight:600}
+.gir-result .r-val{font-size:22px;font-weight:700;color:#166c38}
+.gir-result .r-unit{font-size:12px;color:#2d7a50;margin-left:3px}
+.gir-note{font-size:10px;color:#4a7a58;margin-top:7px}
+
+/* DRUG CARDS */
+#drug-list{padding:9px 13px 10px}
+.card{margin-bottom:8px;border-radius:11px;overflow:hidden;border:1px solid var(--bdr);transition:border-color .2s;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card-hdr{width:100%;padding:13px 14px;background:var(--bg3);border:none;text-align:left;display:flex;align-items:center;gap:10px;transition:background .15s}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.card-title-block{flex:1;min-width:0}
+.card-name{font-size:15px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.card-name.open{color:var(--text)}
+.card-rule{font-size:11px;color:var(--dim);margin-top:2px}
+.badge{font-size:10px;padding:2px 6px;border-radius:4px;letter-spacing:.05em}
+.badge.warn{background:#fff0f0;border:1px solid #ffaaaa;color:#cc2020}
+.badge.type{border:none}
+.chevron{color:var(--dim2);font-size:13px;transition:transform .2s;flex-shrink:0}
+
+/* EXPANDED DETAIL */
+.card-detail{background:var(--bg2);padding:12px 14px}
+.prep-box{background:#fff;border-radius:8px;padding:10px 13px;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.7;border:1px solid var(--bdr)}
+.prep-box .prep-lbl{font-size:10px;color:var(--dim2);letter-spacing:.09em;display:block;margin-bottom:3px;font-weight:600}
+.ranges-table{margin-bottom:10px}
+.range-row{display:flex;gap:8px;padding:7px 9px;border-radius:4px;margin-bottom:2px}
+.range-row:nth-child(odd){background:var(--bg3)}
+.range-row:nth-child(even){background:#fff;border:1px solid var(--bdr)}
+.r-dose{width:28%;flex-shrink:0;font-size:13px;font-weight:700}
+.r-lbl{width:24%;flex-shrink:0;font-size:12px;color:var(--dim)}
+.r-eff{flex:1;font-size:12px;color:var(--dim)}
+
+/* CALC BOX */
+.calc-box{background:#fff;border-radius:9px;padding:12px 13px;margin-bottom:10px;border:2px solid var(--bdr)}
+.calc-box h4{margin:0 0 9px;font-size:12px;color:var(--dim);letter-spacing:.07em;font-weight:600}
+.calc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.calc-input{width:130px;padding:8px 10px;background:var(--bg3);border:2px solid var(--bdr);border-radius:7px;color:var(--text);font-size:16px;font-family:var(--font);outline:none}
+.calc-unit{font-size:12px;color:var(--dim);font-weight:500}
+.calc-result{background:#e6f5ec;border:2px solid #4caf70;border-radius:8px;padding:8px 14px;display:none}
+.calc-result.show{display:block}
+.calc-result .r-lbl2{font-size:10px;color:#2d7a50;letter-spacing:.09em;font-weight:600}
+.calc-result .r-val{font-size:26px;font-weight:700;color:#166c38}
+.calc-result .r-unit{font-size:14px;color:#2d7a50;margin-left:4px}
+.no-wt{font-size:12px;color:#cc2020}
+
+/* DOSE LADDER */
+.ladder{margin-top:10px}
+.ladder h4{margin:0 0 6px;font-size:11px;color:var(--dim);letter-spacing:.06em;font-weight:600}
+.ladder-pills{display:flex;gap:5px;flex-wrap:wrap}
+.pill{background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;padding:4px 10px;font-size:12px}
+
+/* BOLUS NOTE */
+.bolus-note{background:#f5f0fa;border-left:3px solid #7c5c9a;border-radius:6px;padding:9px 13px;margin-bottom:9px}
+.bolus-note .b-lbl{font-size:10px;color:#7c5c9a;letter-spacing:.09em;display:block;margin-bottom:2px;font-weight:700}
+.bolus-note p{margin:0;font-size:13px;color:#4a3560}
+
+/* NOTES */
+.notes-box{border-radius:6px;padding:9px 13px;font-size:13px;line-height:1.75;border-left:3px solid var(--bdr);background:var(--bg3);color:var(--dim)}
+.notes-box.warn-box{border-left-color:#e63946;background:#fff5f5;color:#8a2020}
+.notes-box .n-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;display:inline}
+
+/* FOOTER */
+#footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bdr);padding:8px 15px;display:flex;justify-content:space-between}
+#footer span{font-size:10px;color:var(--dim2)}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="hdr-top">
+    <div class="logo">+</div>
+    <div class="hdr-title">
+      <h1>KMCT MEDICAL COLLEGE — PICU</h1>
+      <p>ICU INFUSION READY RECKONER v2.0 | FORMULAS VERIFIED</p>
+    </div>
+    <div class="wt-wrap">
+      <label>WEIGHT</label>
+      <input type="number" id="wt-input" placeholder="kg" min="0.3" max="100" step="0.1" inputmode="decimal">
+      <span class="wt-unit">kg</span>
+    </div>
+  </div>
+  <input type="search" id="search" placeholder="🔍  Search drug across all categories...">
+</div>
+
+<div id="tabs"></div>
+<div id="gir-wrap" style="display:none">
+  <div class="gir-box">
+    <div class="gir-title">⚡ GIR CALCULATOR — GIR = (Dex% × Rate) ÷ (Weight × 6)</div>
+    <div class="gir-grid">
+      <div class="gir-panel">
+        <h4>CALCULATE GIR FROM RATE</h4>
+        <div class="gir-row"><label>Weight (kg)</label><input type="number" id="g-wt" inputmode="decimal"></div>
+        <div class="gir-row"><label>Dextrose %</label><input type="number" id="g-dex" value="10" inputmode="decimal"></div>
+        <div class="gir-row"><label>Rate (mL/hr)</label><input type="number" id="g-rate" inputmode="decimal"></div>
+        <div class="gir-result" id="gir-out1" style="display:none">
+          <div class="r-label">GIR</div>
+          <span class="r-val" id="gir-val1">—</span><span class="r-unit">mg/kg/min</span>
+        </div>
+      </div>
+      <div class="gir-panel">
+        <h4>CALCULATE RATE FROM TARGET GIR</h4>
+        <div class="gir-row"><label>Weight (kg)</label><input type="number" id="g-wt2" inputmode="decimal"></div>
+        <div class="gir-row"><label>Dextrose %</label><input type="number" id="g-dex2" value="10" inputmode="decimal"></div>
+        <div class="gir-row"><label>Target GIR</label><input type="number" id="g-gir" inputmode="decimal"></div>
+        <div class="gir-result" id="gir-out2" style="display:none">
+          <div class="r-label">RATE</div>
+          <span class="r-val" id="gir-val2">—</span><span class="r-unit">mL/hr</span>
+        </div>
+      </div>
+    </div>
+    <div class="gir-note">Target BG: Neonate 2.6–7 mmol/L | Infant/Child 4–10 mmol/L | D10% at GIR×wt×6/10 mL/hr</div>
+  </div>
+</div>
+<div id="wt-prompt" style="display:none">↑ Enter patient weight (kg) for weight-specific calculations</div>
+<div id="drug-list"></div>
+
+<div id="footer">
+  <span>KMCT MEDICAL COLLEGE — FOR QUALIFIED CLINICAL STAFF ONLY</span>
+  <span>ALWAYS VERIFY INDEPENDENTLY</span>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// VERIFIED FORMULAS:
+// Weight-based prep X mg/kg in 50mL:
+//   mcg/kg/min → Rate = dose × 3/X          [wt-independent]
+//   mcg/kg/hr  → Rate = dose / (X × 20)     [wt-independent]
+//   mg/kg/hr   → Rate = dose × 50/X         [wt-independent]
+// Fixed conc C mg/mL:
+//   mg/kg/hr   → Rate = dose × wt / C       [wt-dependent]
+//   mcg/kg/min → Rate = dose × wt × 60/(C×1000) [wt-dependent]
+// ══════════════════════════════════════════════════════════
+
+const CATEGORIES = [
+  {id:"inotropes",    label:"Inotropes & Vasopressors", icon:"♥"},
+  {id:"sedation",     label:"Sedation & Analgesia",     icon:"◎"},
+  {id:"antihtn",      label:"Antihypertensives",        icon:"⟁"},
+  {id:"antiepi",      label:"Antiepileptics",           icon:"⚡"},
+  {id:"broncho",      label:"Bronchodilators",          icon:"◈"},
+  {id:"electrolytes", label:"Electrolyte Corrections",  icon:"⬡"},
+  {id:"calcium",      label:"Calcium & Magnesium",      icon:"◇"},
+  {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
+];
+
+const DRUGS = {
+inotropes:[
+ {name:"Dopamine",color:"#e63946",warn:false,
+  prep:"3 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(3*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*1).toFixed(2),  // dose × 3/3 = dose × 1
+  commonDoses:[2,5,10,15,20],
+  ranges:[
+   {dose:"2–5",lbl:"Renal/dopaminergic",eff:"Renal vasodilation, ↑ urine output"},
+   {dose:"5–10",lbl:"Inotropic",eff:"↑ HR, ↑ contractility, ↑ CO"},
+   {dose:"10–20",lbl:"Vasopressor",eff:"Vasoconstriction, ↑ SVR, ↑ BP"},
+  ],
+  bolus:null,
+  notes:"Incompatible with alkaline solutions. Extravasation → phentolamine 1mg local infiltration. Max 20 mcg/kg/min."},
+
+ {name:"Dobutamine",color:"#e63946",warn:false,
+  prep:"3 mg/kg in 50 mL NS/D5W",
+  prepFn:w=>`Draw ${(3*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*1).toFixed(2),
+  commonDoses:[2,5,10,15,20],
+  ranges:[
+   {dose:"2–5",lbl:"Low",eff:"↑ contractility, mild ↑ HR"},
+   {dose:"5–10",lbl:"Moderate",eff:"↑ CO, mild vasodilation"},
+   {dose:"10–20",lbl:"High",eff:"↑ HR, ↑ CO; tachyarrhythmia risk"},
+  ],
+  bolus:null,
+  notes:"Preferred in cardiogenic shock. May worsen hypotension in hypovolaemia. Tachyphylaxis after 72hr."},
+
+ {name:"Adrenaline (Epinephrine)",color:"#d62828",warn:true,
+  prep:"0.3 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.3*w).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),  // dose × 3/0.3 = dose × 10
+  commonDoses:[0.05,0.1,0.2,0.5,1.0],
+  ranges:[
+   {dose:"0.01–0.1",lbl:"Low – β dominant",eff:"↑ CO, bronchodilation, vasodilation"},
+   {dose:"0.1–1.0",lbl:"High – α dominant",eff:"Vasoconstriction, ↑ SVR, ↑ MAP"},
+  ],
+  bolus:"Anaphylaxis: 0.01 mg/kg IM (max 0.5 mg). Cardiac arrest: 0.01 mg/kg IV/IO q3–5 min.",
+  notes:"CENTRAL LINE preferred. Tight glucose monitoring. Max 2 mcg/kg/min."},
+
+ {name:"Noradrenaline (Norepinephrine)",color:"#d62828",warn:true,
+  prep:"0.3 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.3*w).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),
+  commonDoses:[0.05,0.1,0.2,0.5,1.0],
+  ranges:[
+   {dose:"0.05–0.1",lbl:"Starting",eff:"↑ SVR, ↑ MAP, minimal HR change"},
+   {dose:"0.1–0.5",lbl:"Moderate",eff:"↑↑ SVR, vasopressor effect"},
+   {dose:"0.5–2.0",lbl:"High",eff:"Severe vasoconstriction"},
+  ],
+  bolus:null,
+  notes:"CENTRAL LINE MANDATORY. Extravasation → severe necrosis (phentolamine antidote). First-line for vasodilatory/septic shock. Max 2 mcg/kg/min."},
+
+ {name:"Milrinone",color:"#e63946",warn:false,
+  prep:"0.3 mg/kg in 50 mL NS/D5W",
+  prepFn:w=>`Draw ${(0.3*w).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),
+  commonDoses:[0.25,0.5,0.75],
+  ranges:[
+   {dose:"50 mcg/kg over 30–60 min",lbl:"Loading (optional)",eff:"Omit if hypotensive"},
+   {dose:"0.25–0.75",lbl:"Maintenance",eff:"↑ CO, ↓ SVR, ↓ PVR"},
+  ],
+  bolus:"Loading: 50 mcg/kg in 50 mL NS over 60 min. Rate = (50×wt)/50/1 = 1 mL/hr per kg. Omit if hypotensive.",
+  notes:"PDE-III inhibitor. Low-CO states and post-cardiac surgery. Reduce dose if GFR <50."},
+
+ {name:"Vasopressin",color:"#d62828",warn:true,
+  prep:"20 units in 50 mL NS → 0.4 units/mL (fixed conc)",
+  prepFn:()=>`Draw 20 units (1 vial) → make up to 50 mL NS → 0.4 units/mL`,
+  rule:"Rate = dose × wt / 0.4  mL/hr  [wt-dependent]",
+  doseUnit:"units/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w/0.4).toFixed(3),
+  commonDoses:[0.0003,0.001,0.002],
+  ranges:[
+   {dose:"0.0003–0.002",lbl:"Shock adjunct",eff:"V1 vasoconstriction, ↑ SVR"},
+  ],
+  bolus:null,
+  notes:"Catecholamine-resistant vasodilatory shock adjunct. Central line. Risk of mesenteric/coronary ischaemia at high doses."},
+],
+
+sedation:[
+ {name:"Midazolam",color:"#2a9d8f",warn:false,
+  prep:"0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 10 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d/10).toFixed(2),  // dose / (0.5 × 20) = dose / 10
+  commonDoses:[30,60,120,200,300],
+  ranges:[
+   {dose:"30–60",lbl:"Mild sedation",eff:"Anxiolysis, RASS 0 to –1"},
+   {dose:"60–120",lbl:"Moderate",eff:"RASS –1 to –2"},
+   {dose:"120–300",lbl:"Deep",eff:"RASS –3 to –5; ventilated patients"},
+  ],
+  bolus:"Procedural: 0.05–0.1 mg/kg IV slow (max 5 mg). RSI: 0.2–0.3 mg/kg IV.",
+  notes:"Tolerance after 48–72hr. Taper to avoid withdrawal. Accumulates in renal/hepatic failure. Max 300 mcg/kg/hr."},
+
+ {name:"Morphine",color:"#2a9d8f",warn:false,
+  prep:"0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 10 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d/10).toFixed(2),
+  commonDoses:[10,20,40,60],
+  ranges:[
+   {dose:"10–30",lbl:"Analgesia",eff:"Pain control, mild sedation"},
+   {dose:"20–60",lbl:"Sedoanalgesia",eff:"Ventilated; combine with midazolam"},
+  ],
+  bolus:"0.05–0.1 mg/kg IV slow (max 5 mg). Neonates: 0.05 mg/kg.",
+  notes:"Avoid in renal failure (M6G metabolite accumulates). Histamine release risk. Reverse with naloxone 0.01 mg/kg IV."},
+
+ {name:"Fentanyl",color:"#2a9d8f",warn:false,
+  prep:"25 mcg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(25*w).toFixed(0)} mcg = ${(25*w/50).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.5 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*2).toFixed(2),  // dose / (0.025 × 20) = dose × 2
+  commonDoses:[0.5,1,2,3,4,5],
+  ranges:[
+   {dose:"0.5–2",lbl:"Analgesia",eff:"No histamine; short-acting"},
+   {dose:"1–4",lbl:"Sedoanalgesia ventilated",eff:"RASS –1 to –3"},
+   {dose:"2–5",lbl:"Post-op cardiac",eff:"Haemodynamically stable"},
+  ],
+  bolus:"Analgesia: 1–2 mcg/kg IV. RSI/intubation: 3–5 mcg/kg IV.",
+  notes:"Preferred in haemodynamic instability, renal failure, histamine sensitivity. Chest wall rigidity with rapid high-dose bolus."},
+
+ {name:"Ketamine",color:"#2a9d8f",warn:false,
+  prep:"5 mg/kg in 50 mL NS/D5W",
+  prepFn:w=>`Draw ${(5*w).toFixed(0)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mg/kg/hr  [wt-independent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),  // dose × 50/5 = dose × 10
+  commonDoses:[0.1,0.3,0.5,1,2],
+  ranges:[
+   {dose:"0.1–0.5",lbl:"Sub-dissociative",eff:"Analgesia, bronchodilation"},
+   {dose:"0.5–2",lbl:"Sedation/procedural",eff:"Dissociative; airway preserved"},
+  ],
+  bolus:"Induction/RSI: 1–2 mg/kg IV. Procedural: 1–2 mg/kg IV. IM: 3–5 mg/kg.",
+  notes:"Excellent bronchodilator – ideal for status asthmaticus. Combine with midazolam 0.05 mg/kg. AVOID in raised ICP."},
+
+ {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
+  prep:"4 mcg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/200).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.08 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*12.5).toFixed(2),  // dose / (0.004 × 20) = dose × 12.5
+  commonDoses:[0.2,0.4,0.7,1.0,1.4],
+  ranges:[
+   {dose:"0.2–0.5",lbl:"Light sedation",eff:"Cooperative, arousable; RASS 0 to –2"},
+   {dose:"0.5–1.0",lbl:"Moderate",eff:"Rousable; opioid-sparing"},
+   {dose:"1.0–1.4",lbl:"Deep procedural",eff:"No respiratory depression"},
+  ],
+  bolus:"Optional load: 1 mcg/kg over 10 min. OMIT if haemodynamically unstable.",
+  notes:"Alpha-2 agonist. NO respiratory depression – ideal for pre-extubation weaning. Monitor bradycardia/hypotension. Max 1.4 mcg/kg/hr."},
+
+ {name:"Propofol ⚠ (>3 yr only)",color:"#264653",warn:true,
+  prep:"10 mg/mL ready solution – DO NOT dilute",
+  prepFn:()=>`Use undiluted 1% propofol (10 mg/mL). Central/large peripheral IV.`,
+  rule:"Rate = dose × wt / 10  mL/hr  [wt-dependent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w/10).toFixed(2),
+  commonDoses:[0.5,1,2,3,4],
+  ranges:[
+   {dose:"0.5–2",lbl:"Sedation ventilated (>3yr)",eff:"Titrate to RASS –1 to –3"},
+   {dose:"2–4",lbl:"Procedural sedation",eff:"Short procedures; monitor airway"},
+  ],
+  bolus:"Induction: 1–2.5 mg/kg IV (reduce in sick/compromised patients).",
+  notes:"⚠ NEVER for ICU sedation <3 years (Propofol Infusion Syndrome). Max 4 mg/kg/hr; <67 mg/kg/day total. Monitor TG, CK, pH, lactate."},
+],
+
+antihtn:[
+ {name:"Labetalol",color:"#457b9d",warn:false,
+  prep:"Dilute to 2 mg/mL in NS/D5W (fixed conc)",
+  prepFn:()=>`Dilute to 2 mg/mL (e.g. draw 100 mg → make up to 50 mL NS)`,
+  rule:"Rate = dose × wt / 2  mL/hr  [wt-dependent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w/2).toFixed(2),
+  commonDoses:[0.25,0.5,1,2,3],
+  ranges:[
+   {dose:"0.25–3 mg/kg/hr",lbl:"Infusion",eff:"α+β blockade; ↓ HR and ↓ SVR"},
+  ],
+  bolus:"0.2–1 mg/kg IV over 2 min (max 20 mg/dose). Repeat q10 min up to 3 doses.",
+  notes:"Avoid in asthma, cardiogenic shock, bradycardia. α:β = 1:7 IV. Onset IV bolus 5–10 min."},
+
+ {name:"Nicardipine",color:"#457b9d",warn:false,
+  prep:"0.1 mg/mL = 100 mcg/mL in NS/D5W (fixed conc)",
+  prepFn:()=>`Dilute 5 mg in 50 mL NS → 0.1 mg/mL (100 mcg/mL)`,
+  rule:"Rate = dose × wt × 60 / 100  mL/hr  [wt-dependent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*w*60/100).toFixed(2),
+  commonDoses:[0.5,1,2,3,4],
+  ranges:[
+   {dose:"0.5–1",lbl:"Starting",eff:"↓ SVR; calcium channel blocker"},
+   {dose:"1–3",lbl:"Titrate",eff:"↓↓ BP; no negative inotrope"},
+   {dose:"3–4",lbl:"Maximum",eff:"Maximal vasodilation"},
+  ],
+  bolus:null,
+  notes:"Dihydropyridine CCB. Preferred post-cardiac surgery hypertension. Phlebitis risk peripheral IV. Onset 5–10 min."},
+
+ {name:"Sodium Nitroprusside (SNP) ⚠",color:"#e76f51",warn:true,
+  prep:"3 mg/kg in 50 mL D5W — WRAP IN FOIL",
+  prepFn:w=>`Draw ${(3*w).toFixed(1)} mg → make up to 50 mL D5W. WRAP SYRINGE IN FOIL immediately.`,
+  rule:"1 mL/hr = 1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*1).toFixed(2),  // dose × 3/3 = dose × 1
+  commonDoses:[0.3,0.5,1,2,4],
+  ranges:[
+   {dose:"0.3–0.5",lbl:"Starting",eff:"Arterial + venous vasodilation"},
+   {dose:"0.5–4",lbl:"Titrate",eff:"↓ SVR, ↓ preload & afterload"},
+   {dose:"≤8 (short-term)",lbl:"Maximum",eff:"⚠ Cyanide toxicity >72hr or >3 mcg/kg/min"},
+  ],
+  bolus:null,
+  notes:"⚠ WRAP SYRINGE (light → cyanide). Cyanide toxicity: ↑ lactate, high MvO2, metabolic acidosis. Na-thiosulphate if >3 mcg/kg/min. Max 72hr. Avoid hepatic/renal failure."},
+
+ {name:"Hydralazine (IV bolus)",color:"#457b9d",warn:false,
+  prep:"Dilute to 1 mg/mL in NS for IV use",
+  prepFn:w=>`Dose: ${(0.2*w).toFixed(1)}–${Math.min(0.5*w,20).toFixed(0)} mg IV (0.2–0.5 mg/kg, max 20 mg) over 5 min`,
+  rule:"BOLUS only. Total mg = dose × wt  (max 20 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,20)).toFixed(1),
+  commonDoses:[0.2,0.3,0.5],
+  ranges:[
+   {dose:"0.1–0.6 mg/kg",lbl:"IV bolus",eff:"Arteriolar vasodilation; onset 10–30 min"},
+   {dose:"0.75–7.5 mg/kg/day",lbl:"Oral maintenance",eff:"Divided q6–8h"},
+  ],
+  bolus:"0.2–0.5 mg/kg IV over 5 min (max 20 mg). Onset 10–20 min; duration 2–6 hr. Causes reflex tachycardia.",
+  notes:"NOT for infusion – intermittent bolus only. Combine with beta-blocker for sustained control."},
+
+ {name:"Enalaprilat (IV)",color:"#457b9d",warn:false,
+  prep:"Dilute to 0.1 mg/mL in NS",
+  prepFn:w=>`Dose: ${(0.005*w).toFixed(3)}–${Math.min(0.01*w,1.25).toFixed(3)} mg IV (0.005–0.01 mg/kg, max 1.25 mg)`,
+  rule:"BOLUS only. Total mg = dose × wt  (max 1.25 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,1.25)).toFixed(4),
+  commonDoses:[0.005,0.01],
+  ranges:[
+   {dose:"0.005–0.01 mg/kg",lbl:"Neonates/Children",eff:"ACE inhibition; q8–24h; monitor renal + K+"},
+  ],
+  bolus:"IV over 5 min. Max 1.25 mg/dose. Monitor creatinine and potassium.",
+  notes:"Avoid bilateral renal artery stenosis, dehydration. IV ACE inhibitor. Max 1.25 mg/dose."},
+],
+
+antiepi:[
+ {name:"Phenobarbitone",color:"#6d6875",warn:false,
+  prep:"Dilute 100 mg/mL ampoule to 10 mg/mL in NS for infusion",
+  prepFn:w=>`Loading: ${(20*w).toFixed(0)} mg total. In 10 mg/mL solution = ${(20*w/10).toFixed(0)} mL. Rate at max 1 mg/kg/min = ${w.toFixed(0)} mg/min → infuse over ${(20).toFixed(0)} min`,
+  rule:"LOADING. Max rate 1 mg/kg/min. Total mg = dose × wt",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(0),
+  commonDoses:[20,30,40],
+  ranges:[
+   {dose:"20 mg/kg",lbl:"Loading (neonates/infants)",eff:"Over 20–30 min; onset 15–30 min"},
+   {dose:"+10 mg/kg",lbl:"Additional (status)",eff:"Repeat q20 min; max total 40 mg/kg"},
+   {dose:"3–5 mg/kg/day",lbl:"Maintenance",eff:"Once daily; level 15–40 mcg/mL"},
+  ],
+  bolus:"Max infusion rate: 1 mg/kg/min. BVM at bedside. BP + respiratory monitoring.",
+  notes:"First-line for neonatal seizures. Max loading 40 mg/kg total. Respiratory depression risk – BVM at bedside. Therapeutic level 15–40 mcg/mL."},
+
+ {name:"Phenytoin/Fosphenytoin ⚠",color:"#6d6875",warn:true,
+  prep:"Dilute in NS ONLY (not D5W – precipitates). Use 1–10 mg/mL",
+  prepFn:w=>`Loading: ${(20*w).toFixed(0)} mg in 100 mL NS. Infuse over 20–30 min. Max rate 1 mg/kg/min = ${w.toFixed(0)} mg/min.`,
+  rule:"LOADING. NS ONLY. Max rate 1 mg/kg/min. Total mg = dose × wt",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(0),
+  commonDoses:[15,18,20],
+  ranges:[
+   {dose:"15–20 mg/kg",lbl:"Loading",eff:"Over 20–30 min; ECG + BP monitoring"},
+   {dose:"5–8 mg/kg/day",lbl:"Maintenance",eff:"Divided q12h; level 10–20 mcg/mL"},
+  ],
+  bolus:"NS ONLY. ECG + BP during infusion. Rate ≤1 mg/kg/min (phenytoin) or ≤3 mg PE/kg/min (fosphenytoin).",
+  notes:"⚠ NS ONLY – precipitates in D5W. Hypotension/arrhythmia risk during loading. Purple glove syndrome with peripheral extravasation. Fosphenytoin preferred."},
+
+ {name:"Valproate (Sodium) ⚠",color:"#6d6875",warn:true,
+  prep:"100 mg/mL ampoule; dilute in NS or D5W",
+  prepFn:w=>`Loading: ${(30*w).toFixed(0)}–${(40*w).toFixed(0)} mg total. Can push IV over 5 min.`,
+  rule:"LOADING. Total mg = dose × wt",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(0),
+  commonDoses:[20,30,40],
+  ranges:[
+   {dose:"20–40 mg/kg",lbl:"Acute seizure loading",eff:"IV over 5 min; rapid onset"},
+   {dose:"20–40 mg/kg/day",lbl:"Maintenance",eff:"q6–8h or continuous; level 50–100 mcg/mL"},
+  ],
+  bolus:null,
+  notes:"⚠ CONTRAINDICATED: liver disease, urea cycle disorders, mitochondrial disease, suspected metabolic disorder, children <2 yr. Check LFT + ammonia. Hyperammonaemia risk."},
+
+ {name:"Levetiracetam",color:"#6d6875",warn:false,
+  prep:"100 mg/mL; dilute in 100 mL NS; infuse over 15 min",
+  prepFn:w=>`Loading: ${Math.min(60*w,3000).toFixed(0)} mg (60 mg/kg, max 3000 mg) in 100 mL NS over 15 min`,
+  rule:"LOADING. Total mg = dose × wt  (max 3000 mg)",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,3000)).toFixed(0),
+  commonDoses:[20,40,60],
+  ranges:[
+   {dose:"20–60 mg/kg",lbl:"Loading (status)",eff:"Over 15 min; max 3000 mg"},
+   {dose:"20–60 mg/kg/day",lbl:"Maintenance",eff:"Divided q12h; max 3000 mg/day"},
+  ],
+  bolus:null,
+  notes:"Excellent safety profile; safe in liver disease; minimal drug interactions. Reduce dose in renal impairment. Behavioral side-effects (agitation) possible."},
+
+ {name:"Midazolam – Status Epilepticus",color:"#2a9d8f",warn:false,
+  prep:"Intranasal: 5 mg/mL undiluted. IV: 1 mg/mL. Infusion: 0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`IN/Buccal: ${(0.3*w).toFixed(1)} mg (0.3 mg/kg). IV bolus: ${(0.1*w).toFixed(1)} mg. Infusion: ${(0.5*w).toFixed(1)} mg in 50 mL NS → 1 mL/hr = 10 mcg/kg/hr`,
+  rule:"Infusion: 1 mL/hr = 10 mcg/kg/hr. Bolus: total mg = dose × wt",
+  doseUnit:"mg/kg (bolus)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.1,0.2,0.3],
+  ranges:[
+   {dose:"0.2–0.3 mg/kg",lbl:"Intranasal/Buccal (no IV)",eff:"Onset 3–5 min; max 10 mg"},
+   {dose:"0.05–0.15 mg/kg",lbl:"IV bolus",eff:"Onset 1–3 min; may repeat × 1"},
+   {dose:"50–500 mcg/kg/hr",lbl:"Status infusion",eff:"0.5mg/kg/50mL: 5–50 mL/hr"},
+  ],
+  bolus:"Status infusion: start 50 mcg/kg/hr (5 mL/hr using 0.5mg/kg/50mL), ↑ by 50 q15min to max 500 mcg/kg/hr.",
+  notes:"First-line benzodiazepine for acute seizures. Max single IV dose 10 mg. Respiratory monitoring essential."},
+
+ {name:"Lorazepam",color:"#2a9d8f",warn:false,
+  prep:"2 mg/mL ampoule; dilute 1:1 with NS → 1 mg/mL for IV",
+  prepFn:w=>`Dose: ${Math.min(0.1*w,4).toFixed(2)} mg (0.1 mg/kg, max 4 mg). Dilute in equal NS, give over 2–5 min.`,
+  rule:"BOLUS. Total mg = dose × wt  (max 4 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,4)).toFixed(2),
+  commonDoses:[0.05,0.1],
+  ranges:[
+   {dose:"0.05–0.1 mg/kg",lbl:"Status epilepticus IV",eff:"Over 2–5 min; duration 12–24hr; max 4 mg"},
+  ],
+  bolus:"Max 4 mg/dose regardless of weight. Preferred IV benzodiazepine for status epilepticus.",
+  notes:"Longer duration than diazepam. Avoid large doses in neonates (polyethylene glycol content). Respiratory depression monitoring."},
+
+ {name:"Lacosamide",color:"#6d6875",warn:false,
+  prep:"10 mg/mL vial; dilute in NS; infuse over 30–60 min",
+  prepFn:w=>`Loading: ${Math.min(10*w,400).toFixed(0)} mg (10 mg/kg, max 400 mg) in 100 mL NS over 30–60 min`,
+  rule:"LOADING. Total mg = dose × wt  (max 400 mg)",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,400)).toFixed(0),
+  commonDoses:[5,8,10],
+  ranges:[
+   {dose:"5–10 mg/kg",lbl:"Loading (refractory status)",eff:"Over 30–60 min; max 400 mg"},
+   {dose:"2–8 mg/kg/day",lbl:"Maintenance",eff:"Divided q12h; max 400 mg/day"},
+  ],
+  bolus:null,
+  notes:"Third-line for refractory status. ECG before/during (PR prolongation). Avoid in 2nd/3rd degree AV block."},
+],
+
+broncho:[
+ {name:"Salbutamol IV (Status Asthmaticus)",color:"#2d6a4f",warn:false,
+  prep:"0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 10 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d/10).toFixed(2),  // dose / (0.5 × 20) = dose / 10
+  commonDoses:[1,2,5,10],
+  ranges:[
+   {dose:"1–2",lbl:"Starting",eff:"Bronchodilation; monitor HR + K+"},
+   {dose:"2–5",lbl:"Moderate",eff:"Titrate q30 min"},
+   {dose:"5–10",lbl:"Severe/ventilated",eff:"Monitor ECG, K+, lactate closely"},
+  ],
+  bolus:"Loading: 15 mcg/kg IV over 10 min in 50 mL NS before starting infusion.",
+  notes:"Monitor: ECG (tachycardia, QTc), K+ (hypokalaemia – correct if <3.5 mmol/L), lactate. Add ipratropium for first 3 doses."},
+
+ {name:"Aminophylline ⚠",color:"#2d6a4f",warn:true,
+  prep:"Loading: 5 mg/kg in 100 mL NS over 20–30 min. Maintenance: 1 mg/mL (fixed conc)",
+  prepFn:w=>`Loading: ${(5*w).toFixed(0)} mg in 100 mL NS over 30 min. OMIT if on oral theophylline.`,
+  rule:"Rate = dose × wt  mL/hr  [wt-dependent, 1 mg/mL solution]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.5,0.8,1.0],
+  ranges:[
+   {dose:"5 mg/kg",lbl:"Loading",eff:"Over 20–30 min; skip if on oral theophylline"},
+   {dose:"0.5–1.0",lbl:"Maintenance (1–12yr)",eff:"Level 10–20 mcg/mL"},
+   {dose:"0.5–0.8",lbl:"Maintenance (adolescent)",eff:"Lower clearance"},
+  ],
+  bolus:"Loading: 5 mg/kg over 20–30 min IV. OMIT if patient already on oral theophylline.",
+  notes:"⚠ Narrow therapeutic index. Level monitoring mandatory (10–20 mcg/mL). Interactions: erythromycin, ciprofloxacin ↑ levels. Toxicity: seizures, tachycardia."},
+
+ {name:"Magnesium Sulphate (Bronchospasm)",color:"#2d6a4f",warn:false,
+  prep:"Dilute 50% MgSO4 to 10% (100 mg/mL) before IV use",
+  prepFn:w=>`Dose: ${Math.min(40*w,2000).toFixed(0)} mg (40 mg/kg, max 2g). Volume of 10%: ${Math.min(40*w/100,20).toFixed(1)} mL. Infuse over 20 min.`,
+  rule:"BOLUS over 20 min. Total mg = dose × wt  (max 2000 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,2000)).toFixed(0),
+  commonDoses:[25,40,50],
+  ranges:[
+   {dose:"25–50 mg/kg",lbl:"Severe asthma not responding to beta-agonists",eff:"Over 20 min; max 2000 mg"},
+  ],
+  bolus:null,
+  notes:"Evidence-based for acute severe asthma not responding to beta-agonists. Monitor: flushing, hypotension, loss of patellar reflex. Calcium gluconate antidote."},
+
+ {name:"Ipratropium Bromide (Nebulised)",color:"#2d6a4f",warn:false,
+  prep:"250 mcg/2.5 mL (<20 kg) or 500 mcg/2.5 mL (>20 kg) unit-dose nebules",
+  prepFn:w=>`Fixed dose: ${w<20?250:500} mcg per dose. Add to salbutamol nebule.`,
+  rule:"Fixed dose by weight – NOT per kg calculation",
+  doseUnit:"Fixed dose (mcg)",isBolus:true,
+  rateFn:(w)=>w<20?250:500,
+  commonDoses:[],
+  ranges:[
+   {dose:"250 mcg",lbl:"<20 kg",eff:"q20min × 3, then q4–6h; add to salbutamol"},
+   {dose:"500 mcg",lbl:">20 kg",eff:"q20min × 3, then q4–6h; add to salbutamol"},
+  ],
+  bolus:null,
+  notes:"Use for FIRST 3 doses only (no evidence for continued use). Drive nebuliser with O2 6–8 L/min. Avoid eye contact."},
+],
+
+electrolytes:[
+ {name:"Potassium Chloride (KCl) ⚠",color:"#e9c46a",warn:true,
+  prep:"NEVER undiluted. Peripheral max 0.4 mmol/mL; Central max 0.8 mmol/mL",
+  prepFn:w=>`Deficit ≈ (3.5 – actual K+) × 0.4 × ${w.toFixed(1)} kg mmol. Dilute in NS or D5NS.`,
+  rule:"CORRECTION. Total mmol = dose × wt. Max 0.3 mmol/kg/hr peripheral; 0.5 central",
+  doseUnit:"mmol/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(1),
+  commonDoses:[0.3,0.5,1.0],
+  ranges:[
+   {dose:"0.3–0.5 mmol/kg",lbl:"K+ 3.0–3.4 (mild)",eff:"Over 2–4 hr peripheral; max 0.3 mmol/kg/hr"},
+   {dose:"0.5–1 mmol/kg",lbl:"K+ 2.5–3.0 (moderate)",eff:"Over 4–6 hr CENTRAL; ECG monitoring"},
+   {dose:"0.3–0.5 mmol/kg STAT",lbl:"K+ <2.5 (severe)",eff:"Over 1–2 hr central; continuous ECG"},
+   {dose:"2–4 mmol/kg/day",lbl:"Maintenance",eff:"Added to IV fluids (max 40 mmol/L peripheral)"},
+  ],
+  bolus:null,
+  notes:"⚠ HIGH ALERT – DUAL NURSE CHECK MANDATORY. NEVER bolus. Replete Mg2+ first. Continuous ECG during rapid correction."},
+
+ {name:"3% Sodium Chloride ⚠ (Hyponatraemia)",color:"#e9c46a",warn:true,
+  prep:"3% NaCl = 513 mmol/L. For symptomatic acute hyponatraemia only",
+  prepFn:w=>`Dose: ${(2*w).toFixed(0)}–${(4*w).toFixed(0)} mL 3% NaCl over 10–20 min → raises Na ~2–4 mmol/L`,
+  rule:"BOLUS. Total mL = dose × wt. Max correction 8–10 mmol/L per 24hr",
+  doseUnit:"mL/kg (of 3% NaCl)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(1),
+  commonDoses:[2,3,4],
+  ranges:[
+   {dose:"2–4 mL/kg",lbl:"Symptomatic (seizures/coma)",eff:"Over 10–20 min; STOP when symptoms resolve"},
+   {dose:"Max 0.5 mmol/L/hr",lbl:"Chronic – safe rate",eff:"8–10 mmol/L/day max to avoid CPM"},
+  ],
+  bolus:null,
+  notes:"⚠ Only correct faster for ACUTE symptomatic. Chronic: max 0.5 mmol/L/hr to avoid central pontine myelinolysis. Check Na+ q2–4hr. Formula: Na deficit = (target – actual) × 0.6 × wt."},
+
+ {name:"Phosphate (IV) – Hypophosphataemia",color:"#e9c46a",warn:false,
+  prep:"Potassium or Sodium phosphate 1 mmol/mL; dilute to 0.1 mmol/mL",
+  prepFn:w=>`Dose: ${(0.3*w).toFixed(1)}–${(0.6*w).toFixed(1)} mmol. Infuse over 4–6 hr. Max rate 0.06 mmol/kg/hr.`,
+  rule:"CORRECTION. Total mmol = dose × wt. Max rate 0.06 mmol/kg/hr",
+  doseUnit:"mmol/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.15,0.3,0.5],
+  ranges:[
+   {dose:"0.15–0.3 mmol/kg",lbl:"Moderate PO4 0.5–0.8",eff:"Over 4–6 hr; max 0.06 mmol/kg/hr"},
+   {dose:"0.3–0.6 mmol/kg",lbl:"Severe PO4 <0.5",eff:"Over 6 hr; ECG if K-phosphate used"},
+  ],
+  bolus:null,
+  notes:"Common in PICU: refeeding, DKA recovery, malnutrition. Use sodium phosphate if hyperkalaemia. Check Ca2+ before/during."},
+],
+
+calcium:[
+ {name:"Calcium Gluconate 10% ⚠",color:"#f4a261",warn:true,
+  prep:"10% = 9 mg/mL elemental Ca = 0.225 mmol/mL",
+  prepFn:w=>`Bolus: ${(0.5*w).toFixed(1)}–${Math.min(w,20).toFixed(0)} mL 10% CaGluc (0.5–1 mL/kg). Slow IV over 5–10 min.`,
+  rule:"BOLUS. Total mL = dose × wt  (max 20 mL single dose)",
+  doseUnit:"mL/kg (of 10% CaGluc)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,20)).toFixed(1),
+  commonDoses:[0.5,1.0],
+  ranges:[
+   {dose:"0.5–1 mL/kg",lbl:"Hypocalcaemia / cardiac arrest",eff:"Slow IV over 5–10 min; max 20 mL"},
+   {dose:"0.5–1 mL/kg/hr",lbl:"Maintenance infusion",eff:"Titrate to iCa2+ 1.1–1.3 mmol/L"},
+   {dose:"2 mL/kg",lbl:"Neonatal hypocalcaemia",eff:"Over 10 min; then 5–8 mL/kg/day infusion"},
+   {dose:"0.5–1 mL/kg",lbl:"Hyperkalaemia (cardiac protection)",eff:"Over 5 min; onset immediate; duration 30 min"},
+  ],
+  bolus:null,
+  notes:"⚠ NEVER IM or subcut (severe tissue necrosis). Large IV or central line. Rapid bolus → bradycardia/arrest. Incompatible with NaHCO3, phosphate, ceftriaxone."},
+
+ {name:"Calcium Chloride 10% ⚠ (arrest)",color:"#f4a261",warn:true,
+  prep:"10% CaCl2 = 27 mg/mL elemental Ca (3× more than gluconate)",
+  prepFn:w=>`Dose: ${(10*w).toFixed(0)}–${Math.min(20*w,200).toFixed(0)} mg = ${(0.1*w).toFixed(1)}–${Math.min(0.2*w,2).toFixed(1)} mL of 10% CaCl2`,
+  rule:"CENTRAL LINE PREFERRED. Volume (mL) = dose × wt / 100",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(d*w/100).toFixed(2),
+  commonDoses:[10,20],
+  ranges:[
+   {dose:"10–20 mg/kg",lbl:"Cardiac arrest / severe hypoCa",eff:"= 0.1–0.2 mL/kg of 10%; central preferred"},
+  ],
+  bolus:null,
+  notes:"More caustic than gluconate – CENTRAL LINE STRONGLY PREFERRED. 3× more elemental Ca than gluconate. 10 mg/kg = 0.1 mL/kg of 10% solution."},
+
+ {name:"Magnesium Sulphate (IV) ⚠",color:"#f4a261",warn:true,
+  prep:"Dilute 50% MgSO4 (500 mg/mL) to 10% (100 mg/mL) before IV use",
+  prepFn:w=>`Dose: ${Math.min(50*w,2000).toFixed(0)} mg (50 mg/kg, max 2g). Volume 10%: ${Math.min(50*w/100,20).toFixed(1)} mL. Infuse over 20–30 min.`,
+  rule:"BOLUS over 20–30 min. Total mg = dose × wt  (max 2000 mg single dose)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,2000)).toFixed(0),
+  commonDoses:[25,50,100],
+  ranges:[
+   {dose:"25–50 mg/kg",lbl:"Correction (mild-moderate)",eff:"Over 20–30 min; max 2000 mg"},
+   {dose:"50–100 mg/kg",lbl:"Severe/symptomatic",eff:"Over 30–60 min; max 2000 mg single dose"},
+   {dose:"25–50 mg/kg/day",lbl:"Maintenance",eff:"Infusion over 24hr; target Mg 0.7–1.0 mmol/L"},
+   {dose:"25–50 mg/kg",lbl:"Torsades de Pointes",eff:"Over 10–20 min then infusion"},
+  ],
+  bolus:null,
+  notes:"⚠ Loss of patellar reflex → Mg ~4 mmol/L → STOP. Respiratory paralysis at ~6 mmol/L. ANTIDOTE: Calcium gluconate 10% – 0.5 mL/kg IV."},
+],
+
+hypoglycemia:[
+ {name:"Dextrose 10% (Neonates & Infants)",color:"#80b918",warn:false,
+  prep:"D10% = 100 mg/mL glucose",
+  prepFn:w=>`Bolus: ${(2*w).toFixed(1)}–${(4*w).toFixed(1)} mL D10% (2–4 mL/kg). Push over 5 min. Recheck BG at 15 and 30 min.`,
+  rule:"BOLUS. Total mL = dose × wt. NEVER use D50% in neonates.",
+  doseUnit:"mL/kg (of D10%)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(1),
+  commonDoses:[2,3,4,5],
+  ranges:[
+   {dose:"2–4 mL/kg D10%",lbl:"BG 1.5–2.5 mmol/L (mild)",eff:"Over 5 min; recheck at 15–30 min"},
+   {dose:"4–5 mL/kg D10%",lbl:"BG <1.5 / symptomatic",eff:"Over 5 min; then start GIR 6–8"},
+  ],
+  bolus:null,
+  notes:"NEVER use D50% in neonates/infants. Target BG 2.6–7 mmol/L (neonate) / 4–10 mmol/L (infant). Use GIR Calculator above for maintenance rate."},
+
+ {name:"Dextrose 25% (Children >5 yr)",color:"#80b918",warn:false,
+  prep:"D25% = 250 mg/mL glucose",
+  prepFn:w=>`Bolus: ${(1*w).toFixed(0)}–${Math.min(2*w,50).toFixed(0)} mL D25% (1–2 mL/kg, max 50 mL). Slow IV over 5 min.`,
+  rule:"BOLUS. Total mL = dose × wt  (max 50 mL). D10% preferred <5 yr.",
+  doseUnit:"mL/kg (of D25%)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,50)).toFixed(1),
+  commonDoses:[1,2],
+  ranges:[
+   {dose:"1–2 mL/kg D25%",lbl:"Hypoglycaemia (>5 yr)",eff:"= 250–500 mg/kg; over 5 min; max 50 mL"},
+   {dose:"2–4 mL/kg D10%",lbl:"1–5 years (preferred)",eff:"Safer osmolality than D25%"},
+  ],
+  bolus:null,
+  notes:"D25% = 250 mg/kg per 1 mL/kg. Max 50 mL single dose. Recheck BG at 15 and 30 min. NEVER use D50% in children."},
+
+ {name:"Glucagon",color:"#80b918",warn:false,
+  prep:"1 mg/vial; reconstitute with provided diluent → 1 mg/mL",
+  prepFn:w=>`Dose: ${Math.min(0.1*w,1).toFixed(2)} mg (0.1 mg/kg, max 1 mg). Give IM/SC/IV.`,
+  rule:"BOLUS. Total mg = 0.1 × wt  (max 1 mg). Fixed 1 mg if >25 kg.",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,1)).toFixed(3),
+  commonDoses:[0.03,0.05,0.1],
+  ranges:[
+   {dose:"0.03–0.1 mg/kg",lbl:"<25 kg",eff:"Max 1 mg; IM onset 10 min; IV onset 1 min"},
+   {dose:"1 mg fixed",lbl:">25 kg",eff:"IM/IV; duration 60–90 min"},
+   {dose:"0.005–0.02 mg/kg/hr",lbl:"Infusion (hyperinsulinism)",eff:"IV infusion; for PHHI, β-blocker OD"},
+  ],
+  bolus:null,
+  notes:"For hypoglycaemia without IV access, β-blocker/sulphonylurea OD, or hyperinsulinism. Effect limited by glycogen stores. Always follow with oral/IV glucose."},
+
+ {name:"Octreotide (Hyperinsulinism)",color:"#80b918",warn:false,
+  prep:"Dilute to 1 mcg/mL in NS; protect from light",
+  prepFn:w=>`Starting: ${(5*w).toFixed(0)} mcg/day → ${(5*w/24).toFixed(2)} mL/hr (1 mcg/mL solution)`,
+  rule:"Rate = dose × wt / 24  mL/hr  (using 1 mcg/mL solution)",
+  doseUnit:"mcg/kg/day",isBolus:false,
+  rateFn:(w,d)=>+(d*w/24).toFixed(3),
+  commonDoses:[2,5,10,20,40],
+  ranges:[
+   {dose:"2–5 mcg/kg/day",lbl:"Starting dose",eff:"SC or continuous IV; titrate up"},
+   {dose:"5–20 mcg/kg/day",lbl:"Maintenance",eff:"q6–8h SC or continuous IV"},
+   {dose:"40 mcg/kg/day",lbl:"Maximum",eff:"Monitor NEC, cholestasis, hypothyroidism"},
+  ],
+  bolus:null,
+  notes:"For persistent hyperinsulinaemic hypoglycaemia (PHHI). NEC risk in neonates. Side effects: feeding intolerance, bradycardia, cholestasis. Requires specialist input."},
+],
+};
+
+// ── Build flat index ─────────────────────────────────────────
+const ALL_DRUGS = [];
+Object.entries(DRUGS).forEach(([cat, arr]) => {
+  arr.forEach(d => ALL_DRUGS.push({...d, cat, id: ALL_DRUGS.length}));
+});
+
+// ── State ────────────────────────────────────────────────────
+let weight = '';
+let activeCategory = 'inotropes';
+let expandedId = null;
+let doseInputs = {};
+let searchTerm = '';
+
+// ── Utilities ────────────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getResult(drug, wt, dose) {
+  if (!wt || !dose || isNaN(dose)) return null;
+  const w = parseFloat(wt), d = parseFloat(dose);
+  if (!w || !d) return null;
+  const val = drug.rateFn(w, d);
+  let unit = 'mL/hr', lbl = 'INFUSION RATE';
+  if (drug.isBolus) {
+    if (drug.doseUnit.includes('mL/kg')) { unit = 'mL total'; lbl = 'TOTAL VOLUME'; }
+    else if (drug.doseUnit.includes('mmol/kg')) { unit = 'mmol total'; lbl = 'TOTAL DOSE'; }
+    else if (drug.doseUnit.includes('mg/kg')) { unit = 'mg total'; lbl = 'TOTAL DOSE'; }
+  }
+  if (drug.doseUnit === 'mcg/kg/day') { unit = 'mL/hr'; lbl = 'INFUSION RATE'; }
+  return {val, unit, lbl};
+}
+
+// ── Render helpers ───────────────────────────────────────────
+function ladderHtml(drug) {
+  const wt = parseFloat(weight);
+  if (!wt || !drug.commonDoses || !drug.commonDoses.length) return '';
+  const unitLabel = drug.isBolus
+    ? (drug.doseUnit.includes('mL/kg') ? 'mL' : (drug.doseUnit.includes('mmol') ? 'mmol' : 'mg'))
+    : 'mL/hr';
+  const pills = drug.commonDoses.map(d => {
+    const r = drug.rateFn(wt, d);
+    return `<span class="pill"><span style="color:${esc(drug.color)}">${d}</span>
+      <span style="color:var(--dim2)">→</span>
+      <span style="color:var(--green);font-weight:700">${r} ${unitLabel}</span></span>`;
+  }).join('');
+  return `<div class="ladder"><h4>DOSE LADDER @ ${wt} KG:</h4><div class="ladder-pills">${pills}</div></div>`;
+}
+
+function drugDetailHtml(drug) {
+  const wt = parseFloat(weight) || 0;
+  const dv = doseInputs[drug.id] || '';
+  const res = wt && dv ? getResult(drug, wt, dv) : null;
+  const resHtml = res
+    ? `<div class="calc-result show">
+        <div class="r-lbl2">${esc(res.lbl)}</div>
+        <span class="r-val">${esc(String(res.val))}</span><span class="r-unit">${esc(res.unit)}</span>
+       </div>` : '';
+  const noWt = !wt ? `<span class="no-wt">↑ Enter patient weight</span>` : '';
+
+  const rangeRows = drug.ranges.map((r,i) =>
+    `<div class="range-row">
+       <div class="r-dose" style="color:${esc(drug.color)}">${esc(r.dose)}</div>
+       <div class="r-lbl">${esc(r.lbl)}</div>
+       <div class="r-eff">${esc(r.eff)}</div>
+     </div>`
+  ).join('');
+
+  const bolusHtml = drug.bolus
+    ? `<div class="bolus-note">
+         <span class="b-lbl">BOLUS / LOADING</span>
+         <p>${esc(drug.bolus)}</p>
+       </div>` : '';
+
+  return `
+    <div class="card-detail">
+      <div class="prep-box">
+        <span class="prep-lbl">PREPARATION${wt ? ` FOR ${wt} KG PATIENT` : ''}</span>
+        ${esc(wt ? drug.prepFn(wt) : drug.prep)}
+      </div>
+      <div class="ranges-table">${rangeRows}</div>
+      <div class="calc-box">
+        <h4>CALCULATOR${wt ? ` | ${wt} KG` : ''}</h4>
+        <div class="calc-row">
+          <input class="calc-input" type="number" inputmode="decimal"
+            placeholder="${esc(drug.doseUnit)}"
+            value="${esc(dv)}"
+            data-drugid="${drug.id}">
+          <span class="calc-unit">${esc(drug.doseUnit)}</span>
+          ${resHtml}${noWt}
+        </div>
+        ${ladderHtml(drug)}
+      </div>
+      ${bolusHtml}
+      <div class="notes-box${drug.warn?' warn-box':''}">
+        <span class="n-lbl" style="color:${drug.warn?'#ff6b6b':'var(--dim2)'}">NOTES: </span>
+        ${esc(drug.notes)}
+      </div>
+    </div>`;
+}
+
+function drugCardHtml(drug) {
+  const isExp = expandedId === drug.id;
+  return `
+    <div class="card" style="border-color:${isExp ? drug.color+'55' : 'var(--bdr)'}">
+      <button class="card-hdr" data-toggle="${drug.id}"
+        style="background:${isExp ? drug.color+'14' : 'var(--bg3)'}">
+        <div class="dot" style="background:${esc(drug.color)}"></div>
+        <div class="card-title-block">
+          <div class="card-name${isExp?' open':''}">
+            ${esc(drug.name)}
+            ${drug.warn ? '<span class="badge warn">⚠ HIGH ALERT</span>' : ''}
+            <span class="badge type" style="background:${esc(drug.color)}18;color:${esc(drug.color)}">${drug.isBolus?'BOLUS/LOAD':'INFUSION'}</span>
+          </div>
+          <div class="card-rule">${esc(drug.rule)}</div>
+        </div>
+        <span class="chevron" style="transform:${isExp?'rotate(90deg)':'rotate(0)'}">▶</span>
+      </button>
+      ${isExp ? drugDetailHtml(drug) : ''}
+    </div>`;
+}
+
+// ── Main render ──────────────────────────────────────────────
+function renderTabs() {
+  if (searchTerm) { document.getElementById('tabs').style.display='none'; return; }
+  document.getElementById('tabs').style.display='flex';
+  document.getElementById('tabs').innerHTML = CATEGORIES.map(c =>
+    `<button class="tab-btn${activeCategory===c.id?' active':''}" data-cat="${c.id}">
+       ${c.icon} ${c.label.toUpperCase()}
+     </button>`
+  ).join('');
+}
+
+function renderDrugList() {
+  const drugs = searchTerm.length > 1
+    ? ALL_DRUGS.filter(d => d.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    : ALL_DRUGS.filter(d => d.cat === activeCategory);
+  document.getElementById('drug-list').innerHTML = drugs.map(drugCardHtml).join('') ||
+    `<div style="text-align:center;padding:40px;color:var(--dim2)">No results for "${esc(searchTerm)}"</div>`;
+}
+
+function renderAll() {
+  renderTabs();
+  renderDrugList();
+  // GIR widget
+  const girWrap = document.getElementById('gir-wrap');
+  girWrap.style.display = (activeCategory==='hypoglycemia' && !searchTerm) ? 'block' : 'none';
+  // Weight prompt
+  const pr = document.getElementById('wt-prompt');
+  pr.style.display = weight ? 'none' : 'block';
+}
+
+// ── Event delegation ─────────────────────────────────────────
+document.addEventListener('click', e => {
+  // Tab click
+  const tab = e.target.closest('[data-cat]');
+  if (tab) { activeCategory = tab.dataset.cat; expandedId = null; renderAll(); return; }
+  // Card toggle
+  const toggle = e.target.closest('[data-toggle]');
+  if (toggle) {
+    const id = parseInt(toggle.dataset.toggle);
+    expandedId = expandedId === id ? null : id;
+    renderAll(); return;
+  }
+});
+
+// Dose input (event delegation on drug-list)
+document.getElementById('drug-list').addEventListener('input', e => {
+  if (e.target.matches('.calc-input')) {
+    const id = parseInt(e.target.dataset.drugid);
+    doseInputs[id] = e.target.value;
+    // Update result display only
+    const drug = ALL_DRUGS[id];
+    const card = e.target.closest('.card-detail');
+    if (!card || !drug) return;
+    const existing = card.querySelector('.calc-result');
+    if (existing) existing.remove();
+    const noWt = card.querySelector('.no-wt');
+    if (noWt) noWt.remove();
+    const res = weight && e.target.value ? getResult(drug, weight, e.target.value) : null;
+    if (res) {
+      const el = document.createElement('div');
+      el.className = 'calc-result show';
+      el.innerHTML = `<div class="r-lbl2">${esc(res.lbl)}</div><span class="r-val">${esc(String(res.val))}</span><span class="r-unit">${esc(res.unit)}</span>`;
+      e.target.closest('.calc-row').appendChild(el);
+    }
+  }
+});
+
+// Weight input
+document.getElementById('wt-input').addEventListener('input', e => {
+  weight = e.target.value;
+  e.target.classList.toggle('has-val', !!weight);
+  doseInputs = {}; // reset calculations when weight changes
+  renderAll();
+});
+
+// Search
+document.getElementById('search').addEventListener('input', e => {
+  searchTerm = e.target.value;
+  expandedId = null;
+  renderAll();
+});
+
+// GIR calculator inputs
+function updateGIR() {
+  const w = parseFloat(document.getElementById('g-wt').value);
+  const dex = parseFloat(document.getElementById('g-dex').value);
+  const rate = parseFloat(document.getElementById('g-rate').value);
+  if (w && dex && rate) {
+    const gir = (dex * rate) / (w * 6);
+    document.getElementById('gir-val1').textContent = gir.toFixed(2);
+    document.getElementById('gir-out1').style.display = 'block';
+  } else { document.getElementById('gir-out1').style.display = 'none'; }
+}
+function updateGIR2() {
+  const w = parseFloat(document.getElementById('g-wt2').value);
+  const dex = parseFloat(document.getElementById('g-dex2').value);
+  const gir = parseFloat(document.getElementById('g-gir').value);
+  if (w && dex && gir) {
+    const r = (gir * w * 6) / dex;
+    document.getElementById('gir-val2').textContent = r.toFixed(1);
+    document.getElementById('gir-out2').style.display = 'block';
+  } else { document.getElementById('gir-out2').style.display = 'none'; }
+}
+['g-wt','g-dex','g-rate'].forEach(id => document.getElementById(id).addEventListener('input', updateGIR));
+['g-wt2','g-dex2','g-gir'].forEach(id => document.getElementById(id).addEventListener('input', updateGIR2));
+
+// ── Init ─────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>
