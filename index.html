@@ -4,10 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PICU Reckoner">
+<meta name="application-name" content="PICU Reckoner">
 <meta name="theme-color" content="#c1121f">
-<title>KMCT PICU Ready Reckoner</title>
+<meta name="description" content="KMCT PICU ICU Infusion Ready Reckoner — Created by Dr. Ananya">
+<meta name="mobile-web-app-capable" content="yes">
+<title>PICU Reckoner</title>
+<link rel="manifest" href="manifest.json">
+<!-- iOS icon -->
+<link rel="apple-touch-icon" href="icon.png">
+<!-- Inline SVG icon as data URI for iOS -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23c1121f'/%3E%3Ctext x='90' y='80' font-family='Arial' font-size='52' font-weight='900' fill='white' text-anchor='middle'%3EPICU%3C/text%3E%3Ctext x='90' y='130' font-family='Arial' font-size='26' font-weight='700' fill='rgba(255,255,255,0.85)' text-anchor='middle'%3EReckon%3C/text%3E%3C/svg%3E">
+<style>
+/* PWA splash / install prompt */
+#install-banner{display:none;position:fixed;bottom:70px;left:12px;right:12px;background:#1a1d2e;color:#fff;border-radius:14px;padding:14px 16px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.25);align-items:center;gap:12px}
+#install-banner .ib-icon{width:44px;height:44px;border-radius:10px;background:#c1121f;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+#install-banner .ib-text{flex:1}
+#install-banner .ib-title{font-weight:800;font-size:14px}
+#install-banner .ib-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
+#install-banner .ib-btn{background:#c1121f;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
+#install-banner .ib-close{background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
+</style>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
 :root{
@@ -223,6 +241,8 @@ const CATEGORIES = [
   {id:"electrolytes", label:"Electrolyte Corrections",  icon:"⬡"},
   {id:"calcium",      label:"Calcium & Magnesium",      icon:"◇"},
   {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
+  {id:"antibiotics",  label:"Antibiotics",              icon:"🦠"},
+  {id:"intubation",   label:"Intubation",               icon:"🫁"},
 ];
 
 const DRUGS = {
@@ -789,6 +809,825 @@ hypoglycemia:[
 ],
 };
 
+
+// ══════════════════════════════════════════════════════════════
+// ANTIBIOTIC DATA
+// ══════════════════════════════════════════════════════════════
+const ANTIBIOTICS = [
+{
+  name:"Meropenem",
+  color:"#1565c0",
+  class:"Carbapenem",
+  pkpd:"Time-dependent. Target: %T>MIC ≥40% (bacteriostatic) to ≥100% (bactericidal). Optimise with extended/prolonged infusion.",
+  spectrum:"Gram-positive (not MRSA/Enterococcus), Gram-negative including Pseudomonas, ESBL, Acinetobacter, anaerobes. NOT: MRSA, VRE, Stenotrophomonas.",
+  doses:[
+    {indication:"Standard infections",dose:"20 mg/kg/dose",freq:"q8h",max:"1 g/dose",notes:"IV over 30 min"},
+    {indication:"Severe/meningitis/CNS",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Pseudomonas/non-fermenter",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"Consider extended infusion 3–4hr"},
+    {indication:"Febrile neutropenia",dose:"20–40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"26–50",dose:"No change",freq:"q12h",notes:"Extend interval"},
+    {egfr:"10–25",dose:"50% of dose",freq:"q12h",notes:"Reduce dose and extend interval"},
+    {egfr:"<10",dose:"50% of dose",freq:"q24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"20–40 mg/kg/dose",freq:"q12h",notes:"Monitor levels if available"},
+    {mode:"Intermittent HD",dose:"20 mg/kg/dose",freq:"q24h + supplement post-HD",notes:"Give after dialysis session"},
+    {mode:"CAPD",dose:"50% normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard. Consider in severe infections, non-fermenter organisms. Target trough >4× MIC."},
+  interactions:[
+    "Valproate: meropenem significantly REDUCES valproate levels (↓40–60%) — avoid combination or monitor levels closely",
+    "Probenecid: increases meropenem levels — avoid",
+  ],
+  cautions:"Seizure risk at high doses especially with CNS infections or renal impairment. Cross-reactivity with penicillin allergy <1% — use with caution in severe penicillin allergy.",
+},
+{
+  name:"Piperacillin-Tazobactam",
+  color:"#1565c0",
+  class:"Ureidopenicillin + β-lactamase inhibitor",
+  pkpd:"Time-dependent. Target: %T>MIC ≥50%. Prolonged infusion (over 4hr) improves PK/PD target attainment for resistant organisms.",
+  spectrum:"Gram-positive (not MRSA), Gram-negative including Pseudomonas, ESBL (variable), anaerobes. Good coverage for hospital-acquired infections.",
+  doses:[
+    {indication:"Moderate infections",dose:"100 mg/kg/dose (pip component)",freq:"q8h",max:"4 g pip/dose",notes:"IV over 30 min"},
+    {indication:"Severe/Pseudomonas",dose:"100 mg/kg/dose",freq:"q6h",max:"4 g pip/dose",notes:"IV over 4hr (prolonged infusion)"},
+    {indication:"Neonates <7 days",dose:"75 mg/kg/dose",freq:"q12h",max:"",notes:""},
+    {indication:"Neonates >7 days",dose:"75 mg/kg/dose",freq:"q8h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:">40",dose:"No change",freq:"q6–8h",notes:"Normal dosing"},
+    {egfr:"20–40",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"<20",dose:"No change",freq:"q12h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"100 mg/kg/dose",freq:"q8h",notes:""},
+    {mode:"Intermittent HD",dose:"100 mg/kg/dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Consider AUC-guided dosing in critically ill with augmented renal clearance."},
+  interactions:[
+    "Methotrexate: pip-tazo reduces renal elimination → methotrexate toxicity",
+    "Vecuronium/neuromuscular blockers: may prolong neuromuscular blockade",
+    "Vancomycin: combination associated with increased nephrotoxicity — monitor renal function",
+  ],
+  cautions:"Hyponatraemia risk (high sodium content). Thrombocytopenia with prolonged use. Electrolyte monitoring recommended.",
+},
+{
+  name:"Ceftriaxone",
+  color:"#2e7d32",
+  class:"3rd Generation Cephalosporin",
+  pkpd:"Time-dependent. Long half-life (6–9hr) allows once-daily dosing. Target: %T>MIC ≥70%.",
+  spectrum:"Gram-positive (not MRSA, Enterococcus), Gram-negative (not Pseudomonas, Acinetobacter), excellent CNS penetration. Good for meningitis, community-acquired infections.",
+  doses:[
+    {indication:"Standard infections",dose:"50–75 mg/kg/day",freq:"q24h or divided q12h",max:"2 g/day",notes:"IV over 30 min"},
+    {indication:"Meningitis/severe",dose:"100 mg/kg/day",freq:"divided q12h",max:"4 g/day",notes:"IV over 30 min"},
+    {indication:"Gonorrhoea",dose:"50 mg/kg",freq:"single dose",max:"500 mg",notes:"IM"},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment needed",freq:"Normal",notes:"Primarily biliary excretion — safe in renal impairment"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q24h",notes:"Not significantly removed by dialysis"},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "Calcium-containing IV fluids: NEVER mix or co-administer (precipitates in bloodstream — potentially fatal, especially neonates)",
+    "Ceftriaxone + calcium: avoid in neonates <28 days entirely",
+    "Warfarin: may enhance anticoagulant effect — monitor INR",
+  ],
+  cautions:"⚠ NEVER co-administer with calcium-containing solutions (including Ringer's lactate) — fatal precipitation risk in neonates. Biliary sludge/gallstones with prolonged use. Avoid in hyperbilirubinaemic neonates (displaces bilirubin).",
+},
+{
+  name:"Cefotaxime",
+  color:"#2e7d32",
+  class:"3rd Generation Cephalosporin",
+  pkpd:"Time-dependent. Target: %T>MIC ≥70%. Shorter half-life than ceftriaxone — requires q6–8h dosing.",
+  spectrum:"Similar to ceftriaxone. Preferred over ceftriaxone in neonates and hyperbilirubinaemia. Good CNS penetration.",
+  doses:[
+    {indication:"Neonates (standard)",dose:"50 mg/kg/dose",freq:"q12h (<7d) / q8h (>7d)",max:"",notes:"IV over 30 min"},
+    {indication:"Children — standard",dose:"50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+    {indication:"Meningitis/severe",dose:"75 mg/kg/dose",freq:"q6h",max:"3 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">20",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"<20",dose:"50% dose reduction",freq:"Normal",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"50 mg/kg/dose",freq:"q8h",notes:""},
+    {mode:"Intermittent HD",dose:"50 mg/kg/dose",freq:"q12h + supplement post-HD",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "Probenecid: increases cefotaxime levels",
+    "Aminoglycosides: possible additive nephrotoxicity — monitor renal function",
+  ],
+  cautions:"Preferred over ceftriaxone in neonates (no calcium interaction risk, no bilirubin displacement). Metabolite (desacetyl-cefotaxime) is microbiologically active.",
+},
+{
+  name:"Ceftazidime",
+  color:"#2e7d32",
+  class:"3rd Generation Cephalosporin (anti-pseudomonal)",
+  pkpd:"Time-dependent. Target: %T>MIC ≥70%. Consider continuous or prolonged infusion for Pseudomonas.",
+  spectrum:"Strong anti-Pseudomonas activity. Gram-negative coverage (including Pseudomonas, not ESBL). Weak Gram-positive activity. NOT: MRSA, anaerobes.",
+  doses:[
+    {indication:"Standard Gram-negative",dose:"30–50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Pseudomonas/severe",dose:"50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"Consider prolonged infusion"},
+    {indication:"Meningitis",dose:"50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+    {indication:"Cystic fibrosis",dose:"50 mg/kg/dose",freq:"q8h",max:"3 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"31–50",dose:"No change",freq:"q12h",notes:""},
+    {egfr:"16–30",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"<15",dose:"50% dose",freq:"q24–48h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"30–50 mg/kg/dose",freq:"q12h",notes:""},
+    {mode:"Intermittent HD",dose:"30 mg/kg/dose",freq:"q24h + supplement post-HD",notes:"Highly dialysable"},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Trough >4× MIC desirable for Pseudomonas."},
+  interactions:[
+    "Chloramphenicol: antagonism reported — avoid combination",
+    "Loop diuretics: additive nephrotoxicity",
+  ],
+  cautions:"Select resistance can emerge during treatment of Pseudomonas — consider combination therapy for severe Pseudomonas infections.",
+},
+{
+  name:"Cefoperazone-Sulbactam",
+  color:"#2e7d32",
+  class:"3rd Gen Cephalosporin + β-lactamase inhibitor",
+  pkpd:"Time-dependent (cefoperazone component). Target: %T>MIC ≥70%. Sulbactam has intrinsic activity against Acinetobacter.",
+  spectrum:"Gram-positive, Gram-negative including Pseudomonas, Acinetobacter (sulbactam component), ESBL. Anaerobes. NOT: MRSA. Particularly useful for MDR Acinetobacter.",
+  doses:[
+    {indication:"Standard (1:1 ratio)",dose:"40–80 mg/kg/day (combined)",freq:"divided q12h",max:"4 g/day combined",notes:"IV over 30 min"},
+    {indication:"Severe MDR Acinetobacter (2:1 ratio)",dose:"80–160 mg/kg/day (combined)",freq:"divided q8–12h",max:"8 g/day combined",notes:"Higher sulbactam dose for Acinetobacter"},
+    {indication:"Neonates",dose:"40–80 mg/kg/day",freq:"divided q12h",max:"",notes:"Limited data — use with caution"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:"Primarily biliary excretion"},
+    {egfr:"<30",dose:"Reduce sulbactam component",freq:"q12h",notes:"Max sulbactam 1 g/day if GFR<30"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"40 mg/kg/day combined",freq:"q12h",notes:"Sulbactam more dialysable than cefoperazone"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required."},
+  interactions:[
+    "Alcohol/alcohol-containing medications: disulfiram-like reaction (flushing, tachycardia, hypotension) — avoid alcohol during and 72hr after treatment",
+    "Warfarin: significantly enhances anticoagulant effect (MTT side chain) — monitor INR closely",
+    "Vitamin K: may be required with prolonged use (inhibits vitamin K-dependent clotting factors)",
+  ],
+  cautions:"⚠ Disulfiram reaction with alcohol — warn parents/carers. Bleeding risk due to vitamin K interference — monitor coagulation. High biliary excretion — avoid in severe hepatic impairment.",
+},
+{
+  name:"Vancomycin",
+  color:"#6a1b9a",
+  class:"Glycopeptide",
+  pkpd:"AUC/MIC-dependent. Target: AUC24/MIC 400–600 (AUC-guided). OR trough 10–20 mg/L (trough-guided). MIC breakpoint for S. aureus ≤1 mg/L.",
+  spectrum:"Gram-positive ONLY: MRSA, MRSE, Enterococcus (not VRE), C. difficile (oral only). NOT: Gram-negatives, fungi.",
+  doses:[
+    {indication:"Standard (all indications)",dose:"15 mg/kg/dose",freq:"q6h",max:"750 mg/dose (or 3 g/day)",notes:"IV over 60 min minimum (1hr/500mg). Loading dose 25–30 mg/kg for severe infections."},
+    {indication:"CNS infections/endocarditis",dose:"15–20 mg/kg/dose",freq:"q6h",max:"1 g/dose",notes:"Target higher AUC 400–600"},
+    {indication:"Neonates <7 days",dose:"15 mg/kg/dose",freq:"q12–18h",max:"",notes:"Adjust by TDM"},
+    {indication:"Neonates >7 days",dose:"15 mg/kg/dose",freq:"q8–12h",max:"",notes:"Adjust by TDM"},
+  ],
+  renal:[
+    {egfr:">70",dose:"15 mg/kg/dose",freq:"q6h",notes:"Normal dosing"},
+    {egfr:"40–70",dose:"15 mg/kg/dose",freq:"q8–12h",notes:"Adjust by TDM"},
+    {egfr:"20–40",dose:"15 mg/kg/dose",freq:"q12–24h",notes:"Adjust by TDM — essential"},
+    {egfr:"<20",dose:"15 mg/kg loading, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
+    {egfr:"Anuric",dose:"15–25 mg/kg loading only",freq:"Redose when trough <10",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"15 mg/kg/dose",freq:"q24–48h guided by TDM",notes:"CVVHDF removes ~50% — TDM essential. Target trough 15–20."},
+    {mode:"Intermittent HD",dose:"15–25 mg/kg post-HD",freq:"Redose after each HD session",notes:"Highly removed by HD — check trough before each session"},
+    {mode:"CAPD",dose:"15–25 mg/kg",freq:"q4–7 days",notes:"Minimal removal — extended dosing interval"},
+  ],
+  tdm:{
+    required:true,
+    trough:"Target trough: 10–15 mg/L (standard); 15–20 mg/L (CNS/endocarditis/severe MRSA)",
+    auc:"Target AUC24/MIC: 400–600. Use Bayesian software (e.g. DoseMeRx) or two-level AUC calculation.",
+    timing:"Trough: 30 min before 4th or 5th dose. AUC: pair of levels (1hr post-infusion + pre-dose).",
+    notes:"Check at steady state (after 4th dose). Recheck after dose adjustment. Monitor renal function twice weekly.",
+  },
+  interactions:[
+    "Aminoglycosides (amikacin, gentamicin): additive nephrotoxicity — avoid combination or monitor renal function very closely",
+    "Loop diuretics (furosemide): additive nephrotoxicity and ototoxicity",
+    "Piperacillin-tazobactam: combination associated with increased AKI risk — monitor closely",
+    "NSAIDs: increased nephrotoxicity",
+    "Neuromuscular blocking agents: may enhance blockade",
+  ],
+  cautions:"Red man syndrome with rapid infusion (not allergy) — always infuse over ≥60 min. Nephrotoxicity and ototoxicity — monitor renal function and consider audiology in prolonged courses. Dose adjustment ESSENTIAL in renal impairment.",
+},
+{
+  name:"Teicoplanin",
+  color:"#6a1b9a",
+  class:"Glycopeptide",
+  pkpd:"AUC/MIC-dependent. Long half-life (70–100hr) allows once-daily dosing after loading. Target trough: 10–20 mg/L (standard); 20–30 mg/L (endocarditis/bone/severe).",
+  spectrum:"Same as vancomycin: MRSA, MRSE, Enterococcus (not VRE). Slightly better activity against some Enterococcus than vancomycin. NOT: Gram-negatives.",
+  doses:[
+    {indication:"Loading (all)",dose:"10 mg/kg/dose",freq:"q12h × 3 doses (day 1)",max:"400 mg/dose",notes:"IV over 30 min or IM"},
+    {indication:"Maintenance standard",dose:"6–10 mg/kg/day",freq:"q24h",max:"400 mg/day",notes:"Start after loading"},
+    {indication:"Severe (endocarditis/bone/MRSA)",dose:"10 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"Higher trough target 20–30"},
+    {indication:"Neonates",dose:"16 mg/kg loading × 1, then 8 mg/kg/day",freq:"q24h",max:"",notes:"IM or IV over 30 min"},
+  ],
+  renal:[
+    {egfr:">80",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"40–80",dose:"No change",freq:"q48h (from day 4)",notes:""},
+    {egfr:"<40",dose:"No change",freq:"q72h (from day 4)",notes:"TDM essential"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal maintenance",freq:"q48–72h guided by TDM",notes:"Minimal removal by CRRT"},
+    {mode:"Intermittent HD",dose:"Normal maintenance",freq:"q72–96h",notes:"Not significantly removed — dose after TDM trough"},
+    {mode:"CAPD",dose:"Normal maintenance",freq:"q7 days",notes:"Minimal removal"},
+  ],
+  tdm:{
+    required:true,
+    trough:"Standard: 10–20 mg/L. Severe infections/endocarditis/osteomyelitis: 20–30 mg/L.",
+    timing:"Check trough just before 4th or 5th maintenance dose (steady state). Recheck after dose changes.",
+    notes:"Less nephrotoxic than vancomycin. No red man syndrome. Can be given IM. Check trough weekly once stable.",
+  },
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — monitor renal function",
+    "Loop diuretics: additive ototoxicity",
+    "Ciclosporin: additive nephrotoxicity",
+  ],
+  cautions:"Less nephrotoxic than vancomycin. Well tolerated. IM administration possible (useful when IV access difficult). TDM essential for severe infections.",
+},
+{
+  name:"Amikacin",
+  color:"#e65100",
+  class:"Aminoglycoside",
+  pkpd:"Concentration-dependent + PAE. Target: Cmax/MIC ≥8–10. Once-daily dosing preferred in children to maximise peak and reduce toxicity.",
+  spectrum:"Gram-negative: Pseudomonas, Acinetobacter, Enterobacteriaceae. Active against mycobacteria. NOT: anaerobes, Gram-positives (except synergy with beta-lactams).",
+  doses:[
+    {indication:"Standard (once daily)",dose:"15–20 mg/kg/dose",freq:"q24h",max:"1.5 g/dose",notes:"IV over 30 min. Extended interval preferred."},
+    {indication:"Neonates <32 wks",dose:"18 mg/kg/dose",freq:"q48h",max:"",notes:"IV over 30 min"},
+    {indication:"Neonates 32–37 wks",dose:"18 mg/kg/dose",freq:"q36h",max:"",notes:""},
+    {indication:"Neonates term",dose:"15–18 mg/kg/dose",freq:"q24h",max:"",notes:""},
+    {indication:"Synergy (with beta-lactam)",dose:"7.5 mg/kg/dose",freq:"q12h",max:"",notes:"For Gram-positive synergy"},
+  ],
+  renal:[
+    {egfr:">70",dose:"15–20 mg/kg",freq:"q24h",notes:""},
+    {egfr:"40–70",dose:"15 mg/kg",freq:"q36h",notes:"TDM essential"},
+    {egfr:"20–40",dose:"15 mg/kg",freq:"q48h",notes:"TDM essential"},
+    {egfr:"<20",dose:"10 mg/kg loading, TDM-guided",freq:"q48–72h",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"10 mg/kg",freq:"q24–36h guided by TDM",notes:"Moderately removed — TDM essential"},
+    {mode:"Intermittent HD",dose:"10 mg/kg post-HD",freq:"After each dialysis session",notes:"Highly dialysable — redose after HD"},
+    {mode:"CAPD",dose:"10 mg/kg",freq:"q48h + TDM",notes:""},
+  ],
+  tdm:{
+    required:true,
+    peak:"Peak (1hr post-infusion): 20–30 mg/L (target for once-daily dosing)",
+    trough:"Trough (pre-dose): <5 mg/L (standard); <2 mg/L preferred to minimise toxicity",
+    timing:"Peak at 1hr after end of infusion. Trough just before next dose. Check after 3rd dose or earlier in renal impairment.",
+    notes:"Nephrotoxicity and ototoxicity are cumulative — minimise duration (max 5–7 days if possible). Monitor renal function every 2–3 days.",
+  },
+  interactions:[
+    "Vancomycin: additive nephrotoxicity — avoid combination if possible; if essential, monitor renal function daily",
+    "Loop diuretics (furosemide): additive ototoxicity and nephrotoxicity",
+    "Neuromuscular blocking agents: enhanced neuromuscular blockade",
+    "Cisplatin: additive ototoxicity — avoid",
+    "NSAIDs: reduced renal clearance → amikacin accumulation",
+  ],
+  cautions:"Nephrotoxicity and irreversible ototoxicity (vestibular + cochlear) — limit duration. Ensure adequate hydration. Avoid in myasthenia gravis. Audiology follow-up after prolonged courses.",
+},
+{
+  name:"Gentamicin",
+  color:"#e65100",
+  class:"Aminoglycoside",
+  pkpd:"Concentration-dependent + PAE. Target: Cmax/MIC ≥8–10. Once-daily extended-interval dosing preferred.",
+  spectrum:"Similar to amikacin but less active against Pseudomonas and resistant organisms. Used for synergy with penicillins against Gram-positives (endocarditis, GBS). Gram-negative cover.",
+  doses:[
+    {indication:"Standard (once daily)",dose:"7 mg/kg/dose",freq:"q24h",max:"280 mg/dose",notes:"IV over 30 min"},
+    {indication:"Neonates <32 wks",dose:"5 mg/kg/dose",freq:"q48h",max:"",notes:""},
+    {indication:"Neonates 32–37 wks",dose:"4.5 mg/kg/dose",freq:"q36h",max:"",notes:""},
+    {indication:"Neonates term",dose:"4 mg/kg/dose",freq:"q24h",max:"",notes:""},
+    {indication:"Synergy (endocarditis/GBS)",dose:"3 mg/kg/day",freq:"divided q8h",max:"",notes:"Lower dose for synergy"},
+  ],
+  renal:[
+    {egfr:">70",dose:"7 mg/kg",freq:"q24h",notes:""},
+    {egfr:"40–70",dose:"7 mg/kg",freq:"q36h",notes:"TDM essential"},
+    {egfr:"20–40",dose:"7 mg/kg",freq:"q48h",notes:"TDM essential"},
+    {egfr:"<20",dose:"Loading dose only, TDM-guided",freq:"Redose when trough <1",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"5 mg/kg",freq:"q24–36h by TDM",notes:"TDM essential"},
+    {mode:"Intermittent HD",dose:"5 mg/kg post-HD",freq:"After each session",notes:"Highly dialysable"},
+    {mode:"CAPD",dose:"5 mg/kg",freq:"q48h + TDM",notes:""},
+  ],
+  tdm:{
+    required:true,
+    peak:"Peak (1hr post-infusion): 8–10 mg/L (once daily) / 3–5 mg/L (synergy dosing)",
+    trough:"Trough (pre-dose): <1 mg/L (once daily) / <1 mg/L",
+    timing:"Peak 1hr post-infusion. Trough before next dose. Check from 3rd dose.",
+    notes:"Similar toxicity profile to amikacin. Amikacin preferred for resistant Gram-negatives. Gentamicin preferred for synergy dosing.",
+  },
+  interactions:[
+    "Vancomycin: additive nephrotoxicity",
+    "Loop diuretics: additive ototoxicity/nephrotoxicity",
+    "Neuromuscular blockers: enhanced blockade",
+    "Penicillins (in vitro): inactivation if mixed in same solution — give separately",
+  ],
+  cautions:"Same as amikacin — nephrotoxicity and irreversible ototoxicity. Limit duration to 5–7 days. Monitor renal function regularly.",
+},
+{
+  name:"Metronidazole",
+  color:"#00695c",
+  class:"Nitroimidazole",
+  pkpd:"Concentration-dependent. AUC/MIC target. Excellent tissue penetration including CNS, bone, abscess.",
+  spectrum:"Anaerobes (Bacteroides, Clostridium, C. difficile), protozoa (Giardia, Entamoeba, Trichomonas). NOT: aerobes, Gram-positives (except anaerobic streptococci).",
+  doses:[
+    {indication:"Anaerobic infections",dose:"7.5 mg/kg/dose",freq:"q8h",max:"500 mg/dose",notes:"IV over 30–60 min. Oral equally bioavailable."},
+    {indication:"C. difficile (oral)",dose:"7.5 mg/kg/dose",freq:"q8h",max:"500 mg/dose",notes:"Oral preferred for C. diff"},
+    {indication:"Surgical prophylaxis",dose:"15 mg/kg",freq:"single dose",max:"500 mg",notes:"30 min pre-op"},
+    {indication:"Neonates",dose:"7.5 mg/kg/dose",freq:"q12h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment needed",freq:"Normal",notes:"Primarily hepatic metabolism — safe in renal impairment"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD",dose:"No change",freq:"Normal",notes:"Metabolites may accumulate — monitor for neurotoxicity"},
+    {mode:"CAPD",dose:"No change",freq:"Normal",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "Warfarin: significantly increases INR — reduce warfarin dose by 50%, monitor INR closely",
+    "Alcohol: disulfiram-like reaction (severe flushing, nausea, vomiting) — avoid alcohol during and 48hr after treatment",
+    "Lithium: increased lithium toxicity",
+    "Phenytoin: increased phenytoin levels",
+    "Phenobarbitone: may reduce metronidazole levels",
+    "Ciclosporin: increased ciclosporin levels",
+  ],
+  cautions:"Peripheral neuropathy and CNS toxicity (seizures, encephalopathy) with prolonged high-dose use. Metallic taste common. Urine may turn dark brown — warn family.",
+},
+{
+  name:"Linezolid",
+  color:"#6a1b9a",
+  class:"Oxazolidinone",
+  pkpd:"Time-dependent (AUC/MIC). Target: AUC24/MIC >100. 100% oral bioavailability — IV to oral switch at earliest opportunity.",
+  spectrum:"Gram-positive ONLY: MRSA, VRE, VRSA, Enterococcus, Streptococcus, Staphylococcus. NOT: Gram-negatives. Reserve for resistant Gram-positives.",
+  doses:[
+    {indication:"All indications (children)",dose:"10 mg/kg/dose",freq:"q8h",max:"600 mg/dose",notes:"IV or oral — equally bioavailable"},
+    {indication:"Neonates <7 days",dose:"10 mg/kg/dose",freq:"q12h",max:"",notes:""},
+    {indication:"Neonates >7 days",dose:"10 mg/kg/dose",freq:"q8h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily non-renal elimination. Metabolites accumulate in severe renal failure but not clinically significant for short courses."},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q8h",notes:"Not significantly removed by RRT"},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard. Consider AUC monitoring in prolonged courses or suspected toxicity. Trough >2 mg/L associated with efficacy."},
+  interactions:[
+    "SSRIs (fluoxetine, sertraline): SEROTONIN SYNDROME — potentially life-threatening, avoid combination",
+    "SNRIs, TCAs, tramadol: serotonin syndrome risk",
+    "Sympathomimetics (adrenaline, dopamine, dobutamine): MAO inhibition → hypertensive crisis — reduce doses of vasoactives",
+    "Tyramine-rich foods: hypertensive crisis (MAO inhibition) — dietary restriction during treatment",
+    "Serotonergic drugs: any serotonergic agent — careful monitoring or avoid",
+  ],
+  cautions:"⚠ MAO inhibitor properties — serotonin syndrome and hypertensive crisis risks. Myelosuppression (thrombocytopenia, anaemia) with >2 weeks use — check FBC weekly. Lactic acidosis with prolonged use. Optic and peripheral neuropathy — eye examination if prolonged. Reserve for VRE/MRSA when other options failed.",
+},
+{
+  name:"Colistin (Polymyxin E)",
+  color:"#b71c1c",
+  class:"Polymyxin",
+  pkpd:"Concentration-dependent. AUC/MIC target. Used as last resort for XDR/PDR Gram-negatives. Dose in colistin base activity (CBA) — NOT colistimethate sodium (CMS) mg.",
+  spectrum:"MDR/XDR Gram-negatives: Acinetobacter, Pseudomonas, Klebsiella (carbapenem-resistant). NOT: Gram-positives, Proteus, Serratia, Burkholderia.",
+  doses:[
+    {indication:"All indications — LOADING",dose:"Loading: 5 mg/kg CBA (= 12.5 mg/kg CMS)",freq:"Single loading dose",max:"300 mg CBA",notes:"Loading essential to achieve rapid therapeutic levels. CMS 1 million IU = 30 mg CBA approx."},
+    {indication:"Maintenance (normal renal function)",dose:"2.5–3.5 mg/kg/day CBA",freq:"divided q8–12h",max:"300 mg CBA/day",notes:"Start 12–24hr after loading"},
+    {indication:"Inhaled (VAP adjunct)",dose:"1–2 million IU CMS nebulised",freq:"q8–12h",max:"",notes:"Adjunct to IV — not monotherapy"},
+  ],
+  renal:[
+    {egfr:">80",dose:"2.5–3.5 mg/kg/day CBA",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"50–80",dose:"2.5 mg/kg/day CBA",freq:"q12h",notes:""},
+    {egfr:"30–50",dose:"1.5 mg/kg/day CBA",freq:"q12h",notes:"TDM if available"},
+    {egfr:"<30",dose:"1 mg/kg/day CBA",freq:"q24h",notes:"TDM essential"},
+    {egfr:"Anuric",dose:"Loading only, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Loading + 2–2.5 mg/kg/day CBA",freq:"q12h",notes:"CRRT removes colistin — TDM essential. Target plateau plasma level 2–4 mg/L CBA."},
+    {mode:"Intermittent HD",dose:"Loading + 2 mg/kg/day CBA",freq:"q24h, supplement post-HD",notes:"Significantly dialysable — redose after HD"},
+    {mode:"CAPD",dose:"Reduced maintenance",freq:"q24h",notes:"Limited data"},
+  ],
+  tdm:{
+    required:true,
+    target:"Target plateau plasma CBA concentration: 2–4 mg/L. Trough >0.5 mg/L.",
+    timing:"Plateau sample at steady state (after 3rd maintenance dose). Trough just before dose.",
+    notes:"⚠ Unit confusion: doses may be expressed as CBA (colistin base activity) OR CMS (colistimethate sodium) — ALWAYS clarify units. 1 mg CBA ≈ 2.4–3 mg CMS ≈ 30,000 IU CMS.",
+  },
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — avoid combination",
+    "Vancomycin: additive nephrotoxicity",
+    "Loop diuretics: additive nephrotoxicity",
+    "Neuromuscular blocking agents: enhanced blockade — caution in ventilated patients",
+    "Non-depolarising muscle relaxants: prolonged blockade",
+  ],
+  cautions:"⚠ LAST RESORT antibiotic — for XDR/PDR organisms only. Significant nephrotoxicity (use with adequate hydration) and neurotoxicity (paraesthesia, dizziness, apnoea). ALWAYS use combination therapy — do not use as monotherapy for serious infections. Unit confusion between CBA and CMS — verify units with pharmacist.",
+},
+{
+  name:"Azithromycin",
+  color:"#1565c0",
+  class:"Macrolide",
+  pkpd:"Time-dependent (AUC/MIC). Very high tissue/intracellular concentrations. Long tissue half-life allows short courses and once-daily dosing.",
+  spectrum:"Gram-positive (Streptococcus, not Staph), atypicals (Mycoplasma, Chlamydia, Legionella), some Gram-negatives (H. influenzae, Moraxella). NOT: Enterobacteriaceae, Pseudomonas.",
+  doses:[
+    {indication:"Community-acquired pneumonia / atypicals",dose:"10 mg/kg/day",freq:"q24h × 3–5 days",max:"500 mg/day",notes:"Oral preferred. IV if unable to take oral."},
+    {indication:"IV (severe)",dose:"10 mg/kg/day",freq:"q24h",max:"500 mg/day",notes:"IV over 60 min minimum"},
+    {indication:"Whooping cough prophylaxis/treatment",dose:"10 mg/kg/day × 5 days",freq:"q24h",max:"500 mg/day",notes:""},
+    {indication:"Neonatal Chlamydia",dose:"20 mg/kg/day",freq:"q24h × 3 days",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily biliary/hepatic elimination — no renal dose adjustment required"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"Normal",notes:"Not significantly removed — no dose adjustment"},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "QTc-prolonging drugs (amiodarone, chloroquine, ondansetron, antipsychotics): additive QTc prolongation → torsades risk — ECG monitoring",
+    "Warfarin: may increase INR — monitor",
+    "Ciclosporin: increased ciclosporin levels",
+    "Digoxin: increased digoxin levels",
+    "Antacids: reduce absorption — give 1hr before or 2hr after",
+  ],
+  cautions:"QTc prolongation — ECG before and during IV use. Infantile hypertrophic pyloric stenosis (IHPS) risk in neonates <6 weeks — use only if essential, warn parents. Hepatotoxicity rare.",
+},
+{
+  name:"Fluconazole",
+  color:"#004d40",
+  class:"Triazole Antifungal",
+  pkpd:"AUC/MIC-dependent. Excellent CNS penetration. Good oral bioavailability (~90%).",
+  spectrum:"Candida (C. albicans, C. parapsilosis, C. tropicalis — NOT C. glabrata, C. krusei), Cryptococcus. NOT: moulds (Aspergillus), Mucor.",
+  doses:[
+    {indication:"Invasive candidiasis (treatment)",dose:"12 mg/kg loading, then 6–12 mg/kg/day",freq:"q24h",max:"800 mg loading, 400 mg/day maintenance",notes:"IV or oral — bioequivalent"},
+    {indication:"Prophylaxis (high risk NICU/PICU)",dose:"3–6 mg/kg",freq:"3× weekly or q24h",max:"200 mg",notes:""},
+    {indication:"Cryptococcal meningitis",dose:"12 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"After amphotericin B induction"},
+    {indication:"Neonates",dose:"6–12 mg/kg",freq:"q24–72h (gestational age dependent)",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"11–50",dose:"50% of normal dose",freq:"Normal",notes:""},
+    {egfr:"<11 (not on RRT)",dose:"25–50% of normal",freq:"Normal",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose (6–12 mg/kg/day)",freq:"q24h",notes:"Significantly removed — normal dosing"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24–48h + supplement post-HD",notes:"Give after dialysis"},
+    {mode:"CAPD",dose:"50% dose reduction",freq:"q24h",notes:""},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard in children. Consider in critically ill, immunocompromised, or treatment failure."},
+  interactions:[
+    "Warfarin: significantly increases INR — monitor closely, reduce warfarin dose",
+    "Ciclosporin/tacrolimus: significantly increases levels → toxicity — monitor levels and reduce dose",
+    "Phenytoin: increased phenytoin levels",
+    "Midazolam/benzodiazepines: increased sedation (CYP3A4 inhibition)",
+    "Rifampicin: reduces fluconazole levels — may need dose increase",
+    "QTc-prolonging drugs: additive QTc prolongation",
+    "Statins: increased statin levels → myopathy risk",
+  ],
+  cautions:"Hepatotoxicity — monitor LFTs. QTc prolongation. Strong CYP2C9 and CYP3A4 inhibitor — many drug interactions. Check susceptibility: C. glabrata and C. krusei are intrinsically resistant.",
+},
+{
+  name:"Amphotericin B (Liposomal)",
+  color:"#004d40",
+  class:"Polyene Antifungal",
+  pkpd:"Concentration-dependent. Liposomal formulation (AmBisome) preferred over conventional for better tolerability. NOT interchangeable with conventional amphotericin — different dosing.",
+  spectrum:"Broadest antifungal spectrum: Candida (all species including azole-resistant), Aspergillus, Mucor, Cryptococcus. Drug of choice for invasive mould infections.",
+  doses:[
+    {indication:"Invasive candidiasis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:"IV over 2hr via in-line filter (1.2 micron)"},
+    {indication:"Invasive aspergillosis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:""},
+    {indication:"Mucormycosis",dose:"5–10 mg/kg/day (liposomal)",freq:"q24h",max:"10 mg/kg/day",notes:"Higher doses for Mucor"},
+    {indication:"Cryptococcal meningitis (induction)",dose:"3–6 mg/kg/day (liposomal)",freq:"q24h",max:"",notes:"+ flucytosine if available"},
+    {indication:"Conventional Ampho B (if liposomal unavailable)",dose:"0.5–1.5 mg/kg/day",freq:"q24h",max:"1.5 mg/kg",notes:"Start with 0.1 mg/kg test dose. Premedicate."},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"Normal",notes:"Monitor renal function closely"},
+    {egfr:"<50",dose:"Liposomal: no change. Conventional: use with extreme caution.",freq:"Normal",notes:"Liposomal significantly less nephrotoxic than conventional"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change (liposomal)",freq:"Normal",notes:"Not significantly removed by RRT"},
+  ],
+  tdm:{required:false,notes:"TDM not routinely available or required in most centres."},
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — monitor renal function",
+    "Ciclosporin/tacrolimus: additive nephrotoxicity",
+    "Corticosteroids: hypokalaemia risk amplified",
+    "Loop diuretics: hypokalaemia — aggressive potassium replacement required",
+    "Flucytosine: synergistic antifungal effect — often combined for cryptococcal meningitis",
+    "Digoxin: hypokalaemia potentiates digoxin toxicity — monitor K+ and digoxin levels",
+  ],
+  cautions:"⚠ Liposomal (AmBisome) NOT interchangeable with conventional amphotericin B — different doses. Infusion reactions: fever, rigors, hypotension — premedicate with paracetamol ± hydrocortisone. Nephrotoxicity (much less with liposomal). Hypokalaemia and hypomagnesaemia — aggressive electrolyte replacement. Infuse via dedicated line over 2hr through 1.2 micron filter.",
+},
+{
+  name:"Acyclovir",
+  color:"#004d40",
+  class:"Antiviral (Guanosine analogue)",
+  pkpd:"Concentration-dependent. Requires activation by viral thymidine kinase. CNS penetration 50% of plasma. Higher doses needed for CNS infections.",
+  spectrum:"HSV-1, HSV-2, VZV (high dose), EBV, CMV (less active — ganciclovir preferred for CMV). NOT: CMV (poor efficacy), adenovirus.",
+  doses:[
+    {indication:"Neonatal HSV (all forms)",dose:"20 mg/kg/dose",freq:"q8h × 14–21 days",max:"",notes:"IV over 1hr. Highest priority — start empirically if HSV suspected in neonate."},
+    {indication:"HSV encephalitis (children)",dose:"10–15 mg/kg/dose",freq:"q8h × 14–21 days",max:"750 mg/dose",notes:"IV over 1hr"},
+    {indication:"Severe VZV (immunocompromised)",dose:"10–15 mg/kg/dose",freq:"q8h × 7–10 days",max:"750 mg/dose",notes:""},
+    {indication:"HSV mucocutaneous (mild)",dose:"5 mg/kg/dose",freq:"q8h × 5–7 days",max:"",notes:"IV; or oral acyclovir/valacyclovir"},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"25–50",dose:"No change",freq:"q12h",notes:""},
+    {egfr:"10–25",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"<10",dose:"50% dose",freq:"q24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q12–24h guided by creatinine",notes:"Significantly removed"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24h + supplement post-HD",notes:"Highly dialysable — supplement after each HD"},
+    {mode:"CAPD",dose:"50% dose",freq:"q24h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Ensure adequate hydration to prevent crystalline nephropathy."},
+  interactions:[
+    "Nephrotoxic drugs (aminoglycosides, vancomycin, NSAIDs): additive nephrotoxicity",
+    "Probenecid: increases acyclovir levels (reduced renal excretion)",
+    "Mycophenolate: possible increased mycophenolate levels",
+    "Methotrexate: additive neurotoxicity",
+  ],
+  cautions:"Crystalline nephropathy if inadequately hydrated — maintain urine output >1 mL/kg/hr during infusion. Neurotoxicity (tremor, confusion, seizures) especially in renal impairment. Infuse over minimum 1hr. Never give IM or subcut.",
+},
+];
+
+// Schwartz eGFR calculator
+function schwartzEGFR(creatinine_umol_L, height_cm, age_yr) {
+  const k = age_yr < 1 ? 0.33 : (age_yr <= 13 ? 0.55 : (0.7)); // simplified k
+  const creat_mg_dL = creatinine_umol_L / 88.4;
+  return Math.round((k * height_cm) / creat_mg_dL);
+}
+
+// Age-based eGFR thresholds
+const AGE_THRESHOLDS = [
+  {age:"Neonate (term)",normal:">40",mild:"25–40",moderate:"10–25",severe:"<10"},
+  {age:"Infant (1–12 mo)",normal:">60",mild:"40–60",moderate:"20–40",severe:"<20"},
+  {age:"1–2 yr",normal:">70",mild:"50–70",moderate:"25–50",severe:"<25"},
+  {age:"2–5 yr",normal:">80",mild:"50–80",moderate:"25–50",severe:"<25"},
+  {age:"5–12 yr",normal:">90",mild:"60–90",moderate:"30–60",severe:"<30"},
+  {age:">12 yr",normal:">90",mild:"60–90",moderate:"30–60",severe:"<30"},
+];
+
+
+// ── Antibiotic rendering ─────────────────────────────────────
+let selectedAbx = 0;
+let abxEgfr = '';
+let abxCreat = '';
+let abxHeight = '';
+let abxAge = '';
+let vancoMode = 'auc';
+
+function renderAbxTab() {
+  if(activeCategory !== 'antibiotics') return;
+  const el = document.getElementById('drug-display');
+
+  const drug = ANTIBIOTICS[selectedAbx];
+  if(!drug){ el.innerHTML=''; return; }
+
+  // eGFR panel
+  const schwartz = (abxCreat && abxHeight && abxAge)
+    ? schwartzEGFR(parseFloat(abxCreat), parseFloat(abxHeight), parseFloat(abxAge))
+    : null;
+  const egfrDisplay = abxEgfr ? parseFloat(abxEgfr) : schwartz;
+
+  // Renal band
+  let renalBand = null;
+  if(egfrDisplay !== null){
+    renalBand = drug.renal.find(r => {
+      const g = r.egfr;
+      if(g.includes('>')) return egfrDisplay > parseFloat(g.replace('>',''));
+      if(g.includes('<')) return egfrDisplay < parseFloat(g.replace('<',''));
+      if(g.includes('–')){const [a,b]=g.split('–');return egfrDisplay>=parseFloat(a)&&egfrDisplay<=parseFloat(b);}
+      return false;
+    }) || drug.renal[drug.renal.length-1];
+  }
+
+  // Dose rows
+  const doseRows = drug.doses.map((d,i)=>`
+    <tr style="background:${i%2===0?'#fafbff':'#fff'}">
+      <td style="padding:8px 10px;font-size:13px;font-weight:600;color:${esc(drug.color)}">${esc(d.indication)}</td>
+      <td style="padding:8px 10px;font-size:13px;font-weight:700;font-family:var(--mono)">${esc(d.dose)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(d.freq)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim)">${esc(d.max||'—')}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(d.notes||'')}</td>
+    </tr>`).join('');
+
+  // Renal rows
+  const renalRows = drug.renal.map((r,i)=>`
+    <tr style="background:${renalBand&&renalBand===r?'#fff8e1':'#fff'};${renalBand&&renalBand===r?'font-weight:700;':''}">
+      <td style="padding:8px 10px;font-size:13px;font-family:var(--mono);font-weight:700;color:${renalBand&&renalBand===r?'#e65100':'var(--text)'}">${esc(r.egfr)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.dose)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.freq)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(r.notes||'')}</td>
+    </tr>`).join('');
+
+  // RRT rows
+  const rrtRows = drug.rrt.map((r,i)=>`
+    <tr style="background:${i%2===0?'#f3f0ff':'#fff'}">
+      <td style="padding:8px 10px;font-size:13px;font-weight:700;color:#6a1b9a">${esc(r.mode)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.dose)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.freq)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(r.notes||'')}</td>
+    </tr>`).join('');
+
+  // Interactions
+  const ixList = drug.interactions.map(i=>`
+    <div style="padding:7px 10px;background:#fff8f0;border-left:3px solid #e65100;border-radius:4px;margin-bottom:5px;font-size:13px;color:#5a2a00;line-height:1.5">${esc(i)}</div>`).join('');
+
+  // TDM section
+  let tdmHtml = '';
+  if(drug.tdm.required){
+    if(drug.name==='Vancomycin'){
+      tdmHtml = `
+        <div style="margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="vancoMode='auc';renderAbxTab()" style="flex:1;padding:8px;border-radius:8px;border:2px solid ${vancoMode==='auc'?'#6a1b9a':'var(--bdr)'};background:${vancoMode==='auc'?'#f3f0ff':'#fff'};font-weight:700;font-size:12px;cursor:pointer;color:${vancoMode==='auc'?'#6a1b9a':'var(--dim)'}">AUC-GUIDED (Preferred)</button>
+          <button onclick="vancoMode='trough';renderAbxTab()" style="flex:1;padding:8px;border-radius:8px;border:2px solid ${vancoMode==='trough'?'#6a1b9a':'var(--bdr)'};background:${vancoMode==='trough'?'#f3f0ff':'#fff'};font-weight:700;font-size:12px;cursor:pointer;color:${vancoMode==='trough'?'#6a1b9a':'var(--dim)'}">TROUGH-BASED</button>
+        </div>
+        ${vancoMode==='auc'?`
+          <div style="background:#f3f0ff;border-radius:8px;padding:11px;border:1.5px solid #6a1b9a22">
+            <div style="font-weight:700;font-size:12px;color:#6a1b9a;margin-bottom:5px">AUC-GUIDED DOSING (Recommended)</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.7">Target AUC24/MIC: <b>400–600</b> (for MIC ≤1 mg/L)<br>
+            Method: Two-level AUC calculation or Bayesian software<br>
+            Timing: Peak at 1hr post-infusion end + trough pre-dose<br>
+            AUC = (C1 + C2)/2 × dosing interval (simplified trapezoidal)<br>
+            <span style="color:var(--dim);font-size:12px">${esc(drug.tdm.auc||'')}</span></div>
+          </div>`:`
+          <div style="background:#f3f0ff;border-radius:8px;padding:11px;border:1.5px solid #6a1b9a22">
+            <div style="font-weight:700;font-size:12px;color:#6a1b9a;margin-bottom:5px">TROUGH-BASED DOSING</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.7">Standard infections: <b>10–15 mg/L</b><br>
+            Severe/CNS/endocarditis: <b>15–20 mg/L</b><br>
+            Timing: 30 min before 4th or 5th dose (steady state)<br>
+            <span style="color:#c62828;font-size:12px">Note: Trough-only monitoring underestimates toxicity. AUC-guided preferred when feasible.</span></div>
+          </div>`}
+        <div style="margin-top:7px;font-size:12px;color:var(--dim);padding:7px;background:var(--bg3);border-radius:6px">${esc(drug.tdm.notes||'')}</div>`;
+    } else {
+      tdmHtml = `
+        <div style="background:#f3f0ff;border-radius:8px;padding:11px;border:1.5px solid #6a1b9a22">
+          ${drug.tdm.peak?`<div style="font-size:13px;margin-bottom:4px"><b>Peak:</b> ${esc(drug.tdm.peak)}</div>`:''}
+          ${drug.tdm.trough?`<div style="font-size:13px;margin-bottom:4px"><b>Trough:</b> ${esc(drug.tdm.trough)}</div>`:''}
+          ${drug.tdm.target?`<div style="font-size:13px;margin-bottom:4px"><b>Target:</b> ${esc(drug.tdm.target)}</div>`:''}
+          ${drug.tdm.timing?`<div style="font-size:13px;margin-bottom:4px;color:var(--dim)"><b>Timing:</b> ${esc(drug.tdm.timing)}</div>`:''}
+          <div style="font-size:12px;color:var(--dim);margin-top:5px">${esc(drug.tdm.notes||'')}</div>
+        </div>`;
+    }
+  } else {
+    tdmHtml = `<div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;color:var(--dim)">${esc(drug.tdm.notes)}</div>`;
+  }
+
+  el.innerHTML = `
+    <div class="drug-panel" style="--drug-color:${esc(drug.color)}">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:${esc(drug.color)}"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">${esc(drug.name)}</div>
+          <div class="drug-badges">
+            <span class="badge badge-type" style="background:${esc(drug.color)}18;color:${esc(drug.color)}">${esc(drug.class)}</span>
+            ${drug.tdm.required?'<span class="badge" style="background:#f3f0ff;color:#6a1b9a;border:1px solid #6a1b9a40">TDM REQUIRED</span>':''}
+          </div>
+        </div>
+      </div>
+
+      <!-- PK/PD -->
+      <div class="section">
+        <div class="section-title">Pharmacodynamics (PK/PD)</div>
+        <div style="background:#e8f4fd;border-left:4px solid #1565c0;border-radius:8px;padding:10px 13px;font-size:13px;color:#0d3c6e;line-height:1.7">${esc(drug.pkpd)}</div>
+      </div>
+
+      <!-- Spectrum -->
+      <div class="section">
+        <div class="section-title">Spectrum of Activity</div>
+        <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:8px;padding:10px 13px;font-size:13px;color:#1b4d20;line-height:1.7">${esc(drug.spectrum)}</div>
+      </div>
+
+      <!-- Doses -->
+      <div class="section">
+        <div class="section-title">Paediatric Dosing</div>
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
+          <table style="width:100%;border-collapse:collapse;min-width:500px">
+            <thead><tr style="background:${esc(drug.color)};color:#fff">
+              <th style="padding:9px 10px;text-align:left;font-size:11px;letter-spacing:.05em">INDICATION</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">DOSE</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">FREQUENCY</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">MAX</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">NOTES</th>
+            </tr></thead>
+            <tbody>${doseRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- eGFR Calculator -->
+      <div class="section">
+        <div class="section-title">eGFR Calculator</div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px;letter-spacing:.08em">SCHWARTZ FORMULA — eGFR (mL/min/1.73m²) = k × Height(cm) / Creatinine(mg/dL)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            ${[['Creatinine (µmol/L)',abxCreat,'abxCreat'],['Height (cm)',abxHeight,'abxHeight'],['Age (yr)',abxAge,'abxAge']].map(([lbl,val,key])=>`
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:700;color:var(--dim)">${lbl}</label>
+              <input type="number" value="${esc(val)}" inputmode="decimal" onchange="${key}=this.value;renderAbxTab()"
+                style="width:100px;padding:8px;background:#fff;border:1.5px solid var(--bdr);border-radius:7px;font-size:14px;font-family:var(--mono);outline:none">
+            </div>`).join('')}
+          </div>
+          ${schwartz!==null?`<div style="background:#e8f4fd;border:2px solid #1565c0;border-radius:8px;padding:8px 12px;display:inline-block">
+            <span style="font-size:11px;color:#1565c0;font-weight:700">Schwartz eGFR: </span>
+            <span style="font-size:22px;font-weight:900;color:#1565c0;font-family:var(--mono)">${schwartz}</span>
+            <span style="font-size:12px;color:#1565c0"> mL/min/1.73m²</span>
+          </div>`:''}
+          <div style="margin-top:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px">OR ENTER eGFR DIRECTLY:</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="number" value="${esc(abxEgfr)}" placeholder="eGFR" inputmode="decimal" onchange="abxEgfr=this.value;renderAbxTab()"
+                style="width:110px;padding:8px;background:#fff;border:2px solid ${egfrDisplay?'#1565c0':'var(--bdr)'};border-radius:7px;font-size:16px;font-family:var(--mono);font-weight:700;outline:none">
+              <span style="font-size:12px;color:var(--dim)">mL/min/1.73m²</span>
+              ${egfrDisplay!==null?`<span style="background:#e8f4fd;border:1.5px solid #1565c0;border-radius:6px;padding:4px 10px;font-size:13px;font-weight:700;color:#1565c0">Using: ${egfrDisplay}</span>`:''}
+            </div>
+          </div>
+        </div>
+
+        <!-- Age-based thresholds reference -->
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr);margin-bottom:10px">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr style="background:#1565c0;color:#fff">
+              <th style="padding:7px 10px;text-align:left;font-size:11px">AGE GROUP</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#a5d6a7">NORMAL</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#fff59d">MILD ↓</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#ffcc80">MODERATE ↓</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#ef9a9a">SEVERE ↓</th>
+            </tr></thead>
+            <tbody>${AGE_THRESHOLDS.map((t,i)=>`
+              <tr style="background:${i%2===0?'#f8f9ff':'#fff'}">
+                <td style="padding:7px 10px;font-size:12px;font-weight:600">${esc(t.age)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#2e7d32;font-weight:700">${esc(t.normal)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#f57f17">${esc(t.mild)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#e65100">${esc(t.moderate)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#c62828;font-weight:700">${esc(t.severe)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Renal dose adjustment -->
+        <div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:6px;letter-spacing:.06em">DOSE ADJUSTMENT BY eGFR
+          ${renalBand?`<span style="margin-left:8px;background:#fff3e0;border:1.5px solid #e65100;border-radius:6px;padding:3px 8px;font-size:11px;color:#e65100">⚡ Active band: eGFR ${esc(renalBand.egfr)}</span>`:''}
+        </div>
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr style="background:#e65100;color:#fff">
+              <th style="padding:8px 10px;text-align:left;font-size:11px">eGFR (mL/min/1.73m²)</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">DOSE</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">INTERVAL</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">NOTES</th>
+            </tr></thead>
+            <tbody>${renalRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RRT -->
+      <div class="section">
+        <div class="section-title">🔄 Renal Replacement Therapy (RRT) Dosing</div>
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr style="background:#6a1b9a;color:#fff">
+              <th style="padding:8px 10px;text-align:left;font-size:11px">RRT MODE</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">DOSE</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">FREQUENCY</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">NOTES</th>
+            </tr></thead>
+            <tbody>${rrtRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TDM -->
+      <div class="section">
+        <div class="section-title">🧪 Therapeutic Drug Monitoring (TDM)
+          <span style="margin-left:6px;padding:2px 8px;border-radius:10px;font-size:10px;background:${drug.tdm.required?'#f3f0ff':'#f0f8f0'};color:${drug.tdm.required?'#6a1b9a':'#2e7d32'};font-weight:700">${drug.tdm.required?'REQUIRED':'NOT ROUTINELY REQUIRED'}</span>
+        </div>
+        ${tdmHtml}
+      </div>
+
+      <!-- Drug interactions -->
+      <div class="section">
+        <div class="section-title">⚠️ Significant Drug Interactions</div>
+        ${ixList||`<div style="font-size:13px;color:var(--dim);padding:8px">No significant interactions noted.</div>`}
+      </div>
+
+      <!-- Cautions -->
+      <div class="section">
+        <div class="section-title">Clinical Cautions</div>
+        <div class="notes-box${drug.cautions.includes('⚠')?'  warn':''}"><p>${esc(drug.cautions)}</p></div>
+      </div>
+    </div>`;
+}
+
 // ── Build flat index ──────────────────────────────────────────
 const ALL_DRUGS = [];
 Object.entries(DRUGS).forEach(([cat, arr]) => {
@@ -946,22 +1785,41 @@ function renderTabs(){
 }
 
 function renderPillBar(){
+  if(activeCategory==='intubation'){
+    document.getElementById('pill-bar').innerHTML =
+      `<button class="drug-pill active" style="background:#c1121f;border-color:#c1121f;color:#fff">🫁 Intubation Drug Calculator</button>`;
+    return;
+  }
+  if(activeCategory==='antibiotics'){
+    document.getElementById('pill-bar').innerHTML = ANTIBIOTICS.map((d,i)=>`
+      <button class="drug-pill${selectedAbx===i?' active':''}"
+        style="${selectedAbx===i?`background:${esc(d.color)};border-color:${esc(d.color)};color:#fff`:'color:var(--text2)'}"
+        onclick="selectAbx(${i})">${esc(d.name)}</button>`).join('');
+    return;
+  }
   const drugs = ALL_DRUGS.filter(d=>d.cat===activeCategory);
   document.getElementById('pill-bar').innerHTML = drugs.map(d=>`
     <button class="drug-pill${selectedDrugId===d.id?' active':''}"
-      style="${selectedDrugId===d.id?`background:${esc(d.color)};border-color:${esc(d.color)};`:'color:var(--text2)'}"
+      style="${selectedDrugId===d.id?`background:${esc(d.color)};border-color:${esc(d.color)};color:#fff`:'color:var(--text2)'}"
       onclick="selectDrug(${d.id})">${esc(d.name)}</button>`).join('');
 }
 
 function renderDrugDisplay(){
   const el = document.getElementById('drug-display');
+  if(activeCategory==='intubation'){
+    renderIntubationTab();
+    return;
+  }
+  if(activeCategory==='antibiotics'){
+    renderAbxTab();
+    return;
+  }
   if(searchTerm.length>1){
     el.innerHTML = renderSearchResults();
     return;
   }
   const drug = ALL_DRUGS[selectedDrugId];
   if(!drug||drug.cat!==activeCategory){
-    // select first drug in category
     const first = ALL_DRUGS.find(d=>d.cat===activeCategory);
     if(first){selectedDrugId=first.id;}
   }
@@ -975,7 +1833,314 @@ function renderGIR(){
 }
 
 function renderWeightBanner(){
-  document.getElementById('wt-banner').style.display = weight?'none':'flex';
+  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics')?'none':'flex';
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// INTUBATION CALCULATOR — KMCT PICU Modified RSI Protocol
+// ══════════════════════════════════════════════════════════════
+
+let intuWeight = '';
+let intuAge = '';   // in years (decimals ok)
+let intuRaisedICP = false;
+let intuThio = false;
+
+function ettSize(ageYr) {
+  // Always cuffed: (Age/4) + 3.5
+  const age = parseFloat(ageYr);
+  if(isNaN(age)) return null;
+  if(age < 0.083) return {size:3.0, uncuffed:3.5}; // <1 month
+  if(age < 1) return {size:3.5, formula:'Neonatal/infant'};
+  const cuffed = ((age/4) + 3.5).toFixed(1);
+  return {size:parseFloat(cuffed), plus:parseFloat((parseFloat(cuffed)+0.5).toFixed(1)), minus:parseFloat((parseFloat(cuffed)-0.5).toFixed(1))};
+}
+
+function ettDepth(ageYr, wt) {
+  // Oral: (Age/2) + 12 for children >2yr; weight × 1 + 6 for neonates/infants
+  const age = parseFloat(ageYr);
+  const w = parseFloat(wt);
+  if(isNaN(age)) return null;
+  if(age < 1) return {depth: (w + 6).toFixed(0), formula:'Weight(kg) + 6 cm (lip)'};
+  if(age < 2) return {depth: (10).toFixed(0), formula:'~10 cm (lip)'};
+  return {depth: ((age/2) + 12).toFixed(0), formula:'Age/2 + 12 cm (lip)'};
+}
+
+function bladeSize(ageYr) {
+  const age = parseFloat(ageYr);
+  if(isNaN(age)) return null;
+  if(age < 0.083) return {size:0, type:'Miller (straight)', notes:'Premature/newborn'};
+  if(age < 1)     return {size:1, type:'Miller (straight)', notes:'Infant <1 yr — straight blade preferred'};
+  if(age < 2)     return {size:1, type:'Miller or Macintosh 1', notes:'Small infant/toddler'};
+  if(age < 6)     return {size:2, type:'Macintosh 2', notes:'Toddler to preschool'};
+  if(age < 12)    return {size:2, type:'Macintosh 2–3', notes:'School age'};
+  return           {size:3, type:'Macintosh 3', notes:'Adolescent'};
+}
+
+function renderIntubationTab() {
+  const el = document.getElementById('drug-display');
+  const wt = parseFloat(intuWeight);
+  const age = parseFloat(intuAge);
+  const hasWt = !isNaN(wt) && wt > 0;
+  const hasAge = !isNaN(age) && age >= 0;
+
+  // Drug calculations
+  const drugs = [
+    // PREOXYGENATION PHASE
+    {phase:'PREOXYGENATION & OPTIMISATION', phaseColor:'#1565c0', phaseNote:'Preoxygenate with 100% O₂ for 3–5 min (BVM/HFNC/NIV). Optimise BP — give fluid bolus 10 mL/kg if hypotensive. Position: sniffing position (roll under shoulders for infants).', isDivider:true},
+
+    // PRE-MEDICATION
+    {phase:'PRE-MEDICATION', phaseColor:'#2e7d32', phaseNote:'Give 2–3 minutes before induction', isDivider:true},
+    {
+      name:'Fentanyl', color:'#2a9d8f', routine:true,
+      indication:'Pre-medication (all patients)',
+      dose:2, unit:'mcg/kg', route:'IV slow over 2 min',
+      calc: hasWt ? (2*wt).toFixed(0) : null,
+      calcUnit:'mcg',
+      volume: hasWt ? `${((2*wt)/50).toFixed(2)} mL of 50mcg/mL` : null,
+      note:'Attenuates intubation response. Give over 2 min to avoid chest wall rigidity.',
+      warn:false,
+    },
+    {
+      name:'Lignocaine (Lidocaine)', color:'#1565c0', routine:false,
+      indication:'Raised ICP / head injury / status asthmaticus ONLY',
+      dose:1.5, unit:'mg/kg', route:'IV over 2 min',
+      calc: hasWt ? (1.5*wt).toFixed(1) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(1.5*wt/10).toFixed(2)} mL of 10mg/mL (1%)` : null,
+      note:'Blunts ICP rise with laryngoscopy. Give 3 min before induction for raised ICP cases.',
+      warn:false, optional:true, optionalLabel:'Raised ICP only',
+    },
+
+    // INDUCTION
+    {phase:'INDUCTION', phaseColor:'#e65100', phaseNote:'Give simultaneously — wait 60–90 sec for effect before laryngoscopy', isDivider:true},
+    {
+      name:'Midazolam', color:'#2a9d8f', routine:true,
+      indication:'Induction (routine)',
+      dose:0.1, unit:'mg/kg', route:'IV',
+      calc: hasWt ? (0.1*wt).toFixed(2) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(0.1*wt/5).toFixed(2)} mL of 5mg/mL` : null,
+      note:'Lower dose — haemodynamically stable induction. Reduce further to 0.05 mg/kg if shocked.',
+      warn:false,
+      altDose: hasWt ? `Shocked/unstable: ${(0.05*wt).toFixed(2)} mg (0.05 mg/kg)` : '0.05 mg/kg if shocked',
+    },
+    {
+      name:'Ketamine', color:'#2a9d8f', routine:true,
+      indication:'Induction (routine)',
+      dose:1, unit:'mg/kg', route:'IV',
+      calc: hasWt ? (1*wt).toFixed(1) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(1*wt/50).toFixed(2)} mL of 50mg/mL` : null,
+      note:'Haemodynamically stable. Bronchodilator. AVOID in isolated raised ICP (use thiopentone instead).',
+      warn:false,
+      altDose: hasWt ? `Shocked/unstable: ${(0.5*wt).toFixed(1)} mg (0.5 mg/kg)` : '0.5 mg/kg if shocked',
+    },
+    {
+      name:'Thiopentone', color:'#6d6875', routine:false,
+      indication:'Selective use: raised ICP / status epilepticus / head injury',
+      dose:4, unit:'mg/kg', route:'IV slow',
+      calc: hasWt ? `${(3*wt).toFixed(0)}–${(5*wt).toFixed(0)}` : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(3*wt/25).toFixed(1)}–${(5*wt/25).toFixed(1)} mL of 25mg/mL (2.5%)` : null,
+      note:'USE INSTEAD OF ketamine when ICP raised. Causes hypotension — ensure normovolaemia first. Do NOT use if haemodynamically unstable.',
+      warn:true, optional:true, optionalLabel:'Selective — replaces Ketamine',
+    },
+
+    // MUSCLE RELAXANT
+    {phase:'MUSCLE RELAXANT', phaseColor:'#c62828', phaseNote:'Give immediately after induction agents', isDivider:true},
+    {
+      name:'Rocuronium', color:'#c62828', routine:true,
+      indication:'Neuromuscular blockade (first line)',
+      dose:1.2, unit:'mg/kg', route:'IV rapid bolus',
+      calc: hasWt ? (1.2*wt).toFixed(1) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(1.2*wt/10).toFixed(2)} mL of 10mg/mL` : null,
+      note:'Full paralysis in 60–90 sec. Duration 30–45 min. Reversed by Sugammadex 16 mg/kg (immediate reversal).',
+      warn:false,
+      altDose: hasWt ? `Sugammadex reversal: ${(16*wt).toFixed(0)} mg (16 mg/kg)` : 'Sugammadex 16 mg/kg for reversal',
+    },
+
+    // RESCUE
+    {phase:'RESCUE DRUGS', phaseColor:'#b71c1c', phaseNote:'Draw up and keep at bedside — give only if needed', isDivider:true},
+    {
+      name:'Atropine', color:'#b71c1c', routine:false,
+      indication:'Bradycardia during/after intubation (rescue only)',
+      dose:0.02, unit:'mg/kg', route:'IV rapid',
+      calc: hasWt ? Math.max(0.1, Math.min(0.02*wt, 0.5)).toFixed(2) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(Math.max(0.1, Math.min(0.02*wt, 0.5))/0.6*2).toFixed(2)} mL of 0.6mg/mL` : null,
+      note:'Min 0.1 mg, Max 0.5 mg. Draw up and have ready — give only if HR drops during laryngoscopy.',
+      warn:false, optional:true, optionalLabel:'Rescue — bradycardia only',
+    },
+    {
+      name:'Adrenaline', color:'#b71c1c', routine:false,
+      indication:'Cardiac arrest / severe haemodynamic collapse',
+      dose:0.01, unit:'mg/kg', route:'IV/IO',
+      calc: hasWt ? (0.01*wt).toFixed(3) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(0.01*wt/0.1).toFixed(2)} mL of 1:10,000 (0.1mg/mL)` : null,
+      note:'Have drawn up for all intubations. 0.01 mg/kg IV/IO.',
+      warn:true, optional:true, optionalLabel:'Cardiac arrest only',
+    },
+  ];
+
+  // ETT, depth, blade
+  const ett = hasAge ? ettSize(age) : null;
+  const depth = (hasAge && hasWt) ? ettDepth(age, wt) : (hasAge ? ettDepth(age, wt) : null);
+  const blade = hasAge ? bladeSize(age) : null;
+
+  // Render drug cards
+  const drugCards = drugs.map(d => {
+    if(d.isDivider) return `
+      <div style="background:linear-gradient(135deg,${esc(d.phaseColor)},${esc(d.phaseColor)}dd);border-radius:12px;padding:11px 14px;margin:14px 0 8px;display:flex;align-items:flex-start;gap:10px">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:#fff;letter-spacing:.05em">${esc(d.phase)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:3px;line-height:1.5">${esc(d.phaseNote)}</div>
+        </div>
+      </div>`;
+
+    return `
+      <div style="background:#fff;border-radius:12px;border:1.5px solid ${d.optional?'#e0e0e0':esc(d.color)+'55'};margin-bottom:8px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06)">
+        <div style="display:flex;align-items:stretch">
+          <div style="width:5px;background:${esc(d.color)};flex-shrink:0;border-radius:0"></div>
+          <div style="flex:1;padding:12px 14px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+              <div>
+                <div style="font-size:15px;font-weight:800;color:${esc(d.color)}">${esc(d.name)}</div>
+                <div style="font-size:11px;color:var(--dim);margin-top:2px">${esc(d.indication)}</div>
+                ${d.optional?`<span style="background:${esc(d.color)}18;color:${esc(d.color)};border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;display:inline-block;margin-top:4px">${esc(d.optionalLabel)}</span>`:''}
+              </div>
+              ${d.calc !== null ? `
+              <div style="background:${esc(d.color)}12;border:2px solid ${esc(d.color)}55;border-radius:10px;padding:8px 14px;text-align:center;min-width:100px">
+                <div style="font-size:10px;font-weight:700;color:${esc(d.color)};letter-spacing:.08em">DOSE</div>
+                <div style="font-size:26px;font-weight:900;color:${esc(d.color)};font-family:var(--mono);line-height:1.1">${esc(String(d.calc))}</div>
+                <div style="font-size:12px;color:${esc(d.color)};font-weight:600">${esc(d.calcUnit)}</div>
+              </div>` : hasWt ? '' : `
+              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--dim)">Enter weight ↑</div>`}
+            </div>
+            ${d.calc !== null && d.volume ? `
+            <div style="margin-top:8px;background:var(--bg3);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text2);font-family:var(--mono)">
+              📏 ${esc(d.volume)} &nbsp;·&nbsp; ${esc(d.unit)} &nbsp;·&nbsp; ${esc(d.route)}
+            </div>` : ''}
+            ${d.altDose ? `
+            <div style="margin-top:6px;background:#fff8e1;border-radius:6px;padding:6px 10px;font-size:12px;color:#e65100;border-left:3px solid #e65100">
+              ⚡ ${esc(d.altDose)}
+            </div>` : ''}
+            <div style="margin-top:7px;font-size:12px;color:var(--dim);line-height:1.6">${esc(d.note)}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <!-- Title card -->
+    <div class="drug-panel" style="--drug-color:#c1121f">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:#c1121f"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">🫁 Intubation Calculator</div>
+          <div class="drug-badges">
+            <span class="badge badge-type" style="background:#fff0f0;color:#c1121f">Modified RSI — KMCT PICU Protocol</span>
+            <span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">Dr. Ananya</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weight + Age inputs -->
+      <div class="section">
+        <div class="section-title">Patient Details</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          ${[['Weight (kg)', intuWeight, 'intuWeight', '0.5', '100', '0.1'],
+             ['Age (years)', intuAge, 'intuAge', '0', '18', '0.1']].map(([lbl,val,key,min,max,step])=>`
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.08em">${lbl}</label>
+            <input type="number" value="${esc(val)}" min="${min}" max="${max}" step="${step}" inputmode="decimal"
+              onchange="${key}=this.value;renderIntubationTab()"
+              style="width:110px;padding:10px;background:var(--bg3);border:2px solid ${val?'#c1121f':'var(--bdr)'};border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:${val?'#c1121f':'var(--text)'}">
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- ETT / Blade panel -->
+      ${(ett||blade) ? `
+      <div class="section">
+        <div class="section-title">Airway Equipment</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          ${ett ? `
+          <div style="background:linear-gradient(135deg,#1565c0,#1976d2);border-radius:11px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:.1em">ETT SIZE</div>
+            <div style="font-size:30px;font-weight:900;color:#fff;font-family:var(--mono);line-height:1.1">${esc(String(ett.size))}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">mm (cuffed)</div>
+            ${ett.plus ? `<div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px">Have ${esc(String(ett.minus))} & ${esc(String(ett.plus))} ready</div>` : ''}
+          </div>` : ''}
+          ${depth ? `
+          <div style="background:linear-gradient(135deg,#2e7d32,#388e3c);border-radius:11px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:.1em">ETT DEPTH</div>
+            <div style="font-size:30px;font-weight:900;color:#fff;font-family:var(--mono);line-height:1.1">${esc(String(depth.depth))}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">cm at lip</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px">${esc(depth.formula)}</div>
+          </div>` : ''}
+          ${blade ? `
+          <div style="background:linear-gradient(135deg,#6a1b9a,#7b1fa2);border-radius:11px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:.1em">BLADE</div>
+            <div style="font-size:30px;font-weight:900;color:#fff;font-family:var(--mono);line-height:1.1">${esc(String(blade.size))}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">${esc(blade.type)}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px">${esc(blade.notes)}</div>
+          </div>` : ''}
+        </div>
+        ${(!ett && !blade) ? `<div style="font-size:13px;color:var(--dim);padding:8px">Enter age above for equipment sizes</div>` : ''}
+      </div>` : ''}
+
+      <!-- Drug sequence -->
+      <div class="section">
+        <div class="section-title">Drug Sequence${hasWt ? ` | ${intuWeight} kg` : ' | Enter weight above'}</div>
+        <div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:9px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#5a3e00;line-height:1.6">
+          ⚠️ <b>Modified RSI — KMCT PICU:</b> Preoxygenate fully first. Optimise haemodynamics before giving drugs. Have BVM, suction, and difficult airway trolley at bedside. Two IV lines checked and patent.
+        </div>
+        ${drugCards}
+      </div>
+
+      <!-- Post-intubation -->
+      <div class="section">
+        <div class="section-title">✅ Post-Intubation Checklist</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${[
+            ['Confirm ETT position','Bilateral air entry + EtCO2 waveform'],
+            ['CXR','ETT tip at T2–T3 (above carina)'],
+            ['Secure ETT','Tape/tie firmly at calculated depth (cm at lip)'],
+            ['SpO2 target','92–96% (adjust FiO2)'],
+            ['Start sedation infusion','Midazolam + Morphine/Fentanyl'],
+            ['Gastric tube','Insert OGT/NGT post-intubation'],
+            ['IV fluid','Ensure maintenance running'],
+            ['Document','Time, tube size, depth, who intubated'],
+          ].map(([t,d])=>`
+          <div style="background:var(--bg3);border-radius:8px;padding:9px 11px;border-left:3px solid #2e7d32">
+            <div style="font-size:12px;font-weight:700;color:var(--text2)">${esc(t)}</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:2px">${esc(d)}</div>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:10px;background:#e8f5e9;border-radius:9px;padding:11px 13px;border-left:4px solid #2e7d32">
+          <div style="font-size:12px;font-weight:700;color:#1b4d20;margin-bottom:6px">POST-INTUBATION SEDATION — Suggested starting infusions:</div>
+          <div style="font-size:13px;color:#2e7d32;line-height:1.8">
+            ${hasWt ? `
+            • Midazolam: ${(0.5*wt/10).toFixed(2)} mL/hr → <b>${(30*wt/1000*50/0.5).toFixed(2)} mL/hr</b> start at 30 mcg/kg/hr (0.5mg/kg in 50mL)<br>
+            • Morphine: start at 20 mcg/kg/hr → <b>${(20/10).toFixed(1)} mL/hr</b> (0.5mg/kg in 50mL)<br>
+            • Fentanyl: start at 1 mcg/kg/hr → <b>${(1*2).toFixed(1)} mL/hr</b> (25mcg/kg in 50mL)
+            ` : '• Enter weight above for post-intubation infusion rates'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+
+function selectAbx(i){
+  selectedAbx=i;
+  abxEgfr=''; abxCreat=''; abxHeight=''; abxAge='';
+  renderPillBar();
+  renderAbxTab();
+  setTimeout(()=>{document.getElementById('content').scrollIntoView({behavior:'smooth',block:'start'});},50);
 }
 
 function renderAll(){
@@ -995,8 +2160,10 @@ function renderAll(){
 function setCategory(id){
   activeCategory=id;
   doseInput='';
-  const first=ALL_DRUGS.find(d=>d.cat===id);
-  if(first)selectedDrugId=first.id;
+  if(id!=='antibiotics' && id!=='intubation'){
+    const first=ALL_DRUGS.find(d=>d.cat===id);
+    if(first)selectedDrugId=first.id;
+  }
   renderAll();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1083,6 +2250,40 @@ function calcRate(){
 
 // ── Init ──────────────────────────────────────────────────────
 renderAll();
+</script>
+<!-- Install banner -->
+<div id="install-banner">
+  <div class="ib-icon">＋</div>
+  <div class="ib-text">
+    <div class="ib-title">PICU Reckoner</div>
+    <div class="ib-sub">Add to home screen for offline use</div>
+  </div>
+  <button class="ib-btn" id="install-btn">Install</button>
+  <button class="ib-close" id="install-close">✕</button>
+</div>
+
+<script>
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  }
+});
+document.getElementById('install-close').addEventListener('click', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
 </script>
 </body>
 </html>
