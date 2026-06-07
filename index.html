@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="PICU Reckoner">
 <meta name="application-name" content="PICU Reckoner">
 <meta name="theme-color" content="#c1121f">
-<meta name="description" content="KMCT PICU ICU Infusion Ready Reckoner — Created by Dr. Ananya">
+<meta name="description" content="KMCT PICU ICU Infusion Ready Reckoner — Developed by Dr. Ananya, KMCT Medical College. Built with AI assistance.">
 <meta name="mobile-web-app-capable" content="yes">
 <title>PICU Reckoner</title>
 <link rel="manifest" href="manifest.json">
@@ -170,7 +170,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
     <div class="hdr-logo">＋</div>
     <div class="hdr-info">
       <h1>KMCT MEDICAL COLLEGE — PICU</h1>
-      <p>ICU INFUSION READY RECKONER · Dr. Ananya</p>
+      <p>ICU INFUSION READY RECKONER · Dr. Ananya · Built with AI</p>
     </div>
     <div class="hdr-wt">
       <label>PATIENT WT</label>
@@ -216,7 +216,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 </div>
 
 <div id="footer">
-  <div class="footer-credit">Made by Dr. Ananya <span>· KMCT Medical College</span></div>
+  <div class="footer-credit">Dr. Ananya · KMCT Medical College <span>· Built with AI assistance</span></div>
   <div class="footer-disc">Verify all doses independently</div>
 </div>
 
@@ -304,7 +304,7 @@ inotropes:[
    {dose:"0.5–2.0",lbl:"High",eff:"Severe vasoconstriction"},
   ],
   bolus:null,
-  notes:"CENTRAL LINE MANDATORY. Extravasation → severe necrosis (phentolamine antidote). First-line for vasodilatory/septic shock. Max 2 mcg/kg/min."},
+  notes:"PIV acceptable for LOW doses (0.05–0.2 mcg/kg/min) for SHORT duration in emergency — use large-bore antecubital IV, check site frequently. CENTRAL LINE strongly preferred for doses >0.2 mcg/kg/min or prolonged use. Extravasation → severe necrosis (phentolamine antidote). First-line vasopressor for vasodilatory/septic shock. Max 2 mcg/kg/min."},
 
  {name:"Milrinone",color:"#e63946",warn:false,
   prep:"0.3 mg/kg in 50 mL NS/D5W",
@@ -391,7 +391,7 @@ sedation:[
    {dose:"0.5–2",lbl:"Sedation/procedural",eff:"Dissociative; airway preserved"},
   ],
   bolus:"Induction/RSI: 1–2 mg/kg IV. Procedural: 1–2 mg/kg IV. IM: 3–5 mg/kg.",
-  notes:"Excellent bronchodilator – ideal for status asthmaticus. Combine with midazolam 0.05 mg/kg. AVOID in raised ICP."},
+  notes:"Excellent bronchodilator – ideal for status asthmaticus. Combine with midazolam 0.05 mg/kg. Current evidence supports use in most raised ICP situations — AVOID ONLY in obstructive hydrocephalus (CSF outflow obstruction). Safe in traumatic brain injury, meningitis, and non-obstructive ICP when used with adequate sedation."},
 
  {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
   prep:"4 mcg/kg in 50 mL NS",
@@ -1932,7 +1932,7 @@ function renderIntubationTab() {
       calc: hasWt ? (1*wt).toFixed(1) : null,
       calcUnit:'mg',
       volume: hasWt ? `${(1*wt/50).toFixed(2)} mL of 50mg/mL` : null,
-      note:'Haemodynamically stable. Bronchodilator. AVOID in isolated raised ICP (use thiopentone instead).',
+      note:'Haemodynamically stable. Bronchodilator. Safe in most raised ICP — AVOID ONLY in obstructive hydrocephalus. Use thiopentone instead for obstructive hydrocephalus only.',
       warn:false,
       altDose: hasWt ? `Shocked/unstable: ${(0.5*wt).toFixed(1)} mg (0.5 mg/kg)` : '0.5 mg/kg if shocked',
     },
@@ -1943,7 +1943,7 @@ function renderIntubationTab() {
       calc: hasWt ? `${(3*wt).toFixed(0)}–${(5*wt).toFixed(0)}` : null,
       calcUnit:'mg',
       volume: hasWt ? `${(3*wt/25).toFixed(1)}–${(5*wt/25).toFixed(1)} mL of 25mg/mL (2.5%)` : null,
-      note:'USE INSTEAD OF ketamine when ICP raised. Causes hypotension — ensure normovolaemia first. Do NOT use if haemodynamically unstable.',
+      note:'USE INSTEAD OF ketamine ONLY for obstructive hydrocephalus. Causes hypotension — ensure normovolaemia first. Do NOT use if haemodynamically unstable. Ketamine is acceptable for most other raised ICP scenarios.',
       warn:true, optional:true, optionalLabel:'Selective — replaces Ketamine',
     },
 
@@ -2042,7 +2042,7 @@ function renderIntubationTab() {
           <div class="drug-name">🫁 Intubation Calculator</div>
           <div class="drug-badges">
             <span class="badge badge-type" style="background:#fff0f0;color:#c1121f">Modified RSI — KMCT PICU Protocol</span>
-            <span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">Dr. Ananya</span>
+            <span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">Dr. Ananya · AI-assisted</span>
           </div>
         </div>
       </div>
