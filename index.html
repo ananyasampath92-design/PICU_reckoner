@@ -223,9 +223,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
   <div id="drug-display"></div>
 </div>
 
-<div id="footer">
+<!-- Disclaimer banner -->
+<div id="disclaimer" style="position:fixed;bottom:0;left:0;right:0;z-index:999;background:#1a1d2e;border-top:2px solid #e63946;padding:10px 16px;display:flex;align-items:flex-start;gap:10px" >
+  <div style="flex:1">
+    <div style="font-size:11px;font-weight:800;color:#e63946;letter-spacing:.06em;margin-bottom:3px">⚠️ MEDICAL DISCLAIMER</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6">Users must independently verify all calculations and clinical information before use. The author accepts no responsibility or liability for any errors, omissions, or consequences arising from the use of this calculator. All clinical decisions remain the responsibility of the user.</div>
+    <div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.5)">Dr. Ananya · KMCT Medical College · Built with AI assistance</div>
+  </div>
+  <button onclick="document.getElementById('disclaimer').style.display='none';document.getElementById('footer').style.display='flex'"
+    style="background:#e63946;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;margin-top:2px">
+    I Understand
+  </button>
+</div>
+
+<div id="footer" style="display:none">
   <div class="footer-credit">Dr. Ananya · KMCT Medical College <span>· Built with AI assistance</span></div>
-  <div class="footer-disc">Verify all doses independently</div>
+  <div class="footer-disc">⚠️ Always verify doses independently</div>
 </div>
 
 <script>
