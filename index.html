@@ -429,7 +429,7 @@ sedation:[
   bolus:"Optional load: 1 mcg/kg over 10 min. OMIT if haemodynamically unstable.",
   notes:"Alpha-2 agonist. NO respiratory depression – ideal for pre-extubation weaning. Monitor bradycardia/hypotension. Max 1.4 mcg/kg/hr."},
 
- {name:"Propofol ⚠ (>3 yr only)",color:"#264653",warn:true,
+ {name:"Propofol ⚠",color:"#264653",warn:true,
   prep:"10 mg/mL ready solution – DO NOT dilute",
   prepFn:()=>`Use undiluted 1% propofol (10 mg/mL). Central/large peripheral IV.`,
   rule:"Rate = dose × wt / 10  mL/hr  [wt-dependent]",
@@ -440,8 +440,8 @@ sedation:[
    {dose:"0.5–2",lbl:"Sedation ventilated (>3yr)",eff:"Titrate to RASS –1 to –3"},
    {dose:"2–4",lbl:"Procedural sedation",eff:"Short procedures; monitor airway"},
   ],
-  bolus:"Induction: 1–2.5 mg/kg IV (reduce in sick/compromised patients).",
-  notes:"⚠ NEVER for ICU sedation <3 years (Propofol Infusion Syndrome). Max 4 mg/kg/hr; <67 mg/kg/day total. Monitor TG, CK, pH, lactate."},
+  bolus:"Induction: 1–2.5 mg/kg IV (reduce in sick/haemodynamically compromised). For ICU use: periextubation weaning only — <4 mg/kg/hr, <48hr total duration.",
+  notes:"⚠ PRIS risk — use with strict limits only. Per SCCM PANDEM 2022: safe at <4 mg/kg/hr for <48hr. Best evidence for periextubation weaning (facilitates transition off midazolam/opioids). NOT recommended for long-term ICU sedation at any age. Monitor TG, CK, lactate, pH every 12hr. Contains soy/egg lipid — check allergies. STOP immediately if any PRIS features: metabolic acidosis, rising CK, arrhythmia, lipaemic plasma. Reference: Smith et al. PANDEM Guidelines. Pediatr Crit Care Med. 2022;23(2):e74-e110."},
 ],
 
 antihtn:[
