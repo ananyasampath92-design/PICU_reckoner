@@ -264,6 +264,7 @@ const CATEGORIES = [
   {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
   {id:"antibiotics",  label:"Antibiotics",              icon:"🦠"},
   {id:"intubation",   label:"Intubation",               icon:"🫁"},
+  {id:"references",   label:"References & Verify",       icon:"📚"},
 ];
 
 const DRUGS = {
@@ -1731,6 +1732,7 @@ function renderDrugPanel(drug){
             ${drug.warn?'<span class="badge badge-warn">⚠ HIGH ALERT</span>':''}
             <span class="badge badge-type">${drug.isBolus?'BOLUS / LOADING':'CONTINUOUS INFUSION'}</span>
             <span class="badge badge-rule">${esc(drug.rule)}</span>
+            ${REFERENCES.drugLinks[drug.name]?`<a href="${REFERENCES.drugLinks[drug.name]}" target="_blank" rel="noopener noreferrer" style="background:#e8f4fd;color:#1565c0;border:1.5px solid #1565c040;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:700;text-decoration:none">🔗 Verify BNFc</a>`:''}
           </div>
         </div>
       </div>
@@ -1811,6 +1813,11 @@ function renderPillBar(){
       `<button class="drug-pill active" style="background:#c1121f;border-color:#c1121f;color:#fff">🫁 Intubation Drug Calculator</button>`;
     return;
   }
+  if(activeCategory==='references'){
+    document.getElementById('pill-bar').innerHTML =
+      `<button class="drug-pill active" style="background:#1565c0;border-color:#1565c0;color:#fff">📚 References & Verification</button>`;
+    return;
+  }
   if(activeCategory==='antibiotics'){
     document.getElementById('pill-bar').innerHTML = ANTIBIOTICS.map((d,i)=>`
       <button class="drug-pill${selectedAbx===i?' active':''}"
@@ -1829,6 +1836,10 @@ function renderDrugDisplay(){
   const el = document.getElementById('drug-display');
   if(activeCategory==='intubation'){
     renderIntubationTab();
+    return;
+  }
+  if(activeCategory==='references'){
+    renderReferencesTab();
     return;
   }
   if(activeCategory==='antibiotics'){
@@ -1854,7 +1865,7 @@ function renderGIR(){
 }
 
 function renderWeightBanner(){
-  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics')?'none':'flex';
+  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references')?'none':'flex';
 }
 
 
@@ -2200,6 +2211,340 @@ function renderIntubationTab() {
           </div>
         </div>
       </div>
+    </div>`;
+}
+
+
+
+// ══════════════════════════════════════════════════════════════
+// REFERENCES & VERIFICATION DATA
+// ══════════════════════════════════════════════════════════════
+
+const REFERENCES = {
+  // General references used across all sections
+  general: [
+    {
+      title: "BNF for Children (BNFc)",
+      publisher: "NICE / BMJ / RCPCH, UK",
+      url: "https://bnfc.nice.org.uk",
+      description: "Primary reference for paediatric drug doses, renal adjustments, and safety information. Updated annually.",
+      free: true,
+      usedFor: ["All drug doses", "Renal dose adjustments", "Drug interactions", "Maximum doses"],
+    },
+    {
+      title: "Harriet Lane Handbook, 22nd Edition",
+      publisher: "Johns Hopkins Hospital, Elsevier",
+      url: "https://www.us.elsevierhealth.com/the-harriet-lane-handbook-9780323674072.html",
+      description: "Standard paediatric reference for drug dosing, emergency protocols, and clinical guidelines.",
+      free: false,
+      usedFor: ["Emergency drug doses", "Intubation drugs", "Electrolyte corrections"],
+    },
+    {
+      title: "Pediatric Advanced Life Support (PALS) Guidelines",
+      publisher: "American Heart Association (AHA), 2020",
+      url: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric",
+      description: "AHA 2020 PALS guidelines for paediatric resuscitation, cardiac arrest, and emergency drug doses.",
+      free: true,
+      usedFor: ["Resuscitation drugs", "Intubation", "Adrenaline doses", "Cardiac arrest protocols"],
+    },
+    {
+      title: "IAP-PALS Manual, 3rd Edition",
+      publisher: "Indian Academy of Pediatrics (IAP), 2022",
+      url: "https://www.iapindia.org",
+      description: "Indian paediatric advanced life support manual — adapted for Indian clinical context.",
+      free: false,
+      usedFor: ["Emergency drug doses", "Resuscitation protocols", "Indian context dosing"],
+    },
+    {
+      title: "Pediatric Critical Care Society of India (PCCSI) Guidelines 2023",
+      publisher: "PCCSI, India",
+      url: "https://www.pccsi.org",
+      description: "Consensus guidelines for paediatric intensive care in India.",
+      free: true,
+      usedFor: ["PICU protocols", "Sepsis management", "Vasoactive drug dosing"],
+    },
+    {
+      title: "Surviving Sepsis Campaign — Paediatric Guidelines",
+      publisher: "SCCM / ESICM, Pediatr Crit Care Med. 2020;21(2):e52–e106",
+      url: "https://doi.org/10.1097/PCC.0000000000002198",
+      description: "International guidelines for management of septic shock and sepsis-associated organ dysfunction in children.",
+      free: true,
+      usedFor: ["Sepsis management", "Vasoactive selection", "Fluid resuscitation"],
+    },
+    {
+      title: "SCCM PANDEM Guidelines 2022",
+      publisher: "Smith HA et al. Pediatr Crit Care Med. 2022;23(2):e74–e110",
+      url: "https://doi.org/10.1097/PCC.0000000000002873",
+      description: "Pain, Agitation, Neuromuscular Blockade, and Delirium in paediatric critical care — comprehensive sedoanalgesia guidelines.",
+      free: true,
+      usedFor: ["Sedation doses", "Midazolam", "Fentanyl", "Dexmedetomidine", "Propofol", "Ketamine", "Morphine"],
+    },
+    {
+      title: "Lexicomp Pediatric & Neonatal Dosage Handbook, 30th Edition",
+      publisher: "Wolters Kluwer",
+      url: "https://www.wolterskluwer.com/en/solutions/lexicomp",
+      description: "Comprehensive paediatric and neonatal drug reference. Subscription required.",
+      free: false,
+      usedFor: ["All drug doses", "Neonatal dosing", "Drug interactions", "TDM guidance"],
+    },
+  ],
+
+  // Section-specific references
+  sections: [
+    {
+      section: "Inotropes & Vasopressors",
+      icon: "♥",
+      color: "#e63946",
+      refs: [
+        {title:"Surviving Sepsis Campaign Paediatric Guidelines 2020", url:"https://doi.org/10.1097/PCC.0000000000002198"},
+        {title:"Kissoon N et al. World Federation of Pediatric Intensive Care — Sepsis Guidelines", url:"https://doi.org/10.1097/PCC.0000000000001081"},
+        {title:"BNFc — Cardiovascular drugs", url:"https://bnfc.nice.org.uk"},
+        {title:"Norepinephrine via peripheral IV — Loubani OM et al. J Crit Care. 2015", url:"https://doi.org/10.1016/j.jcrc.2015.01.014"},
+      ]
+    },
+    {
+      section: "Sedation & Analgesia",
+      icon: "◎",
+      color: "#2a9d8f",
+      refs: [
+        {title:"SCCM PANDEM Guidelines 2022 — Smith HA et al.", url:"https://doi.org/10.1097/PCC.0000000000002873"},
+        {title:"Ketamine and ICP — Cohen L et al. Ann Emerg Med. 2015", url:"https://doi.org/10.1016/j.annemergmed.2015.03.004"},
+        {title:"Propofol Infusion Syndrome — Parke TJ et al. BMJ. 1992", url:"https://doi.org/10.1136/bmj.305.6854.613"},
+        {title:"Dexmedetomidine in PICU — Tobias JD. Pediatr Crit Care Med. 2007", url:"https://doi.org/10.1097/01.PCC.0000269399.50115.b7"},
+      ]
+    },
+    {
+      section: "Antihypertensives",
+      icon: "⟁",
+      color: "#457b9d",
+      refs: [
+        {title:"PAHO/WHO Paediatric Hypertensive Crisis Guidelines", url:"https://www.paho.org"},
+        {title:"Flynn JT et al. Clinical Practice Guideline for Screening and Management of High Blood Pressure in Children. Pediatrics. 2017", url:"https://doi.org/10.1542/peds.2017-1904"},
+        {title:"BNFc — Cardiovascular drugs", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Antiepileptics",
+      icon: "⚡",
+      color: "#6d6875",
+      refs: [
+        {title:"APLS Status Epilepticus Guidelines — RCPCH 2021", url:"https://www.rcpch.ac.uk"},
+        {title:"IAP Consensus Guidelines on Status Epilepticus 2022", url:"https://www.iapindia.org"},
+        {title:"Levetiracetam vs Phenytoin for Status — ECLIPSE Trial. Lancet. 2019", url:"https://doi.org/10.1016/S0140-6736(19)30724-X"},
+        {title:"BNFc — Antiepileptics", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Bronchodilators",
+      icon: "◈",
+      color: "#2d6a4f",
+      refs: [
+        {title:"GINA Guidelines for Acute Asthma 2023", url:"https://ginasthma.org"},
+        {title:"BTS/SIGN British Guideline on Management of Asthma 2019 (updated 2023)", url:"https://www.brit-thoracic.org.uk"},
+        {title:"Magnesium in severe asthma — MAGNETIC Trial. Lancet Respir Med. 2013", url:"https://doi.org/10.1016/S2213-2600(13)70070-5"},
+        {title:"BNFc — Respiratory drugs", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Electrolyte Corrections",
+      icon: "⬡",
+      color: "#e9a100",
+      refs: [
+        {title:"Sterns RH. Disorders of plasma sodium — causes, consequences and correction. NEJM. 2015", url:"https://doi.org/10.1056/NEJMra1404489"},
+        {title:"Hypokalaemia management — BNFc", url:"https://bnfc.nice.org.uk"},
+        {title:"Paediatric Electrolyte Disorders — Pediatr Clin North Am. 2019", url:"https://doi.org/10.1016/j.pcl.2018.09.002"},
+      ]
+    },
+    {
+      section: "Calcium & Magnesium",
+      icon: "◇",
+      color: "#f4a261",
+      refs: [
+        {title:"Hypocalcaemia in critically ill children — Pediatr Crit Care Med. 2013", url:"https://doi.org/10.1097/PCC.0b013e318283f2e6"},
+        {title:"Magnesium in paediatric critical care — BNFc", url:"https://bnfc.nice.org.uk"},
+        {title:"Calcium Gluconate vs Chloride — Roberts et al. Ann Emerg Med. 2016", url:"https://doi.org/10.1016/j.annemergmed.2016.06.014"},
+      ]
+    },
+    {
+      section: "Hypoglycaemia",
+      icon: "◆",
+      color: "#80b918",
+      refs: [
+        {title:"Thornton PS et al. Recommendations from the Pediatric Endocrine Society for Evaluation and Management of Persistent Hypoglycemia. J Pediatr. 2015", url:"https://doi.org/10.1016/j.jpeds.2015.03.057"},
+        {title:"ISPAD Clinical Practice Consensus Guidelines — Neonatal Hypoglycaemia. 2022", url:"https://www.ispad.org"},
+        {title:"BNFc — Glucose and insulin", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Antibiotics",
+      icon: "🦠",
+      color: "#1565c0",
+      refs: [
+        {title:"BNFc — Antibacterials", url:"https://bnfc.nice.org.uk"},
+        {title:"Patel N et al. Pharmacokinetic/pharmacodynamic target attainment in paediatric sepsis. Pediatr Infect Dis J. 2021", url:"https://doi.org/10.1097/INF.0000000000003014"},
+        {title:"Vancomycin AUC-guided dosing — ASHP/IDSA/SIDP Consensus Guidelines 2020", url:"https://doi.org/10.1093/ajhp/zxaa036"},
+        {title:"Colistin dosing in children — Nation RL et al. Lancet Infect Dis. 2015", url:"https://doi.org/10.1016/S1473-3099(15)70117-X"},
+        {title:"Antibiotic dosing in CRRT — Eyler RF et al. Clin J Am Soc Nephrol. 2011", url:"https://doi.org/10.2215/CJN.00340111"},
+        {title:"PCCSI Antibiotic Stewardship Guidelines 2023", url:"https://www.pccsi.org"},
+        {title:"WHO AWaRe Antibiotic Book 2022", url:"https://www.who.int/publications/i/item/9789240047495"},
+      ]
+    },
+    {
+      section: "Intubation",
+      icon: "🫁",
+      color: "#c1121f",
+      refs: [
+        {title:"Physiologically Difficult Airway — The Anaesthesia Collective", url:"https://www.anaesthesiacollective.com/the-physiologically-difficult-airway-considerations-beyond-anatomy/"},
+        {title:"Karamchandani K et al. The Physiologically Difficult Airway — SOCCA Delphi Consensus 2024. J Cardiothorac Vasc Anesth. 2024", url:"https://doi.org/10.1053/j.jvca.2023.09.028"},
+        {title:"Difficult Airway Society (DAS) Paediatric Guidelines 2015", url:"https://das.uk.com/guidelines/paediatric_difficult_airway_guidelines"},
+        {title:"Ketamine safety in raised ICP — Cohen L et al. Ann Emerg Med. 2015", url:"https://doi.org/10.1016/j.annemergmed.2015.03.004"},
+        {title:"ETT size formulae — Khine HH et al. Anesthesiology. 1997", url:"https://doi.org/10.1097/00000542-199703000-00015"},
+        {title:"Rapid Sequence Intubation in PICU — Kerrey BT et al. Ann Emerg Med. 2012", url:"https://doi.org/10.1016/j.annemergmed.2011.09.010"},
+      ]
+    },
+  ],
+
+  // Per-drug verify links (shown as button on each drug card)
+  drugLinks: {
+    "Dopamine":               "https://bnfc.nice.org.uk/drugs/dopamine-hydrochloride/",
+    "Dobutamine":             "https://bnfc.nice.org.uk/drugs/dobutamine/",
+    "Adrenaline (Epinephrine)": "https://bnfc.nice.org.uk/drugs/adrenaline-epinephrine/",
+    "Noradrenaline (Norepinephrine)": "https://bnfc.nice.org.uk/drugs/noradrenaline-norepinephrine/",
+    "Milrinone":              "https://bnfc.nice.org.uk/drugs/milrinone/",
+    "Vasopressin":            "https://bnfc.nice.org.uk/drugs/vasopressin/",
+    "Midazolam":              "https://bnfc.nice.org.uk/drugs/midazolam/",
+    "Morphine":               "https://bnfc.nice.org.uk/drugs/morphine/",
+    "Fentanyl":               "https://bnfc.nice.org.uk/drugs/fentanyl/",
+    "Ketamine":               "https://bnfc.nice.org.uk/drugs/ketamine/",
+    "Dexmedetomidine":        "https://bnfc.nice.org.uk/drugs/dexmedetomidine/",
+    "Propofol ⚠":             "https://bnfc.nice.org.uk/drugs/propofol/",
+    "Labetalol":              "https://bnfc.nice.org.uk/drugs/labetalol-hydrochloride/",
+    "Nicardipine":            "https://bnfc.nice.org.uk/drugs/nicardipine-hydrochloride/",
+    "Sodium Nitroprusside (SNP) ⚠": "https://bnfc.nice.org.uk/drugs/sodium-nitroprusside/",
+    "Hydralazine (IV bolus)": "https://bnfc.nice.org.uk/drugs/hydralazine-hydrochloride/",
+    "Enalaprilat (IV)":       "https://bnfc.nice.org.uk/drugs/enalapril-maleate/",
+    "Phenobarbitone":         "https://bnfc.nice.org.uk/drugs/phenobarbital/",
+    "Phenytoin/Fosphenytoin ⚠": "https://bnfc.nice.org.uk/drugs/phenytoin/",
+    "Valproate (Sodium) ⚠":   "https://bnfc.nice.org.uk/drugs/sodium-valproate/",
+    "Levetiracetam":          "https://bnfc.nice.org.uk/drugs/levetiracetam/",
+    "Midazolam – Status Epilepticus": "https://bnfc.nice.org.uk/drugs/midazolam/",
+    "Lorazepam":              "https://bnfc.nice.org.uk/drugs/lorazepam/",
+    "Lacosamide":             "https://bnfc.nice.org.uk/drugs/lacosamide/",
+    "Salbutamol IV (Status Asthmaticus)": "https://bnfc.nice.org.uk/drugs/salbutamol/",
+    "Aminophylline ⚠":        "https://bnfc.nice.org.uk/drugs/aminophylline/",
+    "Magnesium Sulphate (Bronchospasm)": "https://bnfc.nice.org.uk/drugs/magnesium-sulfate/",
+    "Ipratropium Bromide (Nebulised)": "https://bnfc.nice.org.uk/drugs/ipratropium-bromide/",
+    "Potassium Chloride (KCl) ⚠": "https://bnfc.nice.org.uk/drugs/potassium-chloride/",
+    "3% Sodium Chloride ⚠ (Hyponatraemia)": "https://bnfc.nice.org.uk/drugs/sodium-chloride/",
+    "Phosphate (IV) – Hypophosphataemia": "https://bnfc.nice.org.uk/drugs/phosphate/",
+    "Calcium Gluconate 10% ⚠": "https://bnfc.nice.org.uk/drugs/calcium-gluconate/",
+    "Calcium Chloride 10% ⚠ (arrest)": "https://bnfc.nice.org.uk/drugs/calcium-chloride/",
+    "Magnesium Sulphate (IV) ⚠": "https://bnfc.nice.org.uk/drugs/magnesium-sulfate/",
+    "Dextrose 10% (Neonates & Infants)": "https://bnfc.nice.org.uk/drugs/glucose/",
+    "Dextrose 25% (Children >5 yr)": "https://bnfc.nice.org.uk/drugs/glucose/",
+    "Glucagon":               "https://bnfc.nice.org.uk/drugs/glucagon/",
+    "Octreotide (Hyperinsulinism)": "https://bnfc.nice.org.uk/drugs/octreotide/",
+    "Meropenem":              "https://bnfc.nice.org.uk/drugs/meropenem/",
+    "Piperacillin-Tazobactam":"https://bnfc.nice.org.uk/drugs/piperacillin-with-tazobactam/",
+    "Ceftriaxone":            "https://bnfc.nice.org.uk/drugs/ceftriaxone/",
+    "Cefotaxime":             "https://bnfc.nice.org.uk/drugs/cefotaxime/",
+    "Ceftazidime":            "https://bnfc.nice.org.uk/drugs/ceftazidime/",
+    "Cefoperazone-Sulbactam": "https://www.who.int/publications/i/item/9789240047495",
+    "Vancomycin":             "https://bnfc.nice.org.uk/drugs/vancomycin/",
+    "Teicoplanin":            "https://bnfc.nice.org.uk/drugs/teicoplanin/",
+    "Amikacin":               "https://bnfc.nice.org.uk/drugs/amikacin/",
+    "Gentamicin":             "https://bnfc.nice.org.uk/drugs/gentamicin/",
+    "Metronidazole":          "https://bnfc.nice.org.uk/drugs/metronidazole/",
+    "Linezolid":              "https://bnfc.nice.org.uk/drugs/linezolid/",
+    "Colistin (Polymyxin E)": "https://bnfc.nice.org.uk/drugs/colistimethate-sodium/",
+    "Azithromycin":           "https://bnfc.nice.org.uk/drugs/azithromycin/",
+    "Fluconazole":            "https://bnfc.nice.org.uk/drugs/fluconazole/",
+    "Amphotericin B (Liposomal)": "https://bnfc.nice.org.uk/drugs/amphotericin/",
+    "Acyclovir":              "https://bnfc.nice.org.uk/drugs/aciclovir/",
+  }
+};
+
+// ── References tab renderer ───────────────────────────────────
+function renderReferencesTab() {
+  const el = document.getElementById('drug-display');
+
+  const generalCards = REFERENCES.general.map(r => `
+    <div style="background:#fff;border-radius:11px;border:1.5px solid var(--bdr);padding:13px 15px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,0.05)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:var(--text)">${esc(r.title)}</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px">${esc(r.publisher)}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:5px;line-height:1.6">${esc(r.description)}</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+            ${r.usedFor.map(u=>`<span style="background:#f0f2f8;border-radius:10px;padding:2px 8px;font-size:10px;color:var(--dim);font-weight:600">${esc(u)}</span>`).join('')}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;background:${r.free?'#e8f5e9':'#fff8e1'};color:${r.free?'#2e7d32':'#e65100'}">${r.free?'FREE':'SUBSCRIPTION'}</span>
+          <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer"
+            style="background:#1565c0;color:#fff;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block">
+            🔗 Open
+          </a>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const sectionCards = REFERENCES.sections.map(s => `
+    <div style="background:#fff;border-radius:11px;border:1.5px solid ${esc(s.color)}33;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,0.05)">
+      <div style="background:${esc(s.color)};padding:9px 14px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:16px">${s.icon}</span>
+        <span style="font-size:13px;font-weight:800;color:#fff">${esc(s.section)}</span>
+      </div>
+      <div style="padding:10px 14px">
+        ${s.refs.map(r=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)">
+            <div style="font-size:12px;color:var(--text2);flex:1;line-height:1.5">${esc(r.title)}</div>
+            <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer"
+              style="background:var(--bg3);color:#1565c0;border:1.5px solid #1565c040;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none;flex-shrink:0">
+              🔗 Verify
+            </a>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="drug-panel" style="--drug-color:#1565c0">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:#1565c0"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">📚 References & Verification</div>
+          <div class="drug-badges">
+            <span class="badge badge-type" style="background:#e8f4fd;color:#1565c0">Dr. Ananya · KMCT Medical College · Built with AI assistance</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification statement -->
+      <div class="section">
+        <div style="background:#e8f4fd;border:2px solid #1565c0;border-radius:11px;padding:13px 15px">
+          <div style="font-size:13px;font-weight:800;color:#1565c0;margin-bottom:6px">📋 Verification Statement</div>
+          <div style="font-size:13px;color:#0d3c6e;line-height:1.75">
+            Doses in this calculator are based on BNFc, Harriet Lane Handbook, SCCM PANDEM Guidelines, AHA PALS 2020, IAP-PALS, Surviving Sepsis Campaign Paediatric Guidelines, and current PICU consensus guidelines. Users are encouraged to verify against current references before clinical use.
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:#1565c0;font-style:italic">
+            All clinical decisions remain the responsibility of the treating clinician.
+          </div>
+        </div>
+      </div>
+
+      <!-- General references -->
+      <div class="section">
+        <div class="section-title">Primary References Used</div>
+        ${generalCards}
+      </div>
+
+      <!-- Section-specific references -->
+      <div class="section">
+        <div class="section-title">Section-Specific References</div>
+        ${sectionCards}
+      </div>
+
+
     </div>`;
 }
 
