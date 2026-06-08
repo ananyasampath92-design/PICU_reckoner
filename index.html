@@ -196,6 +196,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 
 <div id="tabs"></div>
 <div id="pill-bar"></div>
+<div id="unit-toggle-bar" style="display:none"></div>
 <div id="content">
   <div id="wt-banner" style="display:none">⚖️ Enter patient weight above for weight-specific preparation and dose calculations</div>
   <div id="gir-section" style="display:none">
@@ -217,7 +218,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
           <div class="gir-result" id="gir-out2"><div class="gr-lbl">RATE</div><span class="gr-val" id="gv2">—</span><span class="gr-unit"> mL/hr</span></div>
         </div>
       </div>
-      <div class="gir-note">Target BG: Neonate 2.6–7 mmol/L &nbsp;|&nbsp; Infant/Child 4–10 mmol/L &nbsp;|&nbsp; D10% at GIR × wt × 6 / 10 mL/hr</div>
+      <div class="gir-note">Target BG: Neonate 47–126 mg/dL (2.6–7 mmol/L) | Infant/Child 72–180 mg/dL (4–10 mmol/L) &nbsp;|&nbsp; D10% at GIR × wt × 6 / 10 mL/hr</div>
     </div>
   </div>
   <div id="drug-display"></div>
@@ -326,7 +327,7 @@ inotropes:[
    {dose:"0.5–2.0",lbl:"High",eff:"Severe vasoconstriction"},
   ],
   bolus:null,
-  notes:"PIV acceptable for LOW doses (0.05–0.2 mcg/kg/min) for SHORT duration in emergency — use large-bore antecubital IV, check site frequently. CENTRAL LINE strongly preferred for doses >0.2 mcg/kg/min or prolonged use. Extravasation → severe necrosis (phentolamine antidote). First-line vasopressor for vasodilatory/septic shock. Max 2 mcg/kg/min."},
+  notes:"PIV acceptable for LOW doses (0.05–0.2 mcg/kg/min) for SHORT duration in emergency — use large-bore antecubital IV, check site frequently. CENTRAL LINE strongly preferred for doses >0.2 mcg/kg/min or prolonged use. Extravasation → severe necrosis (phentolamine antidote). First-line vasopressor for vasodilatory/septic shock (Phoenix criteria: sepsis + cardiovascular score ≥1). Max 2 mcg/kg/min."},
 
  {name:"Milrinone",color:"#e63946",warn:false,
   prep:"0.3 mg/kg in 50 mL NS/D5W",
@@ -686,9 +687,9 @@ electrolytes:[
   rateFn:(w,d)=>+(d*w).toFixed(1),
   commonDoses:[0.3,0.5,1.0],
   ranges:[
-   {dose:"0.3–0.5 mmol/kg",lbl:"K+ 3.0–3.4 (mild)",eff:"Over 2–4 hr peripheral; max 0.3 mmol/kg/hr"},
-   {dose:"0.5–1 mmol/kg",lbl:"K+ 2.5–3.0 (moderate)",eff:"Over 4–6 hr CENTRAL; ECG monitoring"},
-   {dose:"0.3–0.5 mmol/kg STAT",lbl:"K+ <2.5 (severe)",eff:"Over 1–2 hr central; continuous ECG"},
+   {dose:"0.3–0.5 mmol/kg",lbl:"K+ 3.0–3.4 (mild)",eff:"Over 2–4 hr peripheral; max 0.3 mmol/kg/hr | 3.0–3.4 mEq/L"},
+   {dose:"0.5–1 mmol/kg",lbl:"K+ 2.5–3.0 (moderate)",eff:"Over 4–6 hr CENTRAL; ECG monitoring | 2.5–3.0 mEq/L"},
+   {dose:"0.3–0.5 mmol/kg STAT",lbl:"K+ <2.5 (severe)",eff:"Over 1–2 hr central; continuous ECG | <2.5 mEq/L"},
    {dose:"2–4 mmol/kg/day",lbl:"Maintenance",eff:"Added to IV fluids (max 40 mmol/L peripheral)"},
   ],
   bolus:null,
@@ -733,7 +734,7 @@ calcium:[
   commonDoses:[0.5,1.0],
   ranges:[
    {dose:"0.5–1 mL/kg",lbl:"Hypocalcaemia / cardiac arrest",eff:"Slow IV over 5–10 min; max 20 mL"},
-   {dose:"0.5–1 mL/kg/hr",lbl:"Maintenance infusion",eff:"Titrate to iCa2+ 1.1–1.3 mmol/L"},
+   {dose:"0.5–1 mL/kg/hr",lbl:"Maintenance infusion",eff:"Titrate to iCa2+ 1.1–1.3 mmol/L (4.4–5.2 mg/dL)"},
    {dose:"2 mL/kg",lbl:"Neonatal hypocalcaemia",eff:"Over 10 min; then 5–8 mL/kg/day infusion"},
    {dose:"0.5–1 mL/kg",lbl:"Hyperkalaemia (cardiac protection)",eff:"Over 5 min; onset immediate; duration 30 min"},
   ],
@@ -763,7 +764,7 @@ calcium:[
   ranges:[
    {dose:"25–50 mg/kg",lbl:"Correction (mild-moderate)",eff:"Over 20–30 min; max 2000 mg"},
    {dose:"50–100 mg/kg",lbl:"Severe/symptomatic",eff:"Over 30–60 min; max 2000 mg single dose"},
-   {dose:"25–50 mg/kg/day",lbl:"Maintenance",eff:"Infusion over 24hr; target Mg 0.7–1.0 mmol/L"},
+   {dose:"25–50 mg/kg/day",lbl:"Maintenance",eff:"Infusion over 24hr; target Mg 0.7–1.0 mmol/L (1.7–2.4 mg/dL)"},
    {dose:"25–50 mg/kg",lbl:"Torsades de Pointes",eff:"Over 10–20 min then infusion"},
   ],
   bolus:null,
@@ -779,11 +780,11 @@ hypoglycemia:[
   rateFn:(w,d)=>+(d*w).toFixed(1),
   commonDoses:[2,3,4,5],
   ranges:[
-   {dose:"2–4 mL/kg D10%",lbl:"BG 1.5–2.5 mmol/L (mild)",eff:"Over 5 min; recheck at 15–30 min"},
-   {dose:"4–5 mL/kg D10%",lbl:"BG <1.5 / symptomatic",eff:"Over 5 min; then start GIR 6–8"},
+   {dose:"2–4 mL/kg D10%",lbl:"BG 27–45 mg/dL (1.5–2.5 mmol/L)",eff:"Over 5 min; recheck at 15–30 min"},
+   {dose:"4–5 mL/kg D10%",lbl:"BG <1.5 mmol/L (<27 mg/dL) / symptomatic",eff:"Over 5 min; then start GIR 6–8"},
   ],
   bolus:null,
-  notes:"NEVER use D50% in neonates/infants. Target BG 2.6–7 mmol/L (neonate) / 4–10 mmol/L (infant). Use GIR Calculator above for maintenance rate."},
+  notes:"NEVER use D50% in neonates/infants. Target BG 47–126 mg/dL (neonate) / 72–180 mg/dL (infant). Use GIR Calculator above for maintenance rate."},
 
  {name:"Dextrose 25% (Children >5 yr)",color:"#80b918",warn:false,
   prep:"D25% = 250 mg/mL glucose",
@@ -836,90 +837,231 @@ hypoglycemia:[
 // ANTIBIOTIC DATA
 // ══════════════════════════════════════════════════════════════
 const ANTIBIOTICS = [
+
 {
-  name:"Meropenem",
-  color:"#1565c0",
-  class:"Carbapenem",
-  pkpd:"Time-dependent. Target: %T>MIC ≥40% (bacteriostatic) to ≥100% (bactericidal). Optimise with extended/prolonged infusion.",
-  spectrum:"Gram-positive (not MRSA/Enterococcus), Gram-negative including Pseudomonas, ESBL, Acinetobacter, anaerobes. NOT: MRSA, VRE, Stenotrophomonas.",
+  name:"Acyclovir",
+  color:"#004d40",
+  class:"Antiviral (Guanosine analogue)",
+  pkpd:"Concentration-dependent. Requires activation by viral thymidine kinase. CNS penetration 50% of plasma. Higher doses needed for CNS infections.",
+  spectrum:"HSV-1, HSV-2, VZV (high dose), EBV, CMV (less active — ganciclovir preferred for CMV). NOT: CMV (poor efficacy), adenovirus.",
   doses:[
-    {indication:"Standard infections",dose:"20 mg/kg/dose",freq:"q8h",max:"1 g/dose",notes:"IV over 30 min"},
-    {indication:"Severe/meningitis/CNS",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"IV over 30 min"},
-    {indication:"Pseudomonas/non-fermenter",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"Consider extended infusion 3–4hr"},
-    {indication:"Febrile neutropenia",dose:"20–40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+    {indication:"Neonatal HSV (all forms)",dose:"20 mg/kg/dose",freq:"q8h × 14–21 days",max:"",notes:"IV over 1hr. Highest priority — start empirically if HSV suspected in neonate."},
+    {indication:"HSV encephalitis (children)",dose:"10–15 mg/kg/dose",freq:"q8h × 14–21 days",max:"750 mg/dose",notes:"IV over 1hr"},
+    {indication:"Severe VZV (immunocompromised)",dose:"10–15 mg/kg/dose",freq:"q8h × 7–10 days",max:"750 mg/dose",notes:""},
+    {indication:"HSV mucocutaneous (mild)",dose:"5 mg/kg/dose",freq:"q8h × 5–7 days",max:"",notes:"IV; or oral acyclovir/valacyclovir"},
   ],
   renal:[
-    {egfr:">50",dose:"No change",freq:"q8h",notes:"Normal dosing"},
-    {egfr:"26–50",dose:"No change",freq:"q12h",notes:"Extend interval"},
-    {egfr:"10–25",dose:"50% of dose",freq:"q12h",notes:"Reduce dose and extend interval"},
-    {egfr:"<10",dose:"50% of dose",freq:"q24h",notes:""},
+    {egfr:">50",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"25–50",dose:"No change",freq:"q12h",notes:""},
+    {egfr:"10–25",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"<10",dose:"50% dose",freq:"q24h",notes:""},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"20–40 mg/kg/dose",freq:"q12h",notes:"Monitor levels if available"},
-    {mode:"Intermittent HD",dose:"20 mg/kg/dose",freq:"q24h + supplement post-HD",notes:"Give after dialysis session"},
-    {mode:"CAPD",dose:"50% normal dose",freq:"q12h",notes:""},
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q12–24h guided by creatinine",notes:"Significantly removed"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24h + supplement post-HD",notes:"Highly dialysable — supplement after each HD"},
+    {mode:"CAPD",dose:"50% dose",freq:"q24h",notes:""},
   ],
-  tdm:{required:false,notes:"Routine TDM not standard. Consider in severe infections, non-fermenter organisms. Target trough >4× MIC."},
+  tdm:{required:false,notes:"TDM not routinely required. Ensure adequate hydration to prevent crystalline nephropathy."},
   interactions:[
-    "Valproate: meropenem significantly REDUCES valproate levels (↓40–60%) — avoid combination or monitor levels closely",
-    "Probenecid: increases meropenem levels — avoid",
+    "Nephrotoxic drugs (aminoglycosides, vancomycin, NSAIDs): additive nephrotoxicity",
+    "Probenecid: increases acyclovir levels (reduced renal excretion)",
+    "Mycophenolate: possible increased mycophenolate levels",
+    "Methotrexate: additive neurotoxicity",
   ],
-  cautions:"Seizure risk at high doses especially with CNS infections or renal impairment. Cross-reactivity with penicillin allergy <1% — use with caution in severe penicillin allergy.",
+  cautions:"Crystalline nephropathy if inadequately hydrated — maintain urine output >1 mL/kg/hr during infusion. Neurotoxicity (tremor, confusion, seizures) especially in renal impairment. Infuse over minimum 1hr. Never give IM or subcut.",
 },
 {
-  name:"Piperacillin-Tazobactam",
-  color:"#1565c0",
-  class:"Ureidopenicillin + β-lactamase inhibitor",
-  pkpd:"Time-dependent. Target: %T>MIC ≥50%. Prolonged infusion (over 4hr) improves PK/PD target attainment for resistant organisms.",
-  spectrum:"Gram-positive (not MRSA), Gram-negative including Pseudomonas, ESBL (variable), anaerobes. Good coverage for hospital-acquired infections.",
+  name:"Amikacin",
+  color:"#e65100",
+  class:"Aminoglycoside",
+  pkpd:"Concentration-dependent + PAE. Target: Cmax/MIC ≥8–10. Once-daily dosing preferred in children to maximise peak and reduce toxicity.",
+  spectrum:"Gram-negative: Pseudomonas, Acinetobacter, Enterobacteriaceae. Active against mycobacteria. NOT: anaerobes, Gram-positives (except synergy with beta-lactams).",
   doses:[
-    {indication:"Moderate infections",dose:"100 mg/kg/dose (pip component)",freq:"q8h",max:"4 g pip/dose",notes:"IV over 30 min"},
-    {indication:"Severe/Pseudomonas",dose:"100 mg/kg/dose",freq:"q6h",max:"4 g pip/dose",notes:"IV over 4hr (prolonged infusion)"},
-    {indication:"Neonates <7 days",dose:"75 mg/kg/dose",freq:"q12h",max:"",notes:""},
-    {indication:"Neonates >7 days",dose:"75 mg/kg/dose",freq:"q8h",max:"",notes:""},
+    {indication:"Standard (once daily)",dose:"15–20 mg/kg/dose",freq:"q24h",max:"1.5 g/dose",notes:"IV over 30 min. Extended interval preferred."},
+    {indication:"Neonates <32 wks",dose:"18 mg/kg/dose",freq:"q48h",max:"",notes:"IV over 30 min"},
+    {indication:"Neonates 32–37 wks",dose:"18 mg/kg/dose",freq:"q36h",max:"",notes:""},
+    {indication:"Neonates term",dose:"15–18 mg/kg/dose",freq:"q24h",max:"",notes:""},
+    {indication:"Synergy (with beta-lactam)",dose:"7.5 mg/kg/dose",freq:"q12h",max:"",notes:"For Gram-positive synergy"},
   ],
   renal:[
-    {egfr:">40",dose:"No change",freq:"q6–8h",notes:"Normal dosing"},
-    {egfr:"20–40",dose:"No change",freq:"q8h",notes:""},
-    {egfr:"<20",dose:"No change",freq:"q12h",notes:""},
+    {egfr:">70",dose:"15–20 mg/kg",freq:"q24h",notes:""},
+    {egfr:"40–70",dose:"15 mg/kg",freq:"q36h",notes:"TDM essential"},
+    {egfr:"20–40",dose:"15 mg/kg",freq:"q48h",notes:"TDM essential"},
+    {egfr:"<20",dose:"10 mg/kg loading, TDM-guided",freq:"q48–72h",notes:"TDM mandatory"},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"100 mg/kg/dose",freq:"q8h",notes:""},
-    {mode:"Intermittent HD",dose:"100 mg/kg/dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable"},
+    {mode:"CRRT (CVVHDF)",dose:"10 mg/kg",freq:"q24–36h guided by TDM",notes:"Moderately removed — TDM essential"},
+    {mode:"Intermittent HD",dose:"10 mg/kg post-HD",freq:"After each dialysis session",notes:"Highly dialysable — redose after HD"},
+    {mode:"CAPD",dose:"10 mg/kg",freq:"q48h + TDM",notes:""},
+  ],
+  tdm:{
+    required:true,
+    peak:"Peak (1hr post-infusion): 20–30 mg/L (target for once-daily dosing)",
+    trough:"Trough (pre-dose): <5 mg/L (standard); <2 mg/L preferred to minimise toxicity",
+    timing:"Peak at 1hr after end of infusion. Trough just before next dose. Check after 3rd dose or earlier in renal impairment.",
+    notes:"Nephrotoxicity and ototoxicity are cumulative — minimise duration (max 5–7 days if possible). Monitor renal function every 2–3 days.",
+  },
+  interactions:[
+    "Vancomycin: additive nephrotoxicity — avoid combination if possible; if essential, monitor renal function daily",
+    "Loop diuretics (furosemide): additive ototoxicity and nephrotoxicity",
+    "Neuromuscular blocking agents: enhanced neuromuscular blockade",
+    "Cisplatin: additive ototoxicity — avoid",
+    "NSAIDs: reduced renal clearance → amikacin accumulation",
+  ],
+  cautions:"Nephrotoxicity and irreversible ototoxicity (vestibular + cochlear) — limit duration. Ensure adequate hydration. Avoid in myasthenia gravis. Audiology follow-up after prolonged courses.",
+},
+{
+  name:"Amoxicillin",
+  color:"#2e7d32",
+  class:"Aminopenicillin",
+  pkpd:"Time-dependent. Target: %T>MIC ≥40–50%. Good oral bioavailability (~90%) — oral and IV are clinically equivalent for susceptible organisms.",
+  spectrum:"Gram-positive: Streptococcus (GAS, GBS, pneumoniae), Enterococcus (VSE), Listeria. Gram-negative: H. influenzae (sensitive strains), E. coli (sensitive), Proteus mirabilis. NOT: beta-lactamase producers, MRSA, Klebsiella, Pseudomonas.",
+  doses:[
+    {indication:"Standard mild–moderate infections",dose:"25–50 mg/kg/day",freq:"divided q8h",max:"500 mg/dose",notes:"Oral suspension or IV; equivalent bioavailability"},
+    {indication:"Severe / community pneumonia",dose:"75–90 mg/kg/day",freq:"divided q8h",max:"1 g/dose",notes:"High-dose oral or IV"},
+    {indication:"Meningitis / CNS infections",dose:"100 mg/kg/day",freq:"divided q6h",max:"2 g/dose",notes:"IV only; 6-hourly for CNS"},
+    {indication:"Neonates <7 days",dose:"50 mg/kg/day",freq:"divided q12h",max:"",notes:"IV; adjust for gestational age"},
+    {indication:"Neonates >7 days",dose:"75 mg/kg/day",freq:"divided q8h",max:"",notes:"IV"},
+    {indication:"Group B Streptococcus (GBS)",dose:"100–150 mg/kg/day",freq:"divided q6–8h",max:"2 g/dose",notes:"IV; for GBS meningitis/sepsis"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"10–30",dose:"No change",freq:"q12h",notes:"Extend interval"},
+    {egfr:"<10",dose:"50% of dose",freq:"q12–24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q8–12h",notes:"Moderately removed — normal dosing"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable — supplement after HD"},
     {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
   ],
-  tdm:{required:false,notes:"TDM not routinely required. Consider AUC-guided dosing in critically ill with augmented renal clearance."},
+  tdm:{required:false,notes:"TDM not required. Oral suspension: 125 mg/5mL or 250 mg/5mL. IV: 250 mg, 500 mg, 1 g vials reconstituted in WFI."},
   interactions:[
-    "Methotrexate: pip-tazo reduces renal elimination → methotrexate toxicity",
-    "Vecuronium/neuromuscular blockers: may prolong neuromuscular blockade",
-    "Vancomycin: combination associated with increased nephrotoxicity — monitor renal function",
+    "Warfarin: may increase INR — monitor",
+    "Methotrexate: reduced renal elimination — toxicity risk",
+    "Allopurinol: increased risk of rash — monitor",
+    "Oral contraceptives: theoretical reduction in efficacy (not proven) — counsel patients",
   ],
-  cautions:"Hyponatraemia risk (high sodium content). Thrombocytopenia with prolonged use. Electrolyte monitoring recommended.",
+  cautions:"Hypersensitivity: confirm penicillin allergy history (anaphylaxis: avoid; minor rash: use with caution). Maculopapular rash common in EBV/mononucleosis — do NOT use if EBV suspected. Dose-dependent seizures in renal failure. Suspension: shake well before use; refrigerate after reconstitution; discard after 7–14 days.",
 },
 {
-  name:"Ceftriaxone",
+  name:"Amoxicillin-Clavulanate (Co-amoxiclav)",
   color:"#2e7d32",
-  class:"3rd Generation Cephalosporin",
-  pkpd:"Time-dependent. Long half-life (6–9hr) allows once-daily dosing. Target: %T>MIC ≥70%.",
-  spectrum:"Gram-positive (not MRSA, Enterococcus), Gram-negative (not Pseudomonas, Acinetobacter), excellent CNS penetration. Good for meningitis, community-acquired infections.",
+  class:"Aminopenicillin + beta-lactamase inhibitor",
+  pkpd:"Time-dependent (amoxicillin component). Target: %T>MIC ≥40–50%. Clavulanate inhibits beta-lactamases (TEM, SHV, CTX-M). Dose expressed as amoxicillin component throughout.",
+  spectrum:"Extends amoxicillin to include beta-lactamase producing organisms: MSSA, H. influenzae (BLNAR variable), Moraxella, E. coli (sensitive), Klebsiella (oral strains), anaerobes (Bacteroides). NOT: MRSA, Pseudomonas, ESBL-producing organisms, Acinetobacter.",
   doses:[
-    {indication:"Standard infections",dose:"50–75 mg/kg/day",freq:"q24h or divided q12h",max:"2 g/day",notes:"IV over 30 min"},
-    {indication:"Meningitis/severe",dose:"100 mg/kg/day",freq:"divided q12h",max:"4 g/day",notes:"IV over 30 min"},
-    {indication:"Gonorrhoea",dose:"50 mg/kg",freq:"single dose",max:"500 mg",notes:"IM"},
+    {indication:"Standard infections (oral)",dose:"25–45 mg/kg/day (amox)",freq:"divided q8h",max:"500 mg amox/dose (125 mg clav)",notes:"Oral suspension: 125/31.25 mg/5mL or 250/62.5 mg/5mL"},
+    {indication:"High dose — AOM, sinusitis, CAP (oral)",dose:"80–90 mg/kg/day (amox)",freq:"divided q8h",max:"875 mg amox/dose",notes:"Use 400/57 mg/5mL suspension for high dose; reduces GI side effects"},
+    {indication:"Standard IV (co-amoxiclav)",dose:"30 mg/kg/dose (amox component)",freq:"q8h",max:"1 g amox/dose (200 mg clav)",notes:"IV: 500/100 mg or 1000/200 mg vials; infuse over 30 min"},
+    {indication:"Severe IV infections",dose:"40–50 mg/kg/dose (amox)",freq:"q6–8h",max:"2 g amox/dose",notes:""},
+    {indication:"Neonates <7 days",dose:"25 mg/kg/dose (amox)",freq:"q12h",max:"",notes:"IV only; limited oral data in neonates"},
+    {indication:"Neonates >7 days",dose:"25–30 mg/kg/dose (amox)",freq:"q8h",max:"",notes:"IV"},
   ],
   renal:[
-    {egfr:"Any",dose:"No adjustment needed",freq:"Normal",notes:"Primarily biliary excretion — safe in renal impairment"},
+    {egfr:">30",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"10–30",dose:"No change",freq:"q12h",notes:"Extend interval; clavulanate also accumulates"},
+    {egfr:"<10",dose:"Standard single dose, then halve",freq:"q24h",notes:"Clavulanate accumulation — monitor"},
   ],
   rrt:[
-    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q24h",notes:"Not significantly removed by dialysis"},
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q8–12h",notes:"Both components moderately removed"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable — supplement after HD"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required. Oral suspension formulations vary — check amoxicillin:clavulanate ratio (most commonly 4:1 or 7:1). IV available as 500/100mg or 1000/200mg vials."},
+  interactions:[
+    "Warfarin: increased INR — monitor closely",
+    "Methotrexate: reduced renal elimination — methotrexate toxicity",
+    "Allopurinol: increased rash risk",
+    "Probenecid: increases amoxicillin levels",
+    "Oral contraceptives: theoretical efficacy reduction — counsel",
+  ],
+  cautions:"⚠ Hepatotoxicity risk with clavulanate component — cholestatic jaundice reported (more common in adults, males, prolonged use >14 days). Monitor LFTs if prolonged course. GI side effects (diarrhoea, nausea) common — take with food, use probiotic. Same penicillin allergy precautions as amoxicillin. EBV/mononucleosis: avoid (rash). Reconstituted suspension: refrigerate; discard after 7 days.",
+},
+{
+  name:"Amphotericin B (Liposomal)",
+  color:"#004d40",
+  class:"Polyene Antifungal",
+  pkpd:"Concentration-dependent. Liposomal formulation (AmBisome) preferred over conventional for better tolerability. NOT interchangeable with conventional amphotericin — different dosing.",
+  spectrum:"Broadest antifungal spectrum: Candida (all species including azole-resistant), Aspergillus, Mucor, Cryptococcus. Drug of choice for invasive mould infections.",
+  doses:[
+    {indication:"Invasive candidiasis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:"IV over 2hr via in-line filter (1.2 micron)"},
+    {indication:"Invasive aspergillosis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:""},
+    {indication:"Mucormycosis",dose:"5–10 mg/kg/day (liposomal)",freq:"q24h",max:"10 mg/kg/day",notes:"Higher doses for Mucor"},
+    {indication:"Cryptococcal meningitis (induction)",dose:"3–6 mg/kg/day (liposomal)",freq:"q24h",max:"",notes:"+ flucytosine if available"},
+    {indication:"Conventional Ampho B (if liposomal unavailable)",dose:"0.5–1.5 mg/kg/day",freq:"q24h",max:"1.5 mg/kg",notes:"Start with 0.1 mg/kg test dose. Premedicate."},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"Normal",notes:"Monitor renal function closely"},
+    {egfr:"<50",dose:"Liposomal: no change. Conventional: use with extreme caution.",freq:"Normal",notes:"Liposomal significantly less nephrotoxic than conventional"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change (liposomal)",freq:"Normal",notes:"Not significantly removed by RRT"},
+  ],
+  tdm:{required:false,notes:"TDM not routinely available or required in most centres."},
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — monitor renal function",
+    "Ciclosporin/tacrolimus: additive nephrotoxicity",
+    "Corticosteroids: hypokalaemia risk amplified",
+    "Loop diuretics: hypokalaemia — aggressive potassium replacement required",
+    "Flucytosine: synergistic antifungal effect — often combined for cryptococcal meningitis",
+    "Digoxin: hypokalaemia potentiates digoxin toxicity — monitor K+ and digoxin levels",
+  ],
+  cautions:"⚠ Liposomal (AmBisome) NOT interchangeable with conventional amphotericin B — different doses. Infusion reactions: fever, rigors, hypotension — premedicate with paracetamol ± hydrocortisone. Nephrotoxicity (much less with liposomal). Hypokalaemia and hypomagnesaemia — aggressive electrolyte replacement. Infuse via dedicated line over 2hr through 1.2 micron filter.",
+},
+{
+  name:"Azithromycin",
+  color:"#1565c0",
+  class:"Macrolide",
+  pkpd:"Time-dependent (AUC/MIC). Very high tissue/intracellular concentrations. Long tissue half-life allows short courses and once-daily dosing.",
+  spectrum:"Gram-positive (Streptococcus, not Staph), atypicals (Mycoplasma, Chlamydia, Legionella), some Gram-negatives (H. influenzae, Moraxella). NOT: Enterobacteriaceae, Pseudomonas.",
+  doses:[
+    {indication:"Community-acquired pneumonia / atypicals",dose:"10 mg/kg/day",freq:"q24h × 3–5 days",max:"500 mg/day",notes:"Oral preferred. IV if unable to take oral."},
+    {indication:"IV (severe)",dose:"10 mg/kg/day",freq:"q24h",max:"500 mg/day",notes:"IV over 60 min minimum"},
+    {indication:"Whooping cough prophylaxis/treatment",dose:"10 mg/kg/day × 5 days",freq:"q24h",max:"500 mg/day",notes:""},
+    {indication:"Neonatal Chlamydia",dose:"20 mg/kg/day",freq:"q24h × 3 days",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily biliary/hepatic elimination — no renal dose adjustment required"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"Normal",notes:"Not significantly removed — no dose adjustment"},
   ],
   tdm:{required:false,notes:"TDM not required."},
   interactions:[
-    "Calcium-containing IV fluids: NEVER mix or co-administer (precipitates in bloodstream — potentially fatal, especially neonates)",
-    "Ceftriaxone + calcium: avoid in neonates <28 days entirely",
-    "Warfarin: may enhance anticoagulant effect — monitor INR",
+    "QTc-prolonging drugs (amiodarone, chloroquine, ondansetron, antipsychotics): additive QTc prolongation → torsades risk — ECG monitoring",
+    "Warfarin: may increase INR — monitor",
+    "Ciclosporin: increased ciclosporin levels",
+    "Digoxin: increased digoxin levels",
+    "Antacids: reduce absorption — give 1hr before or 2hr after",
   ],
-  cautions:"⚠ NEVER co-administer with calcium-containing solutions (including Ringer's lactate) — fatal precipitation risk in neonates. Biliary sludge/gallstones with prolonged use. Avoid in hyperbilirubinaemic neonates (displaces bilirubin).",
+  cautions:"QTc prolongation — ECG before and during IV use. Infantile hypertrophic pyloric stenosis (IHPS) risk in neonates <6 weeks — use only if essential, warn parents. Hepatotoxicity rare.",
+},
+{
+  name:"Cefoperazone-Sulbactam",
+  color:"#2e7d32",
+  class:"3rd Gen Cephalosporin + β-lactamase inhibitor",
+  pkpd:"Time-dependent (cefoperazone component). Target: %T>MIC ≥70%. Sulbactam has intrinsic activity against Acinetobacter.",
+  spectrum:"Gram-positive, Gram-negative including Pseudomonas, Acinetobacter (sulbactam component), ESBL. Anaerobes. NOT: MRSA. Particularly useful for MDR Acinetobacter.",
+  doses:[
+    {indication:"Standard (1:1 ratio)",dose:"40–80 mg/kg/day (combined)",freq:"divided q12h",max:"4 g/day combined",notes:"IV over 30 min"},
+    {indication:"Severe MDR Acinetobacter (2:1 ratio)",dose:"80–160 mg/kg/day (combined)",freq:"divided q8–12h",max:"8 g/day combined",notes:"Higher sulbactam dose for Acinetobacter"},
+    {indication:"Neonates",dose:"40–80 mg/kg/day",freq:"divided q12h",max:"",notes:"Limited data — use with caution"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:"Primarily biliary excretion"},
+    {egfr:"<30",dose:"Reduce sulbactam component",freq:"q12h",notes:"Max sulbactam 1 g/day if GFR<30"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"40 mg/kg/day combined",freq:"q12h",notes:"Sulbactam more dialysable than cefoperazone"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required."},
+  interactions:[
+    "Alcohol/alcohol-containing medications: disulfiram-like reaction (flushing, tachycardia, hypotension) — avoid alcohol during and 72hr after treatment",
+    "Warfarin: significantly enhances anticoagulant effect (MTT side chain) — monitor INR closely",
+    "Vitamin K: may be required with prolonged use (inhibits vitamin K-dependent clotting factors)",
+  ],
+  cautions:"⚠ Disulfiram reaction with alcohol — warn parents/carers. Bleeding risk due to vitamin K interference — monitor coagulation. High biliary excretion — avoid in severe hepatic impairment.",
 },
 {
   name:"Cefotaxime",
@@ -977,146 +1119,101 @@ const ANTIBIOTICS = [
   cautions:"Select resistance can emerge during treatment of Pseudomonas — consider combination therapy for severe Pseudomonas infections.",
 },
 {
-  name:"Cefoperazone-Sulbactam",
+  name:"Ceftriaxone",
   color:"#2e7d32",
-  class:"3rd Gen Cephalosporin + β-lactamase inhibitor",
-  pkpd:"Time-dependent (cefoperazone component). Target: %T>MIC ≥70%. Sulbactam has intrinsic activity against Acinetobacter.",
-  spectrum:"Gram-positive, Gram-negative including Pseudomonas, Acinetobacter (sulbactam component), ESBL. Anaerobes. NOT: MRSA. Particularly useful for MDR Acinetobacter.",
+  class:"3rd Generation Cephalosporin",
+  pkpd:"Time-dependent. Long half-life (6–9hr) allows once-daily dosing. Target: %T>MIC ≥70%.",
+  spectrum:"Gram-positive (not MRSA, Enterococcus), Gram-negative (not Pseudomonas, Acinetobacter), excellent CNS penetration. Good for meningitis, community-acquired infections.",
   doses:[
-    {indication:"Standard (1:1 ratio)",dose:"40–80 mg/kg/day (combined)",freq:"divided q12h",max:"4 g/day combined",notes:"IV over 30 min"},
-    {indication:"Severe MDR Acinetobacter (2:1 ratio)",dose:"80–160 mg/kg/day (combined)",freq:"divided q8–12h",max:"8 g/day combined",notes:"Higher sulbactam dose for Acinetobacter"},
-    {indication:"Neonates",dose:"40–80 mg/kg/day",freq:"divided q12h",max:"",notes:"Limited data — use with caution"},
+    {indication:"Standard infections",dose:"50–75 mg/kg/day",freq:"q24h or divided q12h",max:"2 g/day",notes:"IV over 30 min"},
+    {indication:"Meningitis/severe",dose:"100 mg/kg/day",freq:"divided q12h",max:"4 g/day",notes:"IV over 30 min"},
+    {indication:"Gonorrhoea",dose:"50 mg/kg",freq:"single dose",max:"500 mg",notes:"IM"},
   ],
   renal:[
-    {egfr:">30",dose:"No change",freq:"Normal",notes:"Primarily biliary excretion"},
-    {egfr:"<30",dose:"Reduce sulbactam component",freq:"q12h",notes:"Max sulbactam 1 g/day if GFR<30"},
+    {egfr:"Any",dose:"No adjustment needed",freq:"Normal",notes:"Primarily biliary excretion — safe in renal impairment"},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"40 mg/kg/day combined",freq:"q12h",notes:"Sulbactam more dialysable than cefoperazone"},
-    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:""},
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q24h",notes:"Not significantly removed by dialysis"},
   ],
-  tdm:{required:false,notes:"TDM not routinely required."},
+  tdm:{required:false,notes:"TDM not required."},
   interactions:[
-    "Alcohol/alcohol-containing medications: disulfiram-like reaction (flushing, tachycardia, hypotension) — avoid alcohol during and 72hr after treatment",
-    "Warfarin: significantly enhances anticoagulant effect (MTT side chain) — monitor INR closely",
-    "Vitamin K: may be required with prolonged use (inhibits vitamin K-dependent clotting factors)",
+    "Calcium-containing IV fluids: NEVER mix or co-administer (precipitates in bloodstream — potentially fatal, especially neonates)",
+    "Ceftriaxone + calcium: avoid in neonates <28 days entirely",
+    "Warfarin: may enhance anticoagulant effect — monitor INR",
   ],
-  cautions:"⚠ Disulfiram reaction with alcohol — warn parents/carers. Bleeding risk due to vitamin K interference — monitor coagulation. High biliary excretion — avoid in severe hepatic impairment.",
+  cautions:"⚠ NEVER co-administer with calcium-containing solutions (including Ringer's lactate) — fatal precipitation risk in neonates. Biliary sludge/gallstones with prolonged use. Avoid in hyperbilirubinaemic neonates (displaces bilirubin).",
 },
 {
-  name:"Vancomycin",
-  color:"#6a1b9a",
-  class:"Glycopeptide",
-  pkpd:"AUC/MIC-dependent. Target: AUC24/MIC 400–600 (AUC-guided). OR trough 10–20 mg/L (trough-guided). MIC breakpoint for S. aureus ≤1 mg/L.",
-  spectrum:"Gram-positive ONLY: MRSA, MRSE, Enterococcus (not VRE), C. difficile (oral only). NOT: Gram-negatives, fungi.",
+  name:"Colistin (Polymyxin E)",
+  color:"#b71c1c",
+  class:"Polymyxin",
+  pkpd:"Concentration-dependent. AUC/MIC target. Used as last resort for XDR/PDR Gram-negatives. Dose in colistin base activity (CBA) — NOT colistimethate sodium (CMS) mg.",
+  spectrum:"MDR/XDR Gram-negatives: Acinetobacter, Pseudomonas, Klebsiella (carbapenem-resistant). NOT: Gram-positives, Proteus, Serratia, Burkholderia.",
   doses:[
-    {indication:"Standard (all indications)",dose:"15 mg/kg/dose",freq:"q6h",max:"750 mg/dose (or 3 g/day)",notes:"IV over 60 min minimum (1hr/500mg). Loading dose 25–30 mg/kg for severe infections."},
-    {indication:"CNS infections/endocarditis",dose:"15–20 mg/kg/dose",freq:"q6h",max:"1 g/dose",notes:"Target higher AUC 400–600"},
-    {indication:"Neonates <7 days",dose:"15 mg/kg/dose",freq:"q12–18h",max:"",notes:"Adjust by TDM"},
-    {indication:"Neonates >7 days",dose:"15 mg/kg/dose",freq:"q8–12h",max:"",notes:"Adjust by TDM"},
+    {indication:"All indications — LOADING",dose:"Loading: 5 mg/kg CBA (= 12.5 mg/kg CMS)",freq:"Single loading dose",max:"300 mg CBA",notes:"Loading essential to achieve rapid therapeutic levels. CMS 1 million IU = 30 mg CBA approx."},
+    {indication:"Maintenance (normal renal function)",dose:"2.5–3.5 mg/kg/day CBA",freq:"divided q8–12h",max:"300 mg CBA/day",notes:"Start 12–24hr after loading"},
+    {indication:"Inhaled (VAP adjunct)",dose:"1–2 million IU CMS nebulised",freq:"q8–12h",max:"",notes:"Adjunct to IV — not monotherapy"},
   ],
   renal:[
-    {egfr:">70",dose:"15 mg/kg/dose",freq:"q6h",notes:"Normal dosing"},
-    {egfr:"40–70",dose:"15 mg/kg/dose",freq:"q8–12h",notes:"Adjust by TDM"},
-    {egfr:"20–40",dose:"15 mg/kg/dose",freq:"q12–24h",notes:"Adjust by TDM — essential"},
-    {egfr:"<20",dose:"15 mg/kg loading, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
-    {egfr:"Anuric",dose:"15–25 mg/kg loading only",freq:"Redose when trough <10",notes:"TDM mandatory"},
+    {egfr:">80",dose:"2.5–3.5 mg/kg/day CBA",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"50–80",dose:"2.5 mg/kg/day CBA",freq:"q12h",notes:""},
+    {egfr:"30–50",dose:"1.5 mg/kg/day CBA",freq:"q12h",notes:"TDM if available"},
+    {egfr:"<30",dose:"1 mg/kg/day CBA",freq:"q24h",notes:"TDM essential"},
+    {egfr:"Anuric",dose:"Loading only, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"15 mg/kg/dose",freq:"q24–48h guided by TDM",notes:"CVVHDF removes ~50% — TDM essential. Target trough 15–20."},
-    {mode:"Intermittent HD",dose:"15–25 mg/kg post-HD",freq:"Redose after each HD session",notes:"Highly removed by HD — check trough before each session"},
-    {mode:"CAPD",dose:"15–25 mg/kg",freq:"q4–7 days",notes:"Minimal removal — extended dosing interval"},
+    {mode:"CRRT (CVVHDF)",dose:"Loading + 2–2.5 mg/kg/day CBA",freq:"q12h",notes:"CRRT removes colistin — TDM essential. Target plateau plasma level 2–4 mg/L CBA."},
+    {mode:"Intermittent HD",dose:"Loading + 2 mg/kg/day CBA",freq:"q24h, supplement post-HD",notes:"Significantly dialysable — redose after HD"},
+    {mode:"CAPD",dose:"Reduced maintenance",freq:"q24h",notes:"Limited data"},
   ],
   tdm:{
     required:true,
-    trough:"Target trough: 10–15 mg/L (standard); 15–20 mg/L (CNS/endocarditis/severe MRSA)",
-    auc:"Target AUC24/MIC: 400–600. Use Bayesian software (e.g. DoseMeRx) or two-level AUC calculation.",
-    timing:"Trough: 30 min before 4th or 5th dose. AUC: pair of levels (1hr post-infusion + pre-dose).",
-    notes:"Check at steady state (after 4th dose). Recheck after dose adjustment. Monitor renal function twice weekly.",
+    target:"Target plateau plasma CBA concentration: 2–4 mg/L. Trough >0.5 mg/L.",
+    timing:"Plateau sample at steady state (after 3rd maintenance dose). Trough just before dose.",
+    notes:"⚠ Unit confusion: doses may be expressed as CBA (colistin base activity) OR CMS (colistimethate sodium) — ALWAYS clarify units. 1 mg CBA ≈ 2.4–3 mg CMS ≈ 30,000 IU CMS.",
   },
   interactions:[
-    "Aminoglycosides (amikacin, gentamicin): additive nephrotoxicity — avoid combination or monitor renal function very closely",
-    "Loop diuretics (furosemide): additive nephrotoxicity and ototoxicity",
-    "Piperacillin-tazobactam: combination associated with increased AKI risk — monitor closely",
-    "NSAIDs: increased nephrotoxicity",
-    "Neuromuscular blocking agents: may enhance blockade",
+    "Aminoglycosides: additive nephrotoxicity — avoid combination",
+    "Vancomycin: additive nephrotoxicity",
+    "Loop diuretics: additive nephrotoxicity",
+    "Neuromuscular blocking agents: enhanced blockade — caution in ventilated patients",
+    "Non-depolarising muscle relaxants: prolonged blockade",
   ],
-  cautions:"Red man syndrome with rapid infusion (not allergy) — always infuse over ≥60 min. Nephrotoxicity and ototoxicity — monitor renal function and consider audiology in prolonged courses. Dose adjustment ESSENTIAL in renal impairment.",
+  cautions:"⚠ LAST RESORT antibiotic — for XDR/PDR organisms only. Significant nephrotoxicity (use with adequate hydration) and neurotoxicity (paraesthesia, dizziness, apnoea). ALWAYS use combination therapy — do not use as monotherapy for serious infections. Unit confusion between CBA and CMS — verify units with pharmacist.",
 },
 {
-  name:"Teicoplanin",
-  color:"#6a1b9a",
-  class:"Glycopeptide",
-  pkpd:"AUC/MIC-dependent. Long half-life (70–100hr) allows once-daily dosing after loading. Target trough: 10–20 mg/L (standard); 20–30 mg/L (endocarditis/bone/severe).",
-  spectrum:"Same as vancomycin: MRSA, MRSE, Enterococcus (not VRE). Slightly better activity against some Enterococcus than vancomycin. NOT: Gram-negatives.",
+  name:"Fluconazole",
+  color:"#004d40",
+  class:"Triazole Antifungal",
+  pkpd:"AUC/MIC-dependent. Excellent CNS penetration. Good oral bioavailability (~90%).",
+  spectrum:"Candida (C. albicans, C. parapsilosis, C. tropicalis — NOT C. glabrata, C. krusei), Cryptococcus. NOT: moulds (Aspergillus), Mucor.",
   doses:[
-    {indication:"Loading (all)",dose:"10 mg/kg/dose",freq:"q12h × 3 doses (day 1)",max:"400 mg/dose",notes:"IV over 30 min or IM"},
-    {indication:"Maintenance standard",dose:"6–10 mg/kg/day",freq:"q24h",max:"400 mg/day",notes:"Start after loading"},
-    {indication:"Severe (endocarditis/bone/MRSA)",dose:"10 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"Higher trough target 20–30"},
-    {indication:"Neonates",dose:"16 mg/kg loading × 1, then 8 mg/kg/day",freq:"q24h",max:"",notes:"IM or IV over 30 min"},
+    {indication:"Invasive candidiasis (treatment)",dose:"12 mg/kg loading, then 6–12 mg/kg/day",freq:"q24h",max:"800 mg loading, 400 mg/day maintenance",notes:"IV or oral — bioequivalent"},
+    {indication:"Prophylaxis (high risk NICU/PICU)",dose:"3–6 mg/kg",freq:"3× weekly or q24h",max:"200 mg",notes:""},
+    {indication:"Cryptococcal meningitis",dose:"12 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"After amphotericin B induction"},
+    {indication:"Neonates",dose:"6–12 mg/kg",freq:"q24–72h (gestational age dependent)",max:"",notes:""},
   ],
   renal:[
-    {egfr:">80",dose:"No change",freq:"q24h",notes:""},
-    {egfr:"40–80",dose:"No change",freq:"q48h (from day 4)",notes:""},
-    {egfr:"<40",dose:"No change",freq:"q72h (from day 4)",notes:"TDM essential"},
+    {egfr:">50",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"11–50",dose:"50% of normal dose",freq:"Normal",notes:""},
+    {egfr:"<11 (not on RRT)",dose:"25–50% of normal",freq:"Normal",notes:""},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"Normal maintenance",freq:"q48–72h guided by TDM",notes:"Minimal removal by CRRT"},
-    {mode:"Intermittent HD",dose:"Normal maintenance",freq:"q72–96h",notes:"Not significantly removed — dose after TDM trough"},
-    {mode:"CAPD",dose:"Normal maintenance",freq:"q7 days",notes:"Minimal removal"},
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose (6–12 mg/kg/day)",freq:"q24h",notes:"Significantly removed — normal dosing"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24–48h + supplement post-HD",notes:"Give after dialysis"},
+    {mode:"CAPD",dose:"50% dose reduction",freq:"q24h",notes:""},
   ],
-  tdm:{
-    required:true,
-    trough:"Standard: 10–20 mg/L. Severe infections/endocarditis/osteomyelitis: 20–30 mg/L.",
-    timing:"Check trough just before 4th or 5th maintenance dose (steady state). Recheck after dose changes.",
-    notes:"Less nephrotoxic than vancomycin. No red man syndrome. Can be given IM. Check trough weekly once stable.",
-  },
+  tdm:{required:false,notes:"Routine TDM not standard in children. Consider in critically ill, immunocompromised, or treatment failure."},
   interactions:[
-    "Aminoglycosides: additive nephrotoxicity — monitor renal function",
-    "Loop diuretics: additive ototoxicity",
-    "Ciclosporin: additive nephrotoxicity",
+    "Warfarin: significantly increases INR — monitor closely, reduce warfarin dose",
+    "Ciclosporin/tacrolimus: significantly increases levels → toxicity — monitor levels and reduce dose",
+    "Phenytoin: increased phenytoin levels",
+    "Midazolam/benzodiazepines: increased sedation (CYP3A4 inhibition)",
+    "Rifampicin: reduces fluconazole levels — may need dose increase",
+    "QTc-prolonging drugs: additive QTc prolongation",
+    "Statins: increased statin levels → myopathy risk",
   ],
-  cautions:"Less nephrotoxic than vancomycin. Well tolerated. IM administration possible (useful when IV access difficult). TDM essential for severe infections.",
-},
-{
-  name:"Amikacin",
-  color:"#e65100",
-  class:"Aminoglycoside",
-  pkpd:"Concentration-dependent + PAE. Target: Cmax/MIC ≥8–10. Once-daily dosing preferred in children to maximise peak and reduce toxicity.",
-  spectrum:"Gram-negative: Pseudomonas, Acinetobacter, Enterobacteriaceae. Active against mycobacteria. NOT: anaerobes, Gram-positives (except synergy with beta-lactams).",
-  doses:[
-    {indication:"Standard (once daily)",dose:"15–20 mg/kg/dose",freq:"q24h",max:"1.5 g/dose",notes:"IV over 30 min. Extended interval preferred."},
-    {indication:"Neonates <32 wks",dose:"18 mg/kg/dose",freq:"q48h",max:"",notes:"IV over 30 min"},
-    {indication:"Neonates 32–37 wks",dose:"18 mg/kg/dose",freq:"q36h",max:"",notes:""},
-    {indication:"Neonates term",dose:"15–18 mg/kg/dose",freq:"q24h",max:"",notes:""},
-    {indication:"Synergy (with beta-lactam)",dose:"7.5 mg/kg/dose",freq:"q12h",max:"",notes:"For Gram-positive synergy"},
-  ],
-  renal:[
-    {egfr:">70",dose:"15–20 mg/kg",freq:"q24h",notes:""},
-    {egfr:"40–70",dose:"15 mg/kg",freq:"q36h",notes:"TDM essential"},
-    {egfr:"20–40",dose:"15 mg/kg",freq:"q48h",notes:"TDM essential"},
-    {egfr:"<20",dose:"10 mg/kg loading, TDM-guided",freq:"q48–72h",notes:"TDM mandatory"},
-  ],
-  rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"10 mg/kg",freq:"q24–36h guided by TDM",notes:"Moderately removed — TDM essential"},
-    {mode:"Intermittent HD",dose:"10 mg/kg post-HD",freq:"After each dialysis session",notes:"Highly dialysable — redose after HD"},
-    {mode:"CAPD",dose:"10 mg/kg",freq:"q48h + TDM",notes:""},
-  ],
-  tdm:{
-    required:true,
-    peak:"Peak (1hr post-infusion): 20–30 mg/L (target for once-daily dosing)",
-    trough:"Trough (pre-dose): <5 mg/L (standard); <2 mg/L preferred to minimise toxicity",
-    timing:"Peak at 1hr after end of infusion. Trough just before next dose. Check after 3rd dose or earlier in renal impairment.",
-    notes:"Nephrotoxicity and ototoxicity are cumulative — minimise duration (max 5–7 days if possible). Monitor renal function every 2–3 days.",
-  },
-  interactions:[
-    "Vancomycin: additive nephrotoxicity — avoid combination if possible; if essential, monitor renal function daily",
-    "Loop diuretics (furosemide): additive ototoxicity and nephrotoxicity",
-    "Neuromuscular blocking agents: enhanced neuromuscular blockade",
-    "Cisplatin: additive ototoxicity — avoid",
-    "NSAIDs: reduced renal clearance → amikacin accumulation",
-  ],
-  cautions:"Nephrotoxicity and irreversible ototoxicity (vestibular + cochlear) — limit duration. Ensure adequate hydration. Avoid in myasthenia gravis. Audiology follow-up after prolonged courses.",
+  cautions:"Hepatotoxicity — monitor LFTs. QTc prolongation. Strong CYP2C9 and CYP3A4 inhibitor — many drug interactions. Check susceptibility: C. glabrata and C. krusei are intrinsically resistant.",
 },
 {
   name:"Gentamicin",
@@ -1158,6 +1255,63 @@ const ANTIBIOTICS = [
   cautions:"Same as amikacin — nephrotoxicity and irreversible ototoxicity. Limit duration to 5–7 days. Monitor renal function regularly.",
 },
 {
+  name:"Linezolid",
+  color:"#6a1b9a",
+  class:"Oxazolidinone",
+  pkpd:"Time-dependent (AUC/MIC). Target: AUC24/MIC >100. 100% oral bioavailability — IV to oral switch at earliest opportunity.",
+  spectrum:"Gram-positive ONLY: MRSA, VRE, VRSA, Enterococcus, Streptococcus, Staphylococcus. NOT: Gram-negatives. Reserve for resistant Gram-positives.",
+  doses:[
+    {indication:"All indications (children)",dose:"10 mg/kg/dose",freq:"q8h",max:"600 mg/dose",notes:"IV or oral — equally bioavailable"},
+    {indication:"Neonates <7 days",dose:"10 mg/kg/dose",freq:"q12h",max:"",notes:""},
+    {indication:"Neonates >7 days",dose:"10 mg/kg/dose",freq:"q8h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily non-renal elimination. Metabolites accumulate in severe renal failure but not clinically significant for short courses."},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q8h",notes:"Not significantly removed by RRT"},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard. Consider AUC monitoring in prolonged courses or suspected toxicity. Trough >2 mg/L associated with efficacy."},
+  interactions:[
+    "SSRIs (fluoxetine, sertraline): SEROTONIN SYNDROME — potentially life-threatening, avoid combination",
+    "SNRIs, TCAs, tramadol: serotonin syndrome risk",
+    "Sympathomimetics (adrenaline, dopamine, dobutamine): MAO inhibition → hypertensive crisis — reduce doses of vasoactives",
+    "Tyramine-rich foods: hypertensive crisis (MAO inhibition) — dietary restriction during treatment",
+    "Serotonergic drugs: any serotonergic agent — careful monitoring or avoid",
+  ],
+  cautions:"⚠ MAO inhibitor properties — serotonin syndrome and hypertensive crisis risks. Myelosuppression (thrombocytopenia, anaemia) with >2 weeks use — check FBC weekly. Lactic acidosis with prolonged use. Optic and peripheral neuropathy — eye examination if prolonged. Reserve for VRE/MRSA when other options failed.",
+},
+{
+  name:"Meropenem",
+  color:"#1565c0",
+  class:"Carbapenem",
+  pkpd:"Time-dependent. Target: %T>MIC ≥40% (bacteriostatic) to ≥100% (bactericidal). Optimise with extended/prolonged infusion.",
+  spectrum:"Gram-positive (not MRSA/Enterococcus), Gram-negative including Pseudomonas, ESBL, Acinetobacter, anaerobes. NOT: MRSA, VRE, Stenotrophomonas.",
+  doses:[
+    {indication:"Standard infections",dose:"20 mg/kg/dose",freq:"q8h",max:"1 g/dose",notes:"IV over 30 min"},
+    {indication:"Severe/meningitis/CNS",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Pseudomonas/non-fermenter",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"Consider extended infusion 3–4hr"},
+    {indication:"Febrile neutropenia",dose:"20–40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"26–50",dose:"No change",freq:"q12h",notes:"Extend interval"},
+    {egfr:"10–25",dose:"50% of dose",freq:"q12h",notes:"Reduce dose and extend interval"},
+    {egfr:"<10",dose:"50% of dose",freq:"q24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"20–40 mg/kg/dose",freq:"q12h",notes:"Monitor levels if available"},
+    {mode:"Intermittent HD",dose:"20 mg/kg/dose",freq:"q24h + supplement post-HD",notes:"Give after dialysis session"},
+    {mode:"CAPD",dose:"50% normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard. Consider in severe infections, non-fermenter organisms. Target trough >4× MIC."},
+  interactions:[
+    "Valproate: meropenem significantly REDUCES valproate levels (↓40–60%) — avoid combination or monitor levels closely",
+    "Probenecid: increases meropenem levels — avoid",
+  ],
+  cautions:"Seizure risk at high doses especially with CNS infections or renal impairment. Cross-reactivity with penicillin allergy <1% — use with caution in severe penicillin allergy.",
+},
+{
   name:"Metronidazole",
   color:"#00695c",
   class:"Nitroimidazole",
@@ -1188,195 +1342,110 @@ const ANTIBIOTICS = [
   cautions:"Peripheral neuropathy and CNS toxicity (seizures, encephalopathy) with prolonged high-dose use. Metallic taste common. Urine may turn dark brown — warn family.",
 },
 {
-  name:"Linezolid",
-  color:"#6a1b9a",
-  class:"Oxazolidinone",
-  pkpd:"Time-dependent (AUC/MIC). Target: AUC24/MIC >100. 100% oral bioavailability — IV to oral switch at earliest opportunity.",
-  spectrum:"Gram-positive ONLY: MRSA, VRE, VRSA, Enterococcus, Streptococcus, Staphylococcus. NOT: Gram-negatives. Reserve for resistant Gram-positives.",
+  name:"Piperacillin-Tazobactam",
+  color:"#1565c0",
+  class:"Ureidopenicillin + β-lactamase inhibitor",
+  pkpd:"Time-dependent. Target: %T>MIC ≥50%. Prolonged infusion (over 4hr) improves PK/PD target attainment for resistant organisms.",
+  spectrum:"Gram-positive (not MRSA), Gram-negative including Pseudomonas, ESBL (variable), anaerobes. Good coverage for hospital-acquired infections.",
   doses:[
-    {indication:"All indications (children)",dose:"10 mg/kg/dose",freq:"q8h",max:"600 mg/dose",notes:"IV or oral — equally bioavailable"},
-    {indication:"Neonates <7 days",dose:"10 mg/kg/dose",freq:"q12h",max:"",notes:""},
-    {indication:"Neonates >7 days",dose:"10 mg/kg/dose",freq:"q8h",max:"",notes:""},
+    {indication:"Moderate infections",dose:"100 mg/kg/dose (pip component)",freq:"q8h",max:"4 g pip/dose",notes:"IV over 30 min"},
+    {indication:"Severe/Pseudomonas",dose:"100 mg/kg/dose",freq:"q6h",max:"4 g pip/dose",notes:"IV over 4hr (prolonged infusion)"},
+    {indication:"Neonates <7 days",dose:"75 mg/kg/dose",freq:"q12h",max:"",notes:""},
+    {indication:"Neonates >7 days",dose:"75 mg/kg/dose",freq:"q8h",max:"",notes:""},
   ],
   renal:[
-    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily non-renal elimination. Metabolites accumulate in severe renal failure but not clinically significant for short courses."},
+    {egfr:">40",dose:"No change",freq:"q6–8h",notes:"Normal dosing"},
+    {egfr:"20–40",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"<20",dose:"No change",freq:"q12h",notes:""},
   ],
   rrt:[
-    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q8h",notes:"Not significantly removed by RRT"},
+    {mode:"CRRT (CVVHDF)",dose:"100 mg/kg/dose",freq:"q8h",notes:""},
+    {mode:"Intermittent HD",dose:"100 mg/kg/dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
   ],
-  tdm:{required:false,notes:"Routine TDM not standard. Consider AUC monitoring in prolonged courses or suspected toxicity. Trough >2 mg/L associated with efficacy."},
+  tdm:{required:false,notes:"TDM not routinely required. Consider AUC-guided dosing in critically ill with augmented renal clearance."},
   interactions:[
-    "SSRIs (fluoxetine, sertraline): SEROTONIN SYNDROME — potentially life-threatening, avoid combination",
-    "SNRIs, TCAs, tramadol: serotonin syndrome risk",
-    "Sympathomimetics (adrenaline, dopamine, dobutamine): MAO inhibition → hypertensive crisis — reduce doses of vasoactives",
-    "Tyramine-rich foods: hypertensive crisis (MAO inhibition) — dietary restriction during treatment",
-    "Serotonergic drugs: any serotonergic agent — careful monitoring or avoid",
+    "Methotrexate: pip-tazo reduces renal elimination → methotrexate toxicity",
+    "Vecuronium/neuromuscular blockers: may prolong neuromuscular blockade",
+    "Vancomycin: combination associated with increased nephrotoxicity — monitor renal function",
   ],
-  cautions:"⚠ MAO inhibitor properties — serotonin syndrome and hypertensive crisis risks. Myelosuppression (thrombocytopenia, anaemia) with >2 weeks use — check FBC weekly. Lactic acidosis with prolonged use. Optic and peripheral neuropathy — eye examination if prolonged. Reserve for VRE/MRSA when other options failed.",
+  cautions:"Hyponatraemia risk (high sodium content). Thrombocytopenia with prolonged use. Electrolyte monitoring recommended.",
 },
 {
-  name:"Colistin (Polymyxin E)",
-  color:"#b71c1c",
-  class:"Polymyxin",
-  pkpd:"Concentration-dependent. AUC/MIC target. Used as last resort for XDR/PDR Gram-negatives. Dose in colistin base activity (CBA) — NOT colistimethate sodium (CMS) mg.",
-  spectrum:"MDR/XDR Gram-negatives: Acinetobacter, Pseudomonas, Klebsiella (carbapenem-resistant). NOT: Gram-positives, Proteus, Serratia, Burkholderia.",
+  name:"Teicoplanin",
+  color:"#6a1b9a",
+  class:"Glycopeptide",
+  pkpd:"AUC/MIC-dependent. Long half-life (70–100hr) allows once-daily dosing after loading. Target trough: 10–20 mg/L (standard); 20–30 mg/L (endocarditis/bone/severe).",
+  spectrum:"Same as vancomycin: MRSA, MRSE, Enterococcus (not VRE). Slightly better activity against some Enterococcus than vancomycin. NOT: Gram-negatives.",
   doses:[
-    {indication:"All indications — LOADING",dose:"Loading: 5 mg/kg CBA (= 12.5 mg/kg CMS)",freq:"Single loading dose",max:"300 mg CBA",notes:"Loading essential to achieve rapid therapeutic levels. CMS 1 million IU = 30 mg CBA approx."},
-    {indication:"Maintenance (normal renal function)",dose:"2.5–3.5 mg/kg/day CBA",freq:"divided q8–12h",max:"300 mg CBA/day",notes:"Start 12–24hr after loading"},
-    {indication:"Inhaled (VAP adjunct)",dose:"1–2 million IU CMS nebulised",freq:"q8–12h",max:"",notes:"Adjunct to IV — not monotherapy"},
+    {indication:"Loading (all)",dose:"10 mg/kg/dose",freq:"q12h × 3 doses (day 1)",max:"400 mg/dose",notes:"IV over 30 min or IM"},
+    {indication:"Maintenance standard",dose:"6–10 mg/kg/day",freq:"q24h",max:"400 mg/day",notes:"Start after loading"},
+    {indication:"Severe (endocarditis/bone/MRSA)",dose:"10 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"Higher trough target 20–30"},
+    {indication:"Neonates",dose:"16 mg/kg loading × 1, then 8 mg/kg/day",freq:"q24h",max:"",notes:"IM or IV over 30 min"},
   ],
   renal:[
-    {egfr:">80",dose:"2.5–3.5 mg/kg/day CBA",freq:"q8h",notes:"Normal dosing"},
-    {egfr:"50–80",dose:"2.5 mg/kg/day CBA",freq:"q12h",notes:""},
-    {egfr:"30–50",dose:"1.5 mg/kg/day CBA",freq:"q12h",notes:"TDM if available"},
-    {egfr:"<30",dose:"1 mg/kg/day CBA",freq:"q24h",notes:"TDM essential"},
-    {egfr:"Anuric",dose:"Loading only, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
+    {egfr:">80",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"40–80",dose:"No change",freq:"q48h (from day 4)",notes:""},
+    {egfr:"<40",dose:"No change",freq:"q72h (from day 4)",notes:"TDM essential"},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"Loading + 2–2.5 mg/kg/day CBA",freq:"q12h",notes:"CRRT removes colistin — TDM essential. Target plateau plasma level 2–4 mg/L CBA."},
-    {mode:"Intermittent HD",dose:"Loading + 2 mg/kg/day CBA",freq:"q24h, supplement post-HD",notes:"Significantly dialysable — redose after HD"},
-    {mode:"CAPD",dose:"Reduced maintenance",freq:"q24h",notes:"Limited data"},
+    {mode:"CRRT (CVVHDF)",dose:"Normal maintenance",freq:"q48–72h guided by TDM",notes:"Minimal removal by CRRT"},
+    {mode:"Intermittent HD",dose:"Normal maintenance",freq:"q72–96h",notes:"Not significantly removed — dose after TDM trough"},
+    {mode:"CAPD",dose:"Normal maintenance",freq:"q7 days",notes:"Minimal removal"},
   ],
   tdm:{
     required:true,
-    target:"Target plateau plasma CBA concentration: 2–4 mg/L. Trough >0.5 mg/L.",
-    timing:"Plateau sample at steady state (after 3rd maintenance dose). Trough just before dose.",
-    notes:"⚠ Unit confusion: doses may be expressed as CBA (colistin base activity) OR CMS (colistimethate sodium) — ALWAYS clarify units. 1 mg CBA ≈ 2.4–3 mg CMS ≈ 30,000 IU CMS.",
+    trough:"Standard: 10–20 mg/L. Severe infections/endocarditis/osteomyelitis: 20–30 mg/L.",
+    timing:"Check trough just before 4th or 5th maintenance dose (steady state). Recheck after dose changes.",
+    notes:"Less nephrotoxic than vancomycin. No red man syndrome. Can be given IM. Check trough weekly once stable.",
   },
   interactions:[
-    "Aminoglycosides: additive nephrotoxicity — avoid combination",
-    "Vancomycin: additive nephrotoxicity",
-    "Loop diuretics: additive nephrotoxicity",
-    "Neuromuscular blocking agents: enhanced blockade — caution in ventilated patients",
-    "Non-depolarising muscle relaxants: prolonged blockade",
-  ],
-  cautions:"⚠ LAST RESORT antibiotic — for XDR/PDR organisms only. Significant nephrotoxicity (use with adequate hydration) and neurotoxicity (paraesthesia, dizziness, apnoea). ALWAYS use combination therapy — do not use as monotherapy for serious infections. Unit confusion between CBA and CMS — verify units with pharmacist.",
-},
-{
-  name:"Azithromycin",
-  color:"#1565c0",
-  class:"Macrolide",
-  pkpd:"Time-dependent (AUC/MIC). Very high tissue/intracellular concentrations. Long tissue half-life allows short courses and once-daily dosing.",
-  spectrum:"Gram-positive (Streptococcus, not Staph), atypicals (Mycoplasma, Chlamydia, Legionella), some Gram-negatives (H. influenzae, Moraxella). NOT: Enterobacteriaceae, Pseudomonas.",
-  doses:[
-    {indication:"Community-acquired pneumonia / atypicals",dose:"10 mg/kg/day",freq:"q24h × 3–5 days",max:"500 mg/day",notes:"Oral preferred. IV if unable to take oral."},
-    {indication:"IV (severe)",dose:"10 mg/kg/day",freq:"q24h",max:"500 mg/day",notes:"IV over 60 min minimum"},
-    {indication:"Whooping cough prophylaxis/treatment",dose:"10 mg/kg/day × 5 days",freq:"q24h",max:"500 mg/day",notes:""},
-    {indication:"Neonatal Chlamydia",dose:"20 mg/kg/day",freq:"q24h × 3 days",max:"",notes:""},
-  ],
-  renal:[
-    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily biliary/hepatic elimination — no renal dose adjustment required"},
-  ],
-  rrt:[
-    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"Normal",notes:"Not significantly removed — no dose adjustment"},
-  ],
-  tdm:{required:false,notes:"TDM not required."},
-  interactions:[
-    "QTc-prolonging drugs (amiodarone, chloroquine, ondansetron, antipsychotics): additive QTc prolongation → torsades risk — ECG monitoring",
-    "Warfarin: may increase INR — monitor",
-    "Ciclosporin: increased ciclosporin levels",
-    "Digoxin: increased digoxin levels",
-    "Antacids: reduce absorption — give 1hr before or 2hr after",
-  ],
-  cautions:"QTc prolongation — ECG before and during IV use. Infantile hypertrophic pyloric stenosis (IHPS) risk in neonates <6 weeks — use only if essential, warn parents. Hepatotoxicity rare.",
-},
-{
-  name:"Fluconazole",
-  color:"#004d40",
-  class:"Triazole Antifungal",
-  pkpd:"AUC/MIC-dependent. Excellent CNS penetration. Good oral bioavailability (~90%).",
-  spectrum:"Candida (C. albicans, C. parapsilosis, C. tropicalis — NOT C. glabrata, C. krusei), Cryptococcus. NOT: moulds (Aspergillus), Mucor.",
-  doses:[
-    {indication:"Invasive candidiasis (treatment)",dose:"12 mg/kg loading, then 6–12 mg/kg/day",freq:"q24h",max:"800 mg loading, 400 mg/day maintenance",notes:"IV or oral — bioequivalent"},
-    {indication:"Prophylaxis (high risk NICU/PICU)",dose:"3–6 mg/kg",freq:"3× weekly or q24h",max:"200 mg",notes:""},
-    {indication:"Cryptococcal meningitis",dose:"12 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"After amphotericin B induction"},
-    {indication:"Neonates",dose:"6–12 mg/kg",freq:"q24–72h (gestational age dependent)",max:"",notes:""},
-  ],
-  renal:[
-    {egfr:">50",dose:"No change",freq:"Normal",notes:""},
-    {egfr:"11–50",dose:"50% of normal dose",freq:"Normal",notes:""},
-    {egfr:"<11 (not on RRT)",dose:"25–50% of normal",freq:"Normal",notes:""},
-  ],
-  rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"Normal dose (6–12 mg/kg/day)",freq:"q24h",notes:"Significantly removed — normal dosing"},
-    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24–48h + supplement post-HD",notes:"Give after dialysis"},
-    {mode:"CAPD",dose:"50% dose reduction",freq:"q24h",notes:""},
-  ],
-  tdm:{required:false,notes:"Routine TDM not standard in children. Consider in critically ill, immunocompromised, or treatment failure."},
-  interactions:[
-    "Warfarin: significantly increases INR — monitor closely, reduce warfarin dose",
-    "Ciclosporin/tacrolimus: significantly increases levels → toxicity — monitor levels and reduce dose",
-    "Phenytoin: increased phenytoin levels",
-    "Midazolam/benzodiazepines: increased sedation (CYP3A4 inhibition)",
-    "Rifampicin: reduces fluconazole levels — may need dose increase",
-    "QTc-prolonging drugs: additive QTc prolongation",
-    "Statins: increased statin levels → myopathy risk",
-  ],
-  cautions:"Hepatotoxicity — monitor LFTs. QTc prolongation. Strong CYP2C9 and CYP3A4 inhibitor — many drug interactions. Check susceptibility: C. glabrata and C. krusei are intrinsically resistant.",
-},
-{
-  name:"Amphotericin B (Liposomal)",
-  color:"#004d40",
-  class:"Polyene Antifungal",
-  pkpd:"Concentration-dependent. Liposomal formulation (AmBisome) preferred over conventional for better tolerability. NOT interchangeable with conventional amphotericin — different dosing.",
-  spectrum:"Broadest antifungal spectrum: Candida (all species including azole-resistant), Aspergillus, Mucor, Cryptococcus. Drug of choice for invasive mould infections.",
-  doses:[
-    {indication:"Invasive candidiasis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:"IV over 2hr via in-line filter (1.2 micron)"},
-    {indication:"Invasive aspergillosis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:""},
-    {indication:"Mucormycosis",dose:"5–10 mg/kg/day (liposomal)",freq:"q24h",max:"10 mg/kg/day",notes:"Higher doses for Mucor"},
-    {indication:"Cryptococcal meningitis (induction)",dose:"3–6 mg/kg/day (liposomal)",freq:"q24h",max:"",notes:"+ flucytosine if available"},
-    {indication:"Conventional Ampho B (if liposomal unavailable)",dose:"0.5–1.5 mg/kg/day",freq:"q24h",max:"1.5 mg/kg",notes:"Start with 0.1 mg/kg test dose. Premedicate."},
-  ],
-  renal:[
-    {egfr:">50",dose:"No change",freq:"Normal",notes:"Monitor renal function closely"},
-    {egfr:"<50",dose:"Liposomal: no change. Conventional: use with extreme caution.",freq:"Normal",notes:"Liposomal significantly less nephrotoxic than conventional"},
-  ],
-  rrt:[
-    {mode:"CRRT/HD/CAPD",dose:"No change (liposomal)",freq:"Normal",notes:"Not significantly removed by RRT"},
-  ],
-  tdm:{required:false,notes:"TDM not routinely available or required in most centres."},
-  interactions:[
     "Aminoglycosides: additive nephrotoxicity — monitor renal function",
-    "Ciclosporin/tacrolimus: additive nephrotoxicity",
-    "Corticosteroids: hypokalaemia risk amplified",
-    "Loop diuretics: hypokalaemia — aggressive potassium replacement required",
-    "Flucytosine: synergistic antifungal effect — often combined for cryptococcal meningitis",
-    "Digoxin: hypokalaemia potentiates digoxin toxicity — monitor K+ and digoxin levels",
+    "Loop diuretics: additive ototoxicity",
+    "Ciclosporin: additive nephrotoxicity",
   ],
-  cautions:"⚠ Liposomal (AmBisome) NOT interchangeable with conventional amphotericin B — different doses. Infusion reactions: fever, rigors, hypotension — premedicate with paracetamol ± hydrocortisone. Nephrotoxicity (much less with liposomal). Hypokalaemia and hypomagnesaemia — aggressive electrolyte replacement. Infuse via dedicated line over 2hr through 1.2 micron filter.",
+  cautions:"Less nephrotoxic than vancomycin. Well tolerated. IM administration possible (useful when IV access difficult). TDM essential for severe infections.",
 },
 {
-  name:"Acyclovir",
-  color:"#004d40",
-  class:"Antiviral (Guanosine analogue)",
-  pkpd:"Concentration-dependent. Requires activation by viral thymidine kinase. CNS penetration 50% of plasma. Higher doses needed for CNS infections.",
-  spectrum:"HSV-1, HSV-2, VZV (high dose), EBV, CMV (less active — ganciclovir preferred for CMV). NOT: CMV (poor efficacy), adenovirus.",
+  name:"Vancomycin",
+  color:"#6a1b9a",
+  class:"Glycopeptide",
+  pkpd:"AUC/MIC-dependent. Target: AUC24/MIC 400–600 (AUC-guided). OR trough 10–20 mg/L (trough-guided). MIC breakpoint for S. aureus ≤1 mg/L.",
+  spectrum:"Gram-positive ONLY: MRSA, MRSE, Enterococcus (not VRE), C. difficile (oral only). NOT: Gram-negatives, fungi.",
   doses:[
-    {indication:"Neonatal HSV (all forms)",dose:"20 mg/kg/dose",freq:"q8h × 14–21 days",max:"",notes:"IV over 1hr. Highest priority — start empirically if HSV suspected in neonate."},
-    {indication:"HSV encephalitis (children)",dose:"10–15 mg/kg/dose",freq:"q8h × 14–21 days",max:"750 mg/dose",notes:"IV over 1hr"},
-    {indication:"Severe VZV (immunocompromised)",dose:"10–15 mg/kg/dose",freq:"q8h × 7–10 days",max:"750 mg/dose",notes:""},
-    {indication:"HSV mucocutaneous (mild)",dose:"5 mg/kg/dose",freq:"q8h × 5–7 days",max:"",notes:"IV; or oral acyclovir/valacyclovir"},
+    {indication:"Standard (all indications)",dose:"15 mg/kg/dose",freq:"q6h",max:"750 mg/dose (or 3 g/day)",notes:"IV over 60 min minimum (1hr/500mg). Loading dose 25–30 mg/kg for severe infections."},
+    {indication:"CNS infections/endocarditis",dose:"15–20 mg/kg/dose",freq:"q6h",max:"1 g/dose",notes:"Target higher AUC 400–600"},
+    {indication:"Neonates <7 days",dose:"15 mg/kg/dose",freq:"q12–18h",max:"",notes:"Adjust by TDM"},
+    {indication:"Neonates >7 days",dose:"15 mg/kg/dose",freq:"q8–12h",max:"",notes:"Adjust by TDM"},
   ],
   renal:[
-    {egfr:">50",dose:"No change",freq:"q8h",notes:""},
-    {egfr:"25–50",dose:"No change",freq:"q12h",notes:""},
-    {egfr:"10–25",dose:"No change",freq:"q24h",notes:""},
-    {egfr:"<10",dose:"50% dose",freq:"q24h",notes:""},
+    {egfr:">70",dose:"15 mg/kg/dose",freq:"q6h",notes:"Normal dosing"},
+    {egfr:"40–70",dose:"15 mg/kg/dose",freq:"q8–12h",notes:"Adjust by TDM"},
+    {egfr:"20–40",dose:"15 mg/kg/dose",freq:"q12–24h",notes:"Adjust by TDM — essential"},
+    {egfr:"<20",dose:"15 mg/kg loading, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
+    {egfr:"Anuric",dose:"15–25 mg/kg loading only",freq:"Redose when trough <10",notes:"TDM mandatory"},
   ],
   rrt:[
-    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q12–24h guided by creatinine",notes:"Significantly removed"},
-    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24h + supplement post-HD",notes:"Highly dialysable — supplement after each HD"},
-    {mode:"CAPD",dose:"50% dose",freq:"q24h",notes:""},
+    {mode:"CRRT (CVVHDF)",dose:"15 mg/kg/dose",freq:"q24–48h guided by TDM",notes:"CVVHDF removes ~50% — TDM essential. Target trough 15–20."},
+    {mode:"Intermittent HD",dose:"15–25 mg/kg post-HD",freq:"Redose after each HD session",notes:"Highly removed by HD — check trough before each session"},
+    {mode:"CAPD",dose:"15–25 mg/kg",freq:"q4–7 days",notes:"Minimal removal — extended dosing interval"},
   ],
-  tdm:{required:false,notes:"TDM not routinely required. Ensure adequate hydration to prevent crystalline nephropathy."},
+  tdm:{
+    required:true,
+    trough:"Target trough: 10–15 mg/L (standard); 15–20 mg/L (CNS/endocarditis/severe MRSA)",
+    auc:"Target AUC24/MIC: 400–600. Use Bayesian software (e.g. DoseMeRx) or two-level AUC calculation.",
+    timing:"Trough: 30 min before 4th or 5th dose. AUC: pair of levels (1hr post-infusion + pre-dose).",
+    notes:"Check at steady state (after 4th dose). Recheck after dose adjustment. Monitor renal function twice weekly.",
+  },
   interactions:[
-    "Nephrotoxic drugs (aminoglycosides, vancomycin, NSAIDs): additive nephrotoxicity",
-    "Probenecid: increases acyclovir levels (reduced renal excretion)",
-    "Mycophenolate: possible increased mycophenolate levels",
-    "Methotrexate: additive neurotoxicity",
+    "Aminoglycosides (amikacin, gentamicin): additive nephrotoxicity — avoid combination or monitor renal function very closely",
+    "Loop diuretics (furosemide): additive nephrotoxicity and ototoxicity",
+    "Piperacillin-tazobactam: combination associated with increased AKI risk — monitor closely",
+    "NSAIDs: increased nephrotoxicity",
+    "Neuromuscular blocking agents: may enhance blockade",
   ],
-  cautions:"Crystalline nephropathy if inadequately hydrated — maintain urine output >1 mL/kg/hr during infusion. Neurotoxicity (tremor, confusion, seizures) especially in renal impairment. Infuse over minimum 1hr. Never give IM or subcut.",
-},
+  cautions:"Red man syndrome with rapid infusion (not allergy) — always infuse over ≥60 min. Nephrotoxicity and ototoxicity — monitor renal function and consider audiology in prolonged courses. Dose adjustment ESSENTIAL in renal impairment.",
+}
 ];
 
 // Schwartz eGFR calculator
@@ -1400,6 +1469,8 @@ const AGE_THRESHOLDS = [
 // ── Antibiotic rendering ─────────────────────────────────────
 let selectedAbx = 0;
 let abxEgfr = '';
+let abxDoseInput = '';
+let abxDoseSelected = null; // stores {dose, freq, max, notes} from clicked row
 let abxCreat = '';
 let abxHeight = '';
 let abxAge = '';
@@ -1431,14 +1502,98 @@ function renderAbxTab() {
   }
 
   // Dose rows
-  const doseRows = drug.doses.map((d,i)=>`
-    <tr style="background:${i%2===0?'#fafbff':'#fff'}">
-      <td style="padding:8px 10px;font-size:13px;font-weight:600;color:${esc(drug.color)}">${esc(d.indication)}</td>
+  // Extract numeric dose for calculator
+  function extractNumericDose(doseStr) {
+    if(!doseStr) return null;
+    // Try range like "15–20 mg/kg" → take midpoint
+    const rangeMatch = doseStr.match(/([\d.]+)\s*[–-]\s*([\d.]+)/);
+    if(rangeMatch) return ((parseFloat(rangeMatch[1]) + parseFloat(rangeMatch[2])) / 2).toFixed(1);
+    // Try single value like "20 mg/kg"
+    const singleMatch = doseStr.match(/([\d.]+)\s*mg\/kg/);
+    if(singleMatch) return parseFloat(singleMatch[1]).toFixed(1);
+    return null;
+  }
+
+  const doseRows = drug.doses.map((d,i)=>{
+    const numeric = extractNumericDose(d.dose);
+    const isSelected = abxDoseSelected && abxDoseSelected.idx === i;
+    // Store dose data in global lookup to avoid escaping issues
+    window._abxDoseLookup = window._abxDoseLookup || {};
+    window._abxDoseLookup[selectedAbx + '_' + i] = {idx:i, indication:d.indication, dose:d.dose, freq:d.freq, max:d.max||'', notes:d.notes||''};
+    return `
+    <tr style="background:${isSelected?(drug.color+'18'):(i%2===0?'#fafbff':'#fff')};cursor:${numeric?'pointer':'default'};border:${isSelected?'2px solid '+drug.color:'2px solid transparent'}"
+      ${numeric?`onclick="abxDoseInput='${numeric}';abxDoseSelected=window._abxDoseLookup['${selectedAbx}_${i}'];renderAbxTab()"`:''}
+      title="${numeric?'Tap to calculate dose for this indication':''}">
+      <td style="padding:8px 10px;font-size:13px;font-weight:600;color:${esc(drug.color)}">${esc(d.indication)}${numeric?` <span style="font-size:10px;color:${esc(drug.color)};opacity:0.7">▶ tap</span>`:''}
+      </td>
       <td style="padding:8px 10px;font-size:13px;font-weight:700;font-family:var(--mono)">${esc(d.dose)}</td>
       <td style="padding:8px 10px;font-size:13px">${esc(d.freq)}</td>
       <td style="padding:8px 10px;font-size:12px;color:var(--dim)">${esc(d.max||'—')}</td>
       <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(d.notes||'')}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+
+  // Dose calculator
+  const wt = parseFloat(weight)||0;
+  const doseNum = parseFloat(abxDoseInput)||0;
+  const totalDose = (wt && doseNum) ? (wt * doseNum).toFixed(0) : null;
+  const maxDoseNum = abxDoseSelected?.max ? parseFloat(abxDoseSelected.max) : null;
+  const cappedDose = totalDose && maxDoseNum && parseFloat(totalDose) > maxDoseNum ? maxDoseNum : (totalDose ? parseFloat(totalDose) : null);
+  const wasCapped = cappedDose && totalDose && cappedDose < parseFloat(totalDose);
+
+  const calcSection = `
+    <div style="background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;margin-top:10px;border:2px solid ${esc(drug.color)}33">
+      <div style="font-size:12px;font-weight:800;color:${esc(drug.color)};letter-spacing:.06em;margin-bottom:10px">
+        💊 DOSE CALCULATOR ${wt?`| ${wt} kg`:'| Enter patient weight above'}
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em">DOSE (mg/kg)</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" inputmode="decimal" placeholder="mg/kg"
+              value="${esc(abxDoseInput)}"
+              onchange="abxDoseInput=this.value;renderAbxTab()"
+              style="width:110px;padding:10px;background:#fff;border:2px solid ${abxDoseInput?esc(drug.color):'var(--bdr)'};border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:${abxDoseInput?esc(drug.color):'var(--text)'}">
+            <span style="font-size:13px;color:var(--dim);font-weight:600">mg/kg</span>
+          </div>
+        </div>
+        ${totalDose ? `
+        <div style="background:#fff;border:2px solid ${esc(drug.color)};border-radius:11px;padding:10px 16px;min-width:140px">
+          <div style="font-size:10px;font-weight:700;color:${esc(drug.color)};letter-spacing:.1em">TOTAL DOSE</div>
+          <div style="display:flex;align-items:baseline;gap:5px;margin-top:2px">
+            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose}</span>
+            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">mg</span>
+          </div>
+          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum} mg</div>`:''}
+        </div>` : ''}
+      </div>
+      ${abxDoseSelected ? `
+      <div style="background:#fff;border-radius:9px;padding:10px 12px;border:1px solid var(--bdr);margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.08em;margin-bottom:4px">SELECTED INDICATION</div>
+        <div style="font-size:13px;font-weight:700;color:${esc(drug.color)}">${esc(abxDoseSelected.indication)}</div>
+        <div style="font-size:12px;color:var(--dim);margin-top:3px">
+          Dose: <b>${esc(abxDoseSelected.dose)}</b> &nbsp;·&nbsp;
+          Freq: <b>${esc(abxDoseSelected.freq)}</b>
+          ${abxDoseSelected.max?` &nbsp;·&nbsp; Max: <b>${esc(abxDoseSelected.max)}</b>`:''}
+        </div>
+        ${abxDoseSelected.notes?`<div style="font-size:11px;color:var(--dim2);margin-top:3px">${esc(abxDoseSelected.notes)}</div>`:''}
+      </div>` : `
+      <div style="font-size:12px;color:var(--dim);font-style:italic">
+        💡 Tap any row in the dose table above to auto-fill, or type a dose manually
+      </div>`}
+      ${totalDose && wt ? `
+      <div style="background:#f0faf4;border-radius:8px;padding:8px 12px;border-left:3px solid #2e7d32;font-size:12px;color:#1b4d20">
+        <b>Quick dose ladder @ ${wt} kg:</b><br>
+        ${drug.doses.filter(d=>extractNumericDose(d.dose)).map(d=>{
+          const dn = parseFloat(extractNumericDose(d.dose));
+          const total = Math.round(dn * wt);
+          const max = d.max ? parseFloat(d.max) : null;
+          const capped = max && total > max ? max : total;
+          const capNote = max && total > max ? ` (max ${max} mg)` : '';
+          return `${d.indication}: <b>${capped} mg</b>${capNote} ${d.freq}`;
+        }).join('<br>')}
+      </div>` : ''}
+    </div>`;
 
   // Renal rows
   const renalRows = drug.renal.map((r,i)=>`
@@ -1529,7 +1684,7 @@ function renderAbxTab() {
 
       <!-- Doses -->
       <div class="section">
-        <div class="section-title">Paediatric Dosing</div>
+        <div class="section-title">Paediatric Dosing <span style="font-size:10px;color:var(--dim);font-weight:400">(tap a row to calculate)</span></div>
         <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
           <table style="width:100%;border-collapse:collapse;min-width:500px">
             <thead><tr style="background:${esc(drug.color)};color:#fff">
@@ -1542,6 +1697,7 @@ function renderAbxTab() {
             <tbody>${doseRows}</tbody>
           </table>
         </div>
+        ${calcSection}
       </div>
 
       <!-- eGFR Calculator -->
@@ -1661,6 +1817,7 @@ let weight = '';
 let activeCategory = 'inotropes';
 let selectedDrugId = 0; // which drug pill is selected
 let searchTerm = '';
+let unitSystem = 'mmol'; // 'mmol' or 'alt' (mEq/mg)
 let doseInput = '';
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -1684,6 +1841,68 @@ function getResult(drug,wt,dose){
   }
   if(drug.doseUnit==='mcg/kg/day'){unit='mL/hr';lbl='INFUSION RATE';}
   return{val,unit,lbl};
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// UNIT CONVERSION SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+const UNIT_CONVERSIONS = {
+  // Electrolytes where mmol = mEq (valence 1) — number same, label changes
+  potassium:  { mmol: 'mmol/L', alt: 'mEq/L',  factor: 1,      note: '1 mmol/L = 1 mEq/L' },
+  sodium:     { mmol: 'mmol/L', alt: 'mEq/L',  factor: 1,      note: '1 mmol/L = 1 mEq/L' },
+  // Electrolytes where conversion changes the number
+  calcium:    { mmol: 'mmol/L', alt: 'mg/dL',  factor: 4.008,  note: '1 mmol/L = 4.008 mg/dL; normal 2.2–2.7 mmol/L = 8.8–10.8 mg/dL' },
+  magnesium:  { mmol: 'mmol/L', alt: 'mg/dL',  factor: 2.432,  note: '1 mmol/L = 2.432 mg/dL; normal 0.7–1.0 mmol/L = 1.7–2.4 mg/dL' },
+  phosphate:  { mmol: 'mmol/L', alt: 'mg/dL',  factor: 3.097,  note: '1 mmol/L = 3.097 mg/dL; normal 1.0–2.0 mmol/L = 3.1–6.2 mg/dL' },
+  glucose:    { mmol: 'mmol/L', alt: 'mg/dL',  factor: 18.018, note: '1 mmol/L = 18 mg/dL' },
+};
+
+// Convert a value string like "3.5" or "2.5–3.0" from mmol to alt unit
+function convertUnits(valueStr, electrolyte) {
+  if(unitSystem === 'mmol') return { value: valueStr, unit: UNIT_CONVERSIONS[electrolyte].mmol };
+  const factor = UNIT_CONVERSIONS[electrolyte].factor;
+  const unit = UNIT_CONVERSIONS[electrolyte].alt;
+  // Handle ranges like "2.5–3.0"
+  if(valueStr.includes('–')) {
+    const parts = valueStr.split('–');
+    const converted = parts.map(p => {
+      const n = parseFloat(p);
+      return isNaN(n) ? p : (n * factor).toFixed(factor === 1 ? 1 : 1);
+    });
+    return { value: converted.join('–'), unit };
+  }
+  const n = parseFloat(valueStr);
+  if(isNaN(n)) return { value: valueStr, unit };
+  return { value: (n * factor).toFixed(factor === 1 ? 1 : 1), unit };
+}
+
+// Unit toggle bar — shown in electrolytes, calcium, hypoglycemia tabs
+function renderUnitToggle() {
+  const isAlt = unitSystem === 'alt';
+  return `
+    <div style="background:#fff;border-bottom:1px solid var(--bdr);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em">DISPLAY UNITS:</span>
+      <div style="display:flex;background:var(--bg3);border-radius:20px;padding:3px;gap:2px">
+        <button onclick="unitSystem='mmol';renderAll()"
+          style="padding:5px 14px;border-radius:16px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;
+          background:${!isAlt?'#1565c0':'transparent'};color:${!isAlt?'#fff':'var(--dim)'}">
+          mmol/L
+        </button>
+        <button onclick="unitSystem='alt';renderAll()"
+          style="padding:5px 14px;border-radius:16px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;
+          background:${isAlt?'#1565c0':'transparent'};color:${isAlt?'#fff':'var(--dim)'}">
+          mEq/L · mg/dL
+        </button>
+      </div>
+      ${isAlt ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${Object.entries(UNIT_CONVERSIONS).map(([k,v])=>`
+          <span style="background:#e8f4fd;border-radius:8px;padding:3px 8px;font-size:10px;color:#1565c0">
+            <b>${k.charAt(0).toUpperCase()+k.slice(1)}:</b> 1 ${v.mmol} = ${v.factor === 1 ? '1' : v.factor} ${v.alt}
+          </span>`).join('')}
+      </div>` : ''}
+    </div>`;
 }
 
 // ── Drug panel HTML ───────────────────────────────────────────
@@ -1732,7 +1951,7 @@ function renderDrugPanel(drug){
             ${drug.warn?'<span class="badge badge-warn">⚠ HIGH ALERT</span>':''}
             <span class="badge badge-type">${drug.isBolus?'BOLUS / LOADING':'CONTINUOUS INFUSION'}</span>
             <span class="badge badge-rule">${esc(drug.rule)}</span>
-            ${REFERENCES.drugLinks[drug.name]?`<a href="${REFERENCES.drugLinks[drug.name]}" target="_blank" rel="noopener noreferrer" style="background:#e8f4fd;color:#1565c0;border:1.5px solid #1565c040;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:700;text-decoration:none">🔗 Verify BNFc</a>`:''}
+            ${REFERENCES.drugLinks[drug.name]?`<a href="${REFERENCES.drugLinks[drug.name]}" target="_blank" rel="noopener noreferrer" style="background:#e8f4fd;color:#1565c0;border:1.5px solid #1565c040;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:700;text-decoration:none">🔗 Verify (Medscape)</a>`:''}
           </div>
         </div>
       </div>
@@ -1805,6 +2024,15 @@ function renderTabs(){
       <span class="t-icon">${c.icon}</span>
       <span>${c.label.toUpperCase()}</span>
     </button>`).join('');
+}
+
+function renderUnitToggleBar(){
+  const showToggle = ['electrolytes','calcium','hypoglycemia'].includes(activeCategory) && !searchTerm;
+  const bar = document.getElementById('unit-toggle-bar');
+  if(bar) {
+    bar.style.display = showToggle ? 'block' : 'none';
+    if(showToggle) bar.innerHTML = renderUnitToggle();
+  }
 }
 
 function renderPillBar(){
@@ -2227,8 +2455,8 @@ const REFERENCES = {
       title: "BNF for Children (BNFc)",
       publisher: "NICE / BMJ / RCPCH, UK",
       url: "https://bnfc.nice.org.uk",
-      description: "Primary reference for paediatric drug doses, renal adjustments, and safety information. Updated annually.",
-      free: true,
+      description: "Primary reference for paediatric drug doses. ⚠ NHS login required — available in UK only. Not accessible in India without subscription. Use Medscape (free) for dose verification.",
+      free: false,
       usedFor: ["All drug doses", "Renal dose adjustments", "Drug interactions", "Maximum doses"],
     },
     {
@@ -2241,8 +2469,8 @@ const REFERENCES = {
     },
     {
       title: "Pediatric Advanced Life Support (PALS) Guidelines",
-      publisher: "American Heart Association (AHA), 2020",
-      url: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric",
+      publisher: "AHA / AAP, 2025 — Published October 2025 (supersedes 2020)",
+      url: "https://www.ahajournals.org/doi/10.1161/CIR.0000000000001368",
       description: "AHA 2020 PALS guidelines for paediatric resuscitation, cardiac arrest, and emergency drug doses.",
       free: true,
       usedFor: ["Resuscitation drugs", "Intubation", "Adrenaline doses", "Cardiac arrest protocols"],
@@ -2264,20 +2492,36 @@ const REFERENCES = {
       usedFor: ["PICU protocols", "Sepsis management", "Vasoactive drug dosing"],
     },
     {
-      title: "Surviving Sepsis Campaign — Paediatric Guidelines",
-      publisher: "SCCM / ESICM, Pediatr Crit Care Med. 2020;21(2):e52–e106",
-      url: "https://doi.org/10.1097/PCC.0000000000002198",
-      description: "International guidelines for management of septic shock and sepsis-associated organ dysfunction in children.",
+      title: "Surviving Sepsis Campaign — Paediatric Guidelines 2026",
+      publisher: "Weiss S et al. Pediatr Crit Care Med. 2026 Mar 23. doi:10.1097/PCC.0000000000003927 (supersedes 2020)",
+      url: "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-pediatric-guidelines",
+      description: "Surviving Sepsis Campaign Paediatric Guidelines 2026 — updated to incorporate Phoenix Sepsis Criteria. 20 new recommendations vs 2020 guidelines. For management of septic shock and sepsis-associated organ dysfunction in children.",
       free: true,
       usedFor: ["Sepsis management", "Vasoactive selection", "Fluid resuscitation"],
     },
     {
-      title: "SCCM PANDEM Guidelines 2022",
+      title: "SCCM PANDEM Guidelines 2022 (Current — no update as of 2026)",
       publisher: "Smith HA et al. Pediatr Crit Care Med. 2022;23(2):e74–e110",
       url: "https://doi.org/10.1097/PCC.0000000000002873",
       description: "Pain, Agitation, Neuromuscular Blockade, and Delirium in paediatric critical care — comprehensive sedoanalgesia guidelines.",
       free: true,
       usedFor: ["Sedation doses", "Midazolam", "Fentanyl", "Dexmedetomidine", "Propofol", "Ketamine", "Morphine"],
+    },
+    {
+      title: "Phoenix Sepsis Criteria — New Paediatric Sepsis Definition (2024)",
+      publisher: "Schlapbach LJ et al. SCCM Pediatric Sepsis Definition Task Force. JAMA. 2024;331(8):665–674",
+      url: "https://doi.org/10.1001/jama.2024.0695",
+      description: "Replaces SIRS-based criteria (2005). Paediatric sepsis = Phoenix Sepsis Score ≥2 in child with suspected infection (dysfunction of respiratory, cardiovascular, coagulation and/or neurologic systems). Septic shock = sepsis + cardiovascular score ≥1 (hypotension, lactate ≥5 mmol/L, or vasoactive requirement). Validated in >3 million EHR encounters across 4 continents.",
+      free: true,
+      usedFor: ["Sepsis definition", "Septic shock criteria", "Vasoactive thresholds", "Sepsis recognition"],
+    },
+    {
+      title: "Medscape Drug Reference",
+      publisher: "WebMD / Medscape, Updated continuously",
+      url: "https://reference.medscape.com",
+      description: "Free, comprehensive drug reference used for dose verification in this tool. Accessible globally without subscription. Each drug card links directly to its Medscape monograph.",
+      free: true,
+      usedFor: ["Dose verification", "Drug interactions", "Renal dosing", "All drug categories"],
     },
     {
       title: "Lexicomp Pediatric & Neonatal Dosage Handbook, 30th Edition",
@@ -2296,7 +2540,7 @@ const REFERENCES = {
       icon: "♥",
       color: "#e63946",
       refs: [
-        {title:"Surviving Sepsis Campaign Paediatric Guidelines 2020", url:"https://doi.org/10.1097/PCC.0000000000002198"},
+        {title:"Surviving Sepsis Campaign Paediatric Guidelines 2026 — Weiss S et al. Pediatr Crit Care Med. 2026", url:"https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-pediatric-guidelines"},
         {title:"Kissoon N et al. World Federation of Pediatric Intensive Care — Sepsis Guidelines", url:"https://doi.org/10.1097/PCC.0000000000001081"},
         {title:"BNFc — Cardiovascular drugs", url:"https://bnfc.nice.org.uk"},
         {title:"Norepinephrine via peripheral IV — Loubani OM et al. J Crit Care. 2015", url:"https://doi.org/10.1016/j.jcrc.2015.01.014"},
@@ -2339,8 +2583,8 @@ const REFERENCES = {
       icon: "◈",
       color: "#2d6a4f",
       refs: [
-        {title:"GINA Guidelines for Acute Asthma 2023", url:"https://ginasthma.org"},
-        {title:"BTS/SIGN British Guideline on Management of Asthma 2019 (updated 2023)", url:"https://www.brit-thoracic.org.uk"},
+        {title:"GINA Global Strategy for Asthma Management and Prevention, 2026 (Updated May 2026)", url:"https://ginasthma.org"},
+        {title:"BTS/NICE/SIGN Guideline on Asthma (updated 2023; used alongside GINA 2026)", url:"https://www.brit-thoracic.org.uk/quality-improvement/guidelines/asthma/"},
         {title:"Magnesium in severe asthma — MAGNETIC Trial. Lancet Respir Med. 2013", url:"https://doi.org/10.1016/S2213-2600(13)70070-5"},
         {title:"BNFc — Respiratory drugs", url:"https://bnfc.nice.org.uk"},
       ]
@@ -2386,7 +2630,9 @@ const REFERENCES = {
         {title:"Colistin dosing in children — Nation RL et al. Lancet Infect Dis. 2015", url:"https://doi.org/10.1016/S1473-3099(15)70117-X"},
         {title:"Antibiotic dosing in CRRT — Eyler RF et al. Clin J Am Soc Nephrol. 2011", url:"https://doi.org/10.2215/CJN.00340111"},
         {title:"PCCSI Antibiotic Stewardship Guidelines 2023", url:"https://www.pccsi.org"},
+        {title:"Phoenix Sepsis Criteria 2024 — Schlapbach LJ et al. JAMA 2024;331(8):665–674", url:"https://doi.org/10.1001/jama.2024.0695"},
         {title:"WHO AWaRe Antibiotic Book 2022", url:"https://www.who.int/publications/i/item/9789240047495"},
+        {title:"Amoxicillin-clavulanate — BNFc / Medscape", url:"https://reference.medscape.com/drug/augmentin-amoxicillin-clavulanate-342376"},
       ]
     },
     {
@@ -2406,61 +2652,63 @@ const REFERENCES = {
 
   // Per-drug verify links (shown as button on each drug card)
   drugLinks: {
-    "Dopamine":               "https://bnfc.nice.org.uk/drugs/dopamine-hydrochloride/",
-    "Dobutamine":             "https://bnfc.nice.org.uk/drugs/dobutamine/",
-    "Adrenaline (Epinephrine)": "https://bnfc.nice.org.uk/drugs/adrenaline-epinephrine/",
-    "Noradrenaline (Norepinephrine)": "https://bnfc.nice.org.uk/drugs/noradrenaline-norepinephrine/",
-    "Milrinone":              "https://bnfc.nice.org.uk/drugs/milrinone/",
-    "Vasopressin":            "https://bnfc.nice.org.uk/drugs/vasopressin/",
-    "Midazolam":              "https://bnfc.nice.org.uk/drugs/midazolam/",
-    "Morphine":               "https://bnfc.nice.org.uk/drugs/morphine/",
-    "Fentanyl":               "https://bnfc.nice.org.uk/drugs/fentanyl/",
-    "Ketamine":               "https://bnfc.nice.org.uk/drugs/ketamine/",
-    "Dexmedetomidine":        "https://bnfc.nice.org.uk/drugs/dexmedetomidine/",
-    "Propofol ⚠":             "https://bnfc.nice.org.uk/drugs/propofol/",
-    "Labetalol":              "https://bnfc.nice.org.uk/drugs/labetalol-hydrochloride/",
-    "Nicardipine":            "https://bnfc.nice.org.uk/drugs/nicardipine-hydrochloride/",
-    "Sodium Nitroprusside (SNP) ⚠": "https://bnfc.nice.org.uk/drugs/sodium-nitroprusside/",
-    "Hydralazine (IV bolus)": "https://bnfc.nice.org.uk/drugs/hydralazine-hydrochloride/",
-    "Enalaprilat (IV)":       "https://bnfc.nice.org.uk/drugs/enalapril-maleate/",
-    "Phenobarbitone":         "https://bnfc.nice.org.uk/drugs/phenobarbital/",
-    "Phenytoin/Fosphenytoin ⚠": "https://bnfc.nice.org.uk/drugs/phenytoin/",
-    "Valproate (Sodium) ⚠":   "https://bnfc.nice.org.uk/drugs/sodium-valproate/",
-    "Levetiracetam":          "https://bnfc.nice.org.uk/drugs/levetiracetam/",
-    "Midazolam – Status Epilepticus": "https://bnfc.nice.org.uk/drugs/midazolam/",
-    "Lorazepam":              "https://bnfc.nice.org.uk/drugs/lorazepam/",
-    "Lacosamide":             "https://bnfc.nice.org.uk/drugs/lacosamide/",
-    "Salbutamol IV (Status Asthmaticus)": "https://bnfc.nice.org.uk/drugs/salbutamol/",
-    "Aminophylline ⚠":        "https://bnfc.nice.org.uk/drugs/aminophylline/",
-    "Magnesium Sulphate (Bronchospasm)": "https://bnfc.nice.org.uk/drugs/magnesium-sulfate/",
-    "Ipratropium Bromide (Nebulised)": "https://bnfc.nice.org.uk/drugs/ipratropium-bromide/",
-    "Potassium Chloride (KCl) ⚠": "https://bnfc.nice.org.uk/drugs/potassium-chloride/",
-    "3% Sodium Chloride ⚠ (Hyponatraemia)": "https://bnfc.nice.org.uk/drugs/sodium-chloride/",
-    "Phosphate (IV) – Hypophosphataemia": "https://bnfc.nice.org.uk/drugs/phosphate/",
-    "Calcium Gluconate 10% ⚠": "https://bnfc.nice.org.uk/drugs/calcium-gluconate/",
-    "Calcium Chloride 10% ⚠ (arrest)": "https://bnfc.nice.org.uk/drugs/calcium-chloride/",
-    "Magnesium Sulphate (IV) ⚠": "https://bnfc.nice.org.uk/drugs/magnesium-sulfate/",
-    "Dextrose 10% (Neonates & Infants)": "https://bnfc.nice.org.uk/drugs/glucose/",
-    "Dextrose 25% (Children >5 yr)": "https://bnfc.nice.org.uk/drugs/glucose/",
-    "Glucagon":               "https://bnfc.nice.org.uk/drugs/glucagon/",
-    "Octreotide (Hyperinsulinism)": "https://bnfc.nice.org.uk/drugs/octreotide/",
-    "Meropenem":              "https://bnfc.nice.org.uk/drugs/meropenem/",
-    "Piperacillin-Tazobactam":"https://bnfc.nice.org.uk/drugs/piperacillin-with-tazobactam/",
-    "Ceftriaxone":            "https://bnfc.nice.org.uk/drugs/ceftriaxone/",
-    "Cefotaxime":             "https://bnfc.nice.org.uk/drugs/cefotaxime/",
-    "Ceftazidime":            "https://bnfc.nice.org.uk/drugs/ceftazidime/",
-    "Cefoperazone-Sulbactam": "https://www.who.int/publications/i/item/9789240047495",
-    "Vancomycin":             "https://bnfc.nice.org.uk/drugs/vancomycin/",
-    "Teicoplanin":            "https://bnfc.nice.org.uk/drugs/teicoplanin/",
-    "Amikacin":               "https://bnfc.nice.org.uk/drugs/amikacin/",
-    "Gentamicin":             "https://bnfc.nice.org.uk/drugs/gentamicin/",
-    "Metronidazole":          "https://bnfc.nice.org.uk/drugs/metronidazole/",
-    "Linezolid":              "https://bnfc.nice.org.uk/drugs/linezolid/",
-    "Colistin (Polymyxin E)": "https://bnfc.nice.org.uk/drugs/colistimethate-sodium/",
-    "Azithromycin":           "https://bnfc.nice.org.uk/drugs/azithromycin/",
-    "Fluconazole":            "https://bnfc.nice.org.uk/drugs/fluconazole/",
-    "Amphotericin B (Liposomal)": "https://bnfc.nice.org.uk/drugs/amphotericin/",
-    "Acyclovir":              "https://bnfc.nice.org.uk/drugs/aciclovir/",
+    "Amoxicillin": "https://reference.medscape.com/drugs#query=amoxicillin",
+    "Amoxicillin-Clavulanate (Co-amoxiclav)": "https://reference.medscape.com/drugs#query=amoxicillin+clavulanate",
+    "Acyclovir": "https://reference.medscape.com/drugs#query=acyclovir",
+    "Amikacin": "https://reference.medscape.com/drugs#query=amikacin",
+    "Amphotericin B (Liposomal)": "https://reference.medscape.com/drugs#query=amphotericin+liposomal",
+    "Azithromycin": "https://reference.medscape.com/drugs#query=azithromycin",
+    "Cefoperazone-Sulbactam": "https://reference.medscape.com/drugs#query=cefoperazone+sulbactam",
+    "Cefotaxime": "https://reference.medscape.com/drugs#query=cefotaxime",
+    "Ceftazidime": "https://reference.medscape.com/drugs#query=ceftazidime",
+    "Ceftriaxone": "https://reference.medscape.com/drugs#query=ceftriaxone",
+    "Colistin (Polymyxin E)": "https://reference.medscape.com/drugs#query=colistin",
+    "Fluconazole": "https://reference.medscape.com/drugs#query=fluconazole",
+    "Gentamicin": "https://reference.medscape.com/drugs#query=gentamicin",
+    "Linezolid": "https://reference.medscape.com/drugs#query=linezolid",
+    "Meropenem": "https://reference.medscape.com/drugs#query=meropenem",
+    "Metronidazole": "https://reference.medscape.com/drugs#query=metronidazole",
+    "Piperacillin-Tazobactam": "https://reference.medscape.com/drugs#query=piperacillin+tazobactam",
+    "Teicoplanin": "https://reference.medscape.com/drugs#query=teicoplanin",
+    "Vancomycin": "https://reference.medscape.com/drugs#query=vancomycin",
+    "Dopamine": "https://reference.medscape.com/drugs#query=dopamine",
+    "Dobutamine": "https://reference.medscape.com/drugs#query=dobutamine",
+    "Adrenaline (Epinephrine)": "https://reference.medscape.com/drugs#query=epinephrine",
+    "Noradrenaline (Norepinephrine)": "https://reference.medscape.com/drugs#query=norepinephrine",
+    "Milrinone": "https://reference.medscape.com/drugs#query=milrinone",
+    "Vasopressin": "https://reference.medscape.com/drugs#query=vasopressin",
+    "Midazolam": "https://reference.medscape.com/drugs#query=midazolam",
+    "Morphine": "https://reference.medscape.com/drugs#query=morphine",
+    "Fentanyl": "https://reference.medscape.com/drugs#query=fentanyl",
+    "Ketamine": "https://reference.medscape.com/drugs#query=ketamine",
+    "Dexmedetomidine": "https://reference.medscape.com/drugs#query=dexmedetomidine",
+    "Propofol ⚠": "https://reference.medscape.com/drugs#query=propofol",
+    "Labetalol": "https://reference.medscape.com/drugs#query=labetalol",
+    "Nicardipine": "https://reference.medscape.com/drugs#query=nicardipine",
+    "Sodium Nitroprusside (SNP) ⚠": "https://reference.medscape.com/drugs#query=sodium+nitroprusside",
+    "Hydralazine (IV bolus)": "https://reference.medscape.com/drugs#query=hydralazine",
+    "Enalaprilat (IV)": "https://reference.medscape.com/drugs#query=enalaprilat",
+    "Phenobarbitone": "https://reference.medscape.com/drugs#query=phenobarbital",
+    "Phenytoin/Fosphenytoin ⚠": "https://reference.medscape.com/drugs#query=phenytoin",
+    "Valproate (Sodium) ⚠": "https://reference.medscape.com/drugs#query=valproate",
+    "Levetiracetam": "https://reference.medscape.com/drugs#query=levetiracetam",
+    "Midazolam – Status Epilepticus": "https://reference.medscape.com/drugs#query=midazolam",
+    "Lorazepam": "https://reference.medscape.com/drugs#query=lorazepam",
+    "Lacosamide": "https://reference.medscape.com/drugs#query=lacosamide",
+    "Salbutamol IV (Status Asthmaticus)": "https://reference.medscape.com/drugs#query=salbutamol",
+    "Aminophylline ⚠": "https://reference.medscape.com/drugs#query=aminophylline",
+    "Magnesium Sulphate (Bronchospasm)": "https://reference.medscape.com/drugs#query=magnesium+sulfate",
+    "Ipratropium Bromide (Nebulised)": "https://reference.medscape.com/drugs#query=ipratropium",
+    "Potassium Chloride (KCl) ⚠": "https://reference.medscape.com/drugs#query=potassium+chloride",
+    "3% Sodium Chloride ⚠ (Hyponatraemia)": "https://reference.medscape.com/drugs#query=sodium+chloride",
+    "Phosphate (IV) – Hypophosphataemia": "https://reference.medscape.com/drugs#query=phosphate",
+    "Calcium Gluconate 10% ⚠": "https://reference.medscape.com/drugs#query=calcium+gluconate",
+    "Calcium Chloride 10% ⚠ (arrest)": "https://reference.medscape.com/drugs#query=calcium+chloride",
+    "Magnesium Sulphate (IV) ⚠": "https://reference.medscape.com/drugs#query=magnesium+sulfate",
+    "Dextrose 10% (Neonates & Infants)": "https://reference.medscape.com/drugs#query=dextrose",
+    "Dextrose 25% (Children >5 yr)": "https://reference.medscape.com/drugs#query=dextrose",
+    "Glucagon": "https://reference.medscape.com/drugs#query=glucagon",
+    "Octreotide (Hyperinsulinism)": "https://reference.medscape.com/drugs#query=octreotide",
   }
 };
 
@@ -2524,7 +2772,30 @@ function renderReferencesTab() {
         <div style="background:#e8f4fd;border:2px solid #1565c0;border-radius:11px;padding:13px 15px">
           <div style="font-size:13px;font-weight:800;color:#1565c0;margin-bottom:6px">📋 Verification Statement</div>
           <div style="font-size:13px;color:#0d3c6e;line-height:1.75">
-            Doses in this calculator are based on BNFc, Harriet Lane Handbook, SCCM PANDEM Guidelines, AHA PALS 2020, IAP-PALS, Surviving Sepsis Campaign Paediatric Guidelines, and current PICU consensus guidelines. Users are encouraged to verify against current references before clinical use.
+            Doses in this calculator are based on BNFc, Harriet Lane Handbook, SCCM PANDEM Guidelines 2022, AHA/AAP PALS 2025, IAP-PALS, Surviving Sepsis Campaign Paediatric Guidelines 2026, GINA 2026, and current PICU consensus guidelines. Sepsis criteria use the Phoenix Sepsis Score (SCCM 2024) — see reference below. Users are encouraged to verify against current references before clinical use.
+          </div>
+          <div style="margin-top:10px;background:#fff3e0;border:1.5px solid #e65100;border-radius:10px;padding:12px 14px">
+            <div style="font-size:12px;font-weight:800;color:#e65100;margin-bottom:8px">🔥 PHOENIX SEPSIS CRITERIA 2024 (Replaces SIRS-based criteria)</div>
+            <div style="font-size:13px;color:#3e1f00;line-height:1.7;margin-bottom:8px">
+              <b>Paediatric Sepsis</b> = Suspected infection + <b>Phoenix Sepsis Score ≥ 2</b><br>
+              <b>Septic Shock</b> = Sepsis + Cardiovascular score ≥ 1 (hypotension, lactate ≥5 mmol/L, or vasoactive requirement)
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+              ${[
+                {domain:"🫁 RESPIRATORY",color:"#1565c0",score:"0–3 pts",criteria:"PaO₂/FiO₂ or SpO₂/FiO₂ ratio, invasive ventilation"},
+                {domain:"❤️ CARDIOVASCULAR",color:"#c62828",score:"0–6 pts",criteria:"Vasoactives, lactate ≥5, MAP below age threshold"},
+                {domain:"🩸 COAGULATION",color:"#6a1b9a",score:"0–2 pts",criteria:"Platelets <100, INR >1.3, D-dimer >2, fibrinogen <100"},
+                {domain:"🧠 NEUROLOGIC",color:"#2e7d32",score:"0–2 pts",criteria:"GCS ≤10 or fixed bilateral pupils"},
+              ].map(d=>`
+                <div style="background:#fff;border-radius:8px;padding:8px 10px;border-left:3px solid ${d.color}">
+                  <div style="font-size:11px;font-weight:700;color:${d.color}">${d.domain} <span style="font-weight:400;color:var(--dim)">${d.score}</span></div>
+                  <div style="font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4">${d.criteria}</div>
+                </div>`).join('')}
+            </div>
+            <div style="font-size:11px;color:#5a3000">
+              Reference: Schlapbach LJ et al. JAMA. 2024;331(8):665–674. Validated in >3 million EHR encounters, 10 sites, 4 continents. Applies to children 1 month to &lt;18 years.
+              <a href="https://doi.org/10.1001/jama.2024.0695" target="_blank" style="color:#e65100;margin-left:6px;font-weight:700">🔗 Open</a>
+            </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:#1565c0;font-style:italic">
             All clinical decisions remain the responsibility of the treating clinician.
@@ -2552,6 +2823,7 @@ function renderReferencesTab() {
 function selectAbx(i){
   selectedAbx=i;
   abxEgfr=''; abxCreat=''; abxHeight=''; abxAge='';
+  abxDoseInput=''; abxDoseSelected=null;
   renderPillBar();
   renderAbxTab();
   setTimeout(()=>{document.getElementById('content').scrollIntoView({behavior:'smooth',block:'start'});},50);
@@ -2567,6 +2839,7 @@ function renderAll(){
   }
   renderGIR();
   renderWeightBanner();
+  renderUnitToggleBar();
   renderDrugDisplay();
 }
 
