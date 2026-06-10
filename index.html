@@ -1574,10 +1574,10 @@ function renderAbxTab() {
         <div style="background:#fff;border:2px solid ${esc(drug.color)};border-radius:11px;padding:10px 16px;min-width:140px">
           <div style="font-size:10px;font-weight:700;color:${esc(drug.color)};letter-spacing:.1em">TOTAL DOSE</div>
           <div style="display:flex;align-items:baseline;gap:5px;margin-top:2px">
-            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose}</span>
-            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">mg</span>
+            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose>=1000?(cappedDose/1000).toFixed(cappedDose%1000===0?0:1):cappedDose}</span>
+            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">${cappedDose>=1000?'g':'mg'}</span>
           </div>
-          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum} mg</div>`:''}
+          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum>=1000?(maxDoseNum/1000)+'g':maxDoseNum+' mg'}</div>`:''}
         </div>` : ''}
       </div>
       ${abxDoseSelected ? `
@@ -1600,10 +1600,10 @@ function renderAbxTab() {
         ${drug.doses.filter(d=>extractNumericDose(d.dose)).map(d=>{
           const dn = parseFloat(extractNumericDose(d.dose));
           const total = Math.round(dn * wt);
-          const max = d.max ? parseFloat(d.max) : null;
+          const max = d.max ? parseMaxDose(d.max) : null;
           const capped = max && total > max ? max : total;
-          const capNote = max && total > max ? ` (max ${max} mg)` : '';
-          return `${d.indication}: <b>${capped} mg</b>${capNote} ${d.freq}`;
+          const capNote = max && total > max ? ` (max ${max>=1000?(max/1000)+'g':max+' mg'})` : '';
+          return `${d.indication}: <b>${capped>=1000?(capped/1000)+'g':capped+' mg'}</b>${capNote} ${d.freq}`;
         }).join('<br>')}
       </div>` : ''}
     </div>`;
