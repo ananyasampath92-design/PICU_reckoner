@@ -1538,7 +1538,19 @@ function renderAbxTab() {
   const wt = parseFloat(weight)||0;
   const doseNum = parseFloat(abxDoseInput)||0;
   const totalDose = (wt && doseNum) ? (wt * doseNum).toFixed(0) : null;
-  const maxDoseNum = abxDoseSelected?.max ? parseFloat(abxDoseSelected.max) : null;
+  // Parse max dose — handle both mg and g units
+  function parseMaxDose(maxStr) {
+    if(!maxStr) return null;
+    const n = parseFloat(maxStr);
+    if(isNaN(n)) return null;
+    // If string contains 'g' (but not 'mg'), convert g → mg
+    const lower = maxStr.toLowerCase();
+    if(lower.includes(' g ') || lower.includes(' g/') || lower.endsWith('g') || lower.match(/\d+\s*g\b/)) {
+      if(!lower.includes('mg')) return n * 1000;
+    }
+    return n;
+  }
+  const maxDoseNum = abxDoseSelected?.max ? parseMaxDose(abxDoseSelected.max) : null;
   const cappedDose = totalDose && maxDoseNum && parseFloat(totalDose) > maxDoseNum ? maxDoseNum : (totalDose ? parseFloat(totalDose) : null);
   const wasCapped = cappedDose && totalDose && cappedDose < parseFloat(totalDose);
 
