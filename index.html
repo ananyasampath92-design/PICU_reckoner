@@ -94,14 +94,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 
 /* RANGES */
 .range-table{border-radius:10px;overflow:hidden;border:1px solid var(--bdr)}
-.range-row{display:flex;flex-direction:column;padding:9px 11px;font-size:13px;gap:3px}
+.range-row{display:grid;grid-template-columns:30% 25% 1fr;gap:8px;padding:9px 11px;font-size:13px}
 .range-row:not(:last-child){border-bottom:1px solid var(--bdr)}
 .range-row:nth-child(odd){background:#fafbff}
 .range-row:nth-child(even){background:#fff}
-.range-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.rd{font-weight:700;font-family:var(--mono);font-size:14px}
-.rl{color:var(--dim);font-size:12px;background:var(--bg3);padding:2px 8px;border-radius:10px}
-.re{color:var(--text2);font-size:12px;line-height:1.5;padding-left:2px}
+.rd{font-weight:700;font-family:var(--mono)}
+.rl{color:var(--dim);font-size:12px}
+.re{color:var(--text2);font-size:12px}
 
 /* CALCULATOR */
 .calc-card{background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;border:1.5px solid var(--bdr)}
@@ -419,7 +418,7 @@ sedation:[
 
  {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
   prep:"4 mcg/kg in 50 mL NS",
-  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/200).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
+  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/100).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
   rule:"1 mL/hr = 0.08 mcg/kg/hr  [wt-independent]",
   doseUnit:"mcg/kg/hr",isBolus:false,
   rateFn:(w,d)=>+(d*12.5).toFixed(2),  // dose / (0.004 × 20) = dose × 12.5
@@ -1538,19 +1537,7 @@ function renderAbxTab() {
   const wt = parseFloat(weight)||0;
   const doseNum = parseFloat(abxDoseInput)||0;
   const totalDose = (wt && doseNum) ? (wt * doseNum).toFixed(0) : null;
-  // Parse max dose — handle both mg and g units
-  function parseMaxDose(maxStr) {
-    if(!maxStr) return null;
-    const n = parseFloat(maxStr);
-    if(isNaN(n)) return null;
-    // If string contains 'g' (but not 'mg'), convert g → mg
-    const lower = maxStr.toLowerCase();
-    if(lower.includes(' g ') || lower.includes(' g/') || lower.endsWith('g') || lower.match(/\d+\s*g\b/)) {
-      if(!lower.includes('mg')) return n * 1000;
-    }
-    return n;
-  }
-  const maxDoseNum = abxDoseSelected?.max ? parseMaxDose(abxDoseSelected.max) : null;
+  const maxDoseNum = abxDoseSelected?.max ? parseFloat(abxDoseSelected.max) : null;
   const cappedDose = totalDose && maxDoseNum && parseFloat(totalDose) > maxDoseNum ? maxDoseNum : (totalDose ? parseFloat(totalDose) : null);
   const wasCapped = cappedDose && totalDose && cappedDose < parseFloat(totalDose);
 
@@ -1574,10 +1561,10 @@ function renderAbxTab() {
         <div style="background:#fff;border:2px solid ${esc(drug.color)};border-radius:11px;padding:10px 16px;min-width:140px">
           <div style="font-size:10px;font-weight:700;color:${esc(drug.color)};letter-spacing:.1em">TOTAL DOSE</div>
           <div style="display:flex;align-items:baseline;gap:5px;margin-top:2px">
-            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose>=1000?(cappedDose/1000).toFixed(cappedDose%1000===0?0:1):cappedDose}</span>
-            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">${cappedDose>=1000?'g':'mg'}</span>
+            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose}</span>
+            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">mg</span>
           </div>
-          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum>=1000?(maxDoseNum/1000)+'g':maxDoseNum+' mg'}</div>`:''}
+          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum} mg</div>`:''}
         </div>` : ''}
       </div>
       ${abxDoseSelected ? `
@@ -1600,10 +1587,10 @@ function renderAbxTab() {
         ${drug.doses.filter(d=>extractNumericDose(d.dose)).map(d=>{
           const dn = parseFloat(extractNumericDose(d.dose));
           const total = Math.round(dn * wt);
-          const max = d.max ? parseMaxDose(d.max) : null;
+          const max = d.max ? parseFloat(d.max) : null;
           const capped = max && total > max ? max : total;
-          const capNote = max && total > max ? ` (max ${max>=1000?(max/1000)+'g':max+' mg'})` : '';
-          return `${d.indication}: <b>${capped>=1000?(capped/1000)+'g':capped+' mg'}</b>${capNote} ${d.freq}`;
+          const capNote = max && total > max ? ` (max ${max} mg)` : '';
+          return `${d.indication}: <b>${capped} mg</b>${capNote} ${d.freq}`;
         }).join('<br>')}
       </div>` : ''}
     </div>`;
@@ -1699,7 +1686,7 @@ function renderAbxTab() {
       <div class="section">
         <div class="section-title">Paediatric Dosing <span style="font-size:10px;color:var(--dim);font-weight:400">(tap a row to calculate)</span></div>
         <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
-          <table style="width:100%;border-collapse:collapse;min-width:420px">
+          <table style="width:100%;border-collapse:collapse;min-width:500px">
             <thead><tr style="background:${esc(drug.color)};color:#fff">
               <th style="padding:9px 10px;text-align:left;font-size:11px;letter-spacing:.05em">INDICATION</th>
               <th style="padding:9px 10px;text-align:left;font-size:11px">DOSE</th>
@@ -1927,10 +1914,8 @@ function renderDrugPanel(drug){
   // Ranges
   const rangeRows = drug.ranges.map(r=>`
     <div class="range-row">
-      <div class="range-row-top">
-        <div class="rd" style="color:${esc(col)}">${esc(r.dose)}</div>
-        <div class="rl">${esc(r.lbl)}</div>
-      </div>
+      <div class="rd" style="color:${esc(col)}">${esc(r.dose)}</div>
+      <div class="rl">${esc(r.lbl)}</div>
       <div class="re">${esc(r.eff)}</div>
     </div>`).join('');
 
