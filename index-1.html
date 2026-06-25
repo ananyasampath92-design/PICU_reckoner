@@ -1,0 +1,2976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PICU Reckoner">
+<meta name="application-name" content="PICU Reckoner">
+<meta name="theme-color" content="#c1121f">
+<meta name="description" content="KMCT PICU ICU Infusion Ready Reckoner — Developed by Dr. Ananya, KMCT Medical College. Built with AI assistance.">
+<meta name="mobile-web-app-capable" content="yes">
+<title>PICU Reckoner</title>
+<link rel="manifest" href="manifest.json">
+<!-- iOS icon -->
+<link rel="apple-touch-icon" href="icon.png">
+<!-- Inline SVG icon as data URI for iOS -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23c1121f'/%3E%3Ctext x='90' y='80' font-family='Arial' font-size='52' font-weight='900' fill='white' text-anchor='middle'%3EPICU%3C/text%3E%3Ctext x='90' y='130' font-family='Arial' font-size='26' font-weight='700' fill='rgba(255,255,255,0.85)' text-anchor='middle'%3EReckon%3C/text%3E%3C/svg%3E">
+<style>
+/* PWA splash / install prompt */
+#install-banner{display:none;position:fixed;bottom:70px;left:12px;right:12px;background:#1a1d2e;color:#fff;border-radius:14px;padding:14px 16px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.25);align-items:center;gap:12px}
+#install-banner .ib-icon{width:44px;height:44px;border-radius:10px;background:#c1121f;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+#install-banner .ib-text{flex:1}
+#install-banner .ib-title{font-weight:800;font-size:14px}
+#install-banner .ib-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
+#install-banner .ib-btn{background:#c1121f;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
+#install-banner .ib-close{background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
+</style>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+:root{
+  --red:#c1121f;--red2:#e63946;--bg:#f0f2f8;--card:#ffffff;
+  --text:#1a1d2e;--text2:#3d4166;--dim:#6b6f8a;--dim2:#9da0b8;
+  --bdr:#dde0f0;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;padding-bottom:70px;min-height:100vh}
+
+/* ── HEADER ── */
+#hdr{background:linear-gradient(135deg,#c1121f 0%,#e63946 100%);padding:14px 16px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(193,18,31,0.3)}
+.hdr-row1{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hdr-logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.4)}
+.hdr-info{flex:1}
+.hdr-info h1{font-size:14px;font-weight:800;color:#fff;letter-spacing:.03em;line-height:1.2}
+.hdr-info p{font-size:10px;color:rgba(255,255,255,0.75);margin-top:1px;letter-spacing:.05em}
+.hdr-wt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hdr-wt label{font-size:9px;color:rgba(255,255,255,0.8);font-weight:700;letter-spacing:.1em}
+.wt-row{display:flex;align-items:center;gap:4px}
+#wt-input{width:72px;padding:6px 8px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:8px;color:#fff;font-size:20px;font-family:var(--mono);font-weight:700;text-align:center;outline:none;-webkit-appearance:none}
+#wt-input::placeholder{color:rgba(255,255,255,0.45);font-size:14px}
+#wt-input.filled{background:rgba(255,255,255,0.3);border-color:#fff}
+.wt-kg{font-size:13px;color:#fff;font-weight:700}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 36px;background:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font);color:var(--text);outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+
+/* ── CATEGORY TABS ── */
+#tabs{background:#fff;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bdr);position:sticky;top:116px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+#tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;border:none;background:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--dim);white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab .t-icon{font-size:16px;line-height:1}
+.tab.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* ── DRUG PILL SELECTOR ── */
+#pill-bar{background:#fff;border-bottom:1px solid var(--bdr);padding:10px 14px;overflow-x:auto;display:flex;gap:7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#pill-bar::-webkit-scrollbar{display:none}
+.drug-pill{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bdr);background:#fff;font-size:12px;font-family:var(--font);font-weight:600;color:var(--dim);white-space:nowrap;cursor:pointer;transition:all .18s;flex-shrink:0}
+.drug-pill.active{color:#fff;border-color:transparent}
+
+/* ── MAIN CONTENT ── */
+#content{padding:14px 14px 0}
+
+/* ── WEIGHT BANNER ── */
+#wt-banner{background:#fff7ed;border:1.5px dashed #f4a261;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#a05020}
+
+/* ── DRUG PANEL ── */
+.drug-panel{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden;margin-bottom:12px}
+.drug-panel-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.drug-color-bar{width:5px;border-radius:3px;align-self:stretch;flex-shrink:0;min-height:40px}
+.drug-header-info{flex:1}
+.drug-name{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.drug-badges{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.badge{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.03em}
+.badge-warn{background:#fff0f0;color:#c1121f;border:1px solid #ffb3b3}
+.badge-type{background:#eef0fa;color:var(--dim)}
+.badge-rule{background:#f0f8ff;color:#2a70b8;font-family:var(--mono);font-size:10px}
+
+/* ── SECTIONS ── */
+.section{padding:12px 16px;border-top:1px solid var(--bdr)}
+.section-title{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+
+/* PREP BOX */
+.prep-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--drug-color,#888);font-size:13px;color:var(--text);line-height:1.7;font-family:var(--mono)}
+
+/* RANGES */
+.range-table{border-radius:10px;overflow:hidden;border:1px solid var(--bdr)}
+.range-row{display:grid;grid-template-columns:30% 25% 1fr;gap:8px;padding:9px 11px;font-size:13px}
+.range-row:not(:last-child){border-bottom:1px solid var(--bdr)}
+.range-row:nth-child(odd){background:#fafbff}
+.range-row:nth-child(even){background:#fff}
+.rd{font-weight:700;font-family:var(--mono)}
+.rl{color:var(--dim);font-size:12px}
+.re{color:var(--text2);font-size:12px}
+
+/* CALCULATOR */
+.calc-card{background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;border:1.5px solid var(--bdr)}
+.calc-inputs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.calc-field{display:flex;flex-direction:column;gap:3px}
+.calc-field label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em}
+.calc-field input{width:130px;padding:10px 12px;background:#fff;border:2px solid var(--bdr);border-radius:9px;font-size:17px;font-family:var(--mono);font-weight:700;color:var(--text);outline:none;transition:border-color .15s}
+.calc-field input:focus{border-color:var(--drug-color,var(--red))}
+.calc-unit-lbl{font-size:13px;color:var(--dim);font-weight:600;padding-top:20px}
+.result-box{background:#fff;border-radius:12px;padding:12px 16px;border:2px solid var(--drug-color,#888);margin-top:4px;display:none}
+.result-box.show{display:flex;align-items:baseline;gap:6px}
+.result-label{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.1em;margin-bottom:2px}
+.result-val{font-size:34px;font-weight:900;font-family:var(--mono);line-height:1}
+.result-unit{font-size:15px;font-weight:600;color:var(--dim)}
+
+/* DOSE LADDER */
+.ladder-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.l-pill{background:#f0f2f8;border:1.5px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.l-pill:active{transform:scale(.96)}
+.l-dose{font-weight:700}
+.l-arrow{color:var(--dim2);margin:0 3px}
+.l-rate{font-weight:800}
+
+/* BOLUS / NOTES */
+.bolus-box{background:#f5f0fa;border-radius:10px;padding:11px 13px;border-left:4px solid #7c5c9a}
+.bolus-box p{font-size:13px;color:#4a3560;line-height:1.65}
+.notes-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--bdr)}
+.notes-box p{font-size:13px;color:var(--dim);line-height:1.7}
+.notes-box.warn{background:#fff5f5;border-left-color:#e63946}
+.notes-box.warn p{color:#8a2020}
+
+/* ── GIR WIDGET ── */
+#gir-section{margin-bottom:12px}
+.gir-card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden}
+.gir-head{background:linear-gradient(135deg,#166c38,#2d9e55);padding:13px 16px;display:flex;align-items:center;gap:8px}
+.gir-head h2{color:#fff;font-size:14px;font-weight:800;letter-spacing:.03em}
+.gir-panels{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--bdr)}
+.gir-panel{padding:13px}
+.gir-panel:first-child{border-right:1px solid var(--bdr)}
+.gir-panel h3{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em;margin-bottom:10px}
+.gir-field{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.gir-field label{font-size:11px;color:var(--dim);width:74px;flex-shrink:0}
+.gir-field input{flex:1;max-width:75px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:7px;font-size:13px;font-family:var(--mono);color:var(--text);outline:none}
+.gir-result{background:#e8f5ee;border:2px solid #4caf70;border-radius:9px;padding:8px;text-align:center;margin-top:8px;display:none}
+.gir-result.show{display:block}
+.gir-result .gr-lbl{font-size:10px;font-weight:700;color:#2d7a50;letter-spacing:.08em}
+.gir-result .gr-val{font-size:24px;font-weight:900;color:#166c38;font-family:var(--mono)}
+.gir-result .gr-unit{font-size:12px;color:#2d7a50}
+.gir-note{padding:10px 14px;background:#f0faf4;font-size:11px;color:#3a6b4a;border-top:1px solid #c8e6d0;line-height:1.6}
+
+/* ── FOOTER ── */
+#footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bdr);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -2px 10px rgba(0,0,0,0.06)}
+.footer-credit{font-size:11px;color:var(--red);font-weight:700}
+.footer-credit span{color:var(--dim2);font-weight:400}
+.footer-disc{font-size:10px;color:var(--dim2)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:50px 20px;color:var(--dim)}
+.empty .e-icon{font-size:40px;margin-bottom:10px}
+.empty p{font-size:15px}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-N87B31RF4V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-N87B31RF4V');
+</script>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="hdr-row1">
+    <div class="hdr-logo">＋</div>
+    <div class="hdr-info">
+      <h1>KMCT MEDICAL COLLEGE — PICU</h1>
+      <p>ICU INFUSION READY RECKONER · Dr. Ananya · Built with AI</p>
+    </div>
+    <div class="hdr-wt">
+      <label>PATIENT WT</label>
+      <div class="wt-row">
+        <input type="number" id="wt-input" placeholder="kg" min="0.3" max="100" step="0.1" inputmode="decimal">
+        <span class="wt-kg">kg</span>
+      </div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Search any drug...">
+  </div>
+</div>
+
+<div id="tabs"></div>
+<div id="pill-bar"></div>
+<div id="unit-toggle-bar" style="display:none"></div>
+<div id="content">
+  <div id="wt-banner" style="display:none">⚖️ Enter patient weight above for weight-specific preparation and dose calculations</div>
+  <div id="gir-section" style="display:none">
+    <div class="gir-card">
+      <div class="gir-head"><span style="font-size:18px">⚡</span><h2>GIR CALCULATOR — GIR = (Dex% × Rate) ÷ (Weight × 6)</h2></div>
+      <div class="gir-panels">
+        <div class="gir-panel">
+          <h3>GIR FROM RATE</h3>
+          <div class="gir-field"><label>Weight (kg)</label><input type="number" id="g-wt" inputmode="decimal"></div>
+          <div class="gir-field"><label>Dextrose %</label><input type="number" id="g-dex" value="10" inputmode="decimal"></div>
+          <div class="gir-field"><label>Rate (mL/hr)</label><input type="number" id="g-rate" inputmode="decimal"></div>
+          <div class="gir-result" id="gir-out1"><div class="gr-lbl">GIR</div><span class="gr-val" id="gv1">—</span><span class="gr-unit"> mg/kg/min</span></div>
+        </div>
+        <div class="gir-panel">
+          <h3>RATE FROM TARGET GIR</h3>
+          <div class="gir-field"><label>Weight (kg)</label><input type="number" id="g-wt2" inputmode="decimal"></div>
+          <div class="gir-field"><label>Dextrose %</label><input type="number" id="g-dex2" value="10" inputmode="decimal"></div>
+          <div class="gir-field"><label>Target GIR</label><input type="number" id="g-gir" inputmode="decimal"></div>
+          <div class="gir-result" id="gir-out2"><div class="gr-lbl">RATE</div><span class="gr-val" id="gv2">—</span><span class="gr-unit"> mL/hr</span></div>
+        </div>
+      </div>
+      <div class="gir-note">Target BG: Neonate 47–126 mg/dL (2.6–7 mmol/L) | Infant/Child 72–180 mg/dL (4–10 mmol/L) &nbsp;|&nbsp; D10% at GIR × wt × 6 / 10 mL/hr</div>
+    </div>
+  </div>
+  <div id="drug-display"></div>
+</div>
+
+<!-- Disclaimer banner -->
+<div id="disclaimer" style="position:fixed;bottom:0;left:0;right:0;z-index:999;background:#1a1d2e;border-top:2px solid #e63946;padding:10px 16px;display:flex;align-items:flex-start;gap:10px" >
+  <div style="flex:1">
+    <div style="font-size:11px;font-weight:800;color:#e63946;letter-spacing:.06em;margin-bottom:3px">⚠️ MEDICAL DISCLAIMER</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6">Users must independently verify all calculations and clinical information before use. The author accepts no responsibility or liability for any errors, omissions, or consequences arising from the use of this calculator. All clinical decisions remain the responsibility of the user.</div>
+    <div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.5)">Dr. Ananya · KMCT Medical College · Built with AI assistance</div>
+  </div>
+  <button onclick="document.getElementById('disclaimer').style.display='none';document.getElementById('footer').style.display='flex'"
+    style="background:#e63946;border:none;color:#fff;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;margin-top:2px">
+    I Understand
+  </button>
+</div>
+
+<div id="footer" style="display:none">
+  <div class="footer-credit">Dr. Ananya · KMCT Medical College <span>· Built with AI assistance</span></div>
+  <div class="footer-disc">⚠️ Always verify doses independently</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// VERIFIED FORMULAS:
+// Weight-based prep X mg/kg in 50mL:
+//   mcg/kg/min → Rate = dose × 3/X          [wt-independent]
+//   mcg/kg/hr  → Rate = dose / (X × 20)     [wt-independent]
+//   mg/kg/hr   → Rate = dose × 50/X         [wt-independent]
+// Fixed conc C mg/mL:
+//   mg/kg/hr   → Rate = dose × wt / C       [wt-dependent]
+//   mcg/kg/min → Rate = dose × wt × 60/(C×1000) [wt-dependent]
+// ══════════════════════════════════════════════════════════
+
+const CATEGORIES = [
+  {id:"inotropes",    label:"Inotropes & Vasopressors", icon:"♥"},
+  {id:"sedation",     label:"Sedation & Analgesia",     icon:"◎"},
+  {id:"antihtn",      label:"Antihypertensives",        icon:"⟁"},
+  {id:"antiepi",      label:"Antiepileptics",           icon:"⚡"},
+  {id:"broncho",      label:"Bronchodilators",          icon:"◈"},
+  {id:"electrolytes", label:"Electrolyte Corrections",  icon:"⬡"},
+  {id:"calcium",      label:"Calcium & Magnesium",      icon:"◇"},
+  {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
+  {id:"antibiotics",  label:"Antibiotics",              icon:"🦠"},
+  {id:"intubation",   label:"Intubation",               icon:"🫁"},
+  {id:"references",   label:"References & Verify",       icon:"📚"},
+];
+
+const DRUGS = {
+inotropes:[
+ {name:"Dopamine",color:"#e63946",warn:false,
+  prep:"3 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(3*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*1).toFixed(2),  // dose × 3/3 = dose × 1
+  commonDoses:[2,5,10,15,20],
+  ranges:[
+   {dose:"2–5",lbl:"Renal/dopaminergic",eff:"Renal vasodilation, ↑ urine output"},
+   {dose:"5–10",lbl:"Inotropic",eff:"↑ HR, ↑ contractility, ↑ CO"},
+   {dose:"10–20",lbl:"Vasopressor",eff:"Vasoconstriction, ↑ SVR, ↑ BP"},
+  ],
+  bolus:null,
+  notes:"Incompatible with alkaline solutions. Extravasation → phentolamine 1mg local infiltration. Max 20 mcg/kg/min."},
+
+ {name:"Dobutamine",color:"#e63946",warn:false,
+  prep:"3 mg/kg in 50 mL NS/D5W",
+  prepFn:w=>`Draw ${(3*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*1).toFixed(2),
+  commonDoses:[2,5,10,15,20],
+  ranges:[
+   {dose:"2–5",lbl:"Low",eff:"↑ contractility, mild ↑ HR"},
+   {dose:"5–10",lbl:"Moderate",eff:"↑ CO, mild vasodilation"},
+   {dose:"10–20",lbl:"High",eff:"↑ HR, ↑ CO; tachyarrhythmia risk"},
+  ],
+  bolus:null,
+  notes:"Preferred in cardiogenic shock. May worsen hypotension in hypovolaemia. Tachyphylaxis after 72hr."},
+
+ {name:"Adrenaline (Epinephrine)",color:"#d62828",warn:true,
+  prep:"0.3 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.3*w).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),  // dose × 3/0.3 = dose × 10
+  commonDoses:[0.05,0.1,0.2,0.5,1.0],
+  ranges:[
+   {dose:"0.01–0.1",lbl:"Low – β dominant",eff:"↑ CO, bronchodilation, vasodilation"},
+   {dose:"0.1–1.0",lbl:"High – α dominant",eff:"Vasoconstriction, ↑ SVR, ↑ MAP"},
+  ],
+  bolus:"Anaphylaxis: 0.01 mg/kg IM (max 0.5 mg). Cardiac arrest: 0.01 mg/kg IV/IO q3–5 min.",
+  notes:"CENTRAL LINE preferred. Tight glucose monitoring. Max 2 mcg/kg/min."},
+
+ {name:"Noradrenaline (Norepinephrine)",color:"#d62828",warn:true,
+  prep:"0.3 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.3*w).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),
+  commonDoses:[0.05,0.1,0.2,0.5,1.0],
+  ranges:[
+   {dose:"0.05–0.1",lbl:"Starting",eff:"↑ SVR, ↑ MAP, minimal HR change"},
+   {dose:"0.1–0.5",lbl:"Moderate",eff:"↑↑ SVR, vasopressor effect"},
+   {dose:"0.5–2.0",lbl:"High",eff:"Severe vasoconstriction"},
+  ],
+  bolus:null,
+  notes:"PIV acceptable for LOW doses (0.05–0.2 mcg/kg/min) for SHORT duration in emergency — use large-bore antecubital IV, check site frequently. CENTRAL LINE strongly preferred for doses >0.2 mcg/kg/min or prolonged use. Extravasation → severe necrosis (phentolamine antidote). First-line vasopressor for vasodilatory/septic shock (Phoenix criteria: sepsis + cardiovascular score ≥1). Max 2 mcg/kg/min."},
+
+ {name:"Milrinone",color:"#e63946",warn:false,
+  prep:"0.3 mg/kg in 50 mL NS/D5W",
+  prepFn:w=>`Draw ${(0.3*w).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),
+  commonDoses:[0.25,0.5,0.75],
+  ranges:[
+   {dose:"50 mcg/kg over 30–60 min",lbl:"Loading (optional)",eff:"Omit if hypotensive"},
+   {dose:"0.25–0.75",lbl:"Maintenance",eff:"↑ CO, ↓ SVR, ↓ PVR"},
+  ],
+  bolus:"Loading: 50 mcg/kg in 50 mL NS over 60 min. Rate = (50×wt)/50/1 = 1 mL/hr per kg. Omit if hypotensive.",
+  notes:"PDE-III inhibitor. Low-CO states and post-cardiac surgery. Reduce dose if GFR <50."},
+
+ {name:"Vasopressin",color:"#d62828",warn:true,
+  prep:"20 units in 50 mL NS → 0.4 units/mL (fixed conc)",
+  prepFn:()=>`Draw 20 units (1 vial) → make up to 50 mL NS → 0.4 units/mL`,
+  rule:"Rate = dose × wt / 0.4  mL/hr  [wt-dependent]",
+  doseUnit:"units/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w/0.4).toFixed(3),
+  commonDoses:[0.0003,0.001,0.002],
+  ranges:[
+   {dose:"0.0003–0.002",lbl:"Shock adjunct",eff:"V1 vasoconstriction, ↑ SVR"},
+  ],
+  bolus:null,
+  notes:"Catecholamine-resistant vasodilatory shock adjunct. Central line. Risk of mesenteric/coronary ischaemia at high doses."},
+],
+
+sedation:[
+ {name:"Midazolam",color:"#2a9d8f",warn:false,
+  prep:"0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 10 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d/10).toFixed(2),  // dose / (0.5 × 20) = dose / 10
+  commonDoses:[30,60,120,200,300],
+  ranges:[
+   {dose:"30–60",lbl:"Mild sedation",eff:"Anxiolysis, RASS 0 to –1"},
+   {dose:"60–120",lbl:"Moderate",eff:"RASS –1 to –2"},
+   {dose:"120–300",lbl:"Deep",eff:"RASS –3 to –5; ventilated patients"},
+  ],
+  bolus:"Procedural: 0.05–0.1 mg/kg IV slow (max 5 mg). RSI: 0.2–0.3 mg/kg IV.",
+  notes:"Tolerance after 48–72hr. Taper to avoid withdrawal. Accumulates in renal/hepatic failure. Max 300 mcg/kg/hr."},
+
+ {name:"Morphine",color:"#2a9d8f",warn:false,
+  prep:"0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 10 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d/10).toFixed(2),
+  commonDoses:[10,20,40,60],
+  ranges:[
+   {dose:"10–30",lbl:"Analgesia",eff:"Pain control, mild sedation"},
+   {dose:"20–60",lbl:"Sedoanalgesia",eff:"Ventilated; combine with midazolam"},
+  ],
+  bolus:"0.05–0.1 mg/kg IV slow (max 5 mg). Neonates: 0.05 mg/kg.",
+  notes:"Avoid in renal failure (M6G metabolite accumulates). Histamine release risk. Reverse with naloxone 0.01 mg/kg IV."},
+
+ {name:"Fentanyl",color:"#2a9d8f",warn:false,
+  prep:"25 mcg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(25*w).toFixed(0)} mcg = ${(25*w/50).toFixed(2)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.5 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*2).toFixed(2),  // dose / (0.025 × 20) = dose × 2
+  commonDoses:[0.5,1,2,3,4,5],
+  ranges:[
+   {dose:"0.5–2",lbl:"Analgesia",eff:"No histamine; short-acting"},
+   {dose:"1–4",lbl:"Sedoanalgesia ventilated",eff:"RASS –1 to –3"},
+   {dose:"2–5",lbl:"Post-op cardiac",eff:"Haemodynamically stable"},
+  ],
+  bolus:"Analgesia: 1–2 mcg/kg IV. RSI/intubation: 3–5 mcg/kg IV.",
+  notes:"Preferred in haemodynamic instability, renal failure, histamine sensitivity. Chest wall rigidity with rapid high-dose bolus."},
+
+ {name:"Ketamine",color:"#2a9d8f",warn:false,
+  prep:"5 mg/kg in 50 mL NS/D5W",
+  prepFn:w=>`Draw ${(5*w).toFixed(0)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.1 mg/kg/hr  [wt-independent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*10).toFixed(2),  // dose × 50/5 = dose × 10
+  commonDoses:[0.1,0.3,0.5,1,2],
+  ranges:[
+   {dose:"0.1–0.5",lbl:"Sub-dissociative",eff:"Analgesia, bronchodilation"},
+   {dose:"0.5–2",lbl:"Sedation/procedural",eff:"Dissociative; airway preserved"},
+  ],
+  bolus:"Induction/RSI: 1–2 mg/kg IV. Procedural: 1–2 mg/kg IV. IM: 3–5 mg/kg.",
+  notes:"Excellent bronchodilator – ideal for status asthmaticus. Combine with midazolam 0.05 mg/kg. Current evidence supports use in most raised ICP situations — AVOID ONLY in obstructive hydrocephalus (CSF outflow obstruction). Safe in traumatic brain injury, meningitis, and non-obstructive ICP when used with adequate sedation."},
+
+ {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
+  prep:"4 mcg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/100).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
+  rule:"1 mL/hr = 0.08 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*12.5).toFixed(2),  // dose / (0.004 × 20) = dose × 12.5
+  commonDoses:[0.2,0.4,0.7,1.0,1.4],
+  ranges:[
+   {dose:"0.2–0.5",lbl:"Light sedation",eff:"Cooperative, arousable; RASS 0 to –2"},
+   {dose:"0.5–1.0",lbl:"Moderate",eff:"Rousable; opioid-sparing"},
+   {dose:"1.0–1.4",lbl:"Deep procedural",eff:"No respiratory depression"},
+  ],
+  bolus:"Optional load: 1 mcg/kg over 10 min. OMIT if haemodynamically unstable.",
+  notes:"Alpha-2 agonist. NO respiratory depression – ideal for pre-extubation weaning. Monitor bradycardia/hypotension. Max 1.4 mcg/kg/hr."},
+
+ {name:"Propofol ⚠",color:"#264653",warn:true,
+  prep:"10 mg/mL ready solution – DO NOT dilute",
+  prepFn:()=>`Use undiluted 1% propofol (10 mg/mL). Central/large peripheral IV.`,
+  rule:"Rate = dose × wt / 10  mL/hr  [wt-dependent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w/10).toFixed(2),
+  commonDoses:[0.5,1,2,3,4],
+  ranges:[
+   {dose:"0.5–2",lbl:"Sedation ventilated",eff:"Titrate to RASS –1 to –3"},
+   {dose:"2–4",lbl:"Procedural sedation",eff:"Short procedures; monitor airway"},
+  ],
+  bolus:"Induction: 1–2.5 mg/kg IV (reduce in sick/haemodynamically compromised). For ICU use: periextubation weaning only — <4 mg/kg/hr, <48hr total duration.",
+  notes:"⚠ PRIS risk — use with strict limits only. Per SCCM PANDEM 2022: safe at <4 mg/kg/hr for <48hr. Best evidence for periextubation weaning (facilitates transition off midazolam/opioids). NOT recommended for long-term ICU sedation at any age. Monitor TG, CK, lactate, pH every 12hr. Contains soy/egg lipid — check allergies. STOP immediately if any PRIS features: metabolic acidosis, rising CK, arrhythmia, lipaemic plasma. Reference: Smith et al. PANDEM Guidelines. Pediatr Crit Care Med. 2022;23(2):e74-e110."},
+],
+
+antihtn:[
+ {name:"Labetalol",color:"#457b9d",warn:false,
+  prep:"Dilute to 2 mg/mL in NS/D5W (fixed conc)",
+  prepFn:()=>`Dilute to 2 mg/mL (e.g. draw 100 mg → make up to 50 mL NS)`,
+  rule:"Rate = dose × wt / 2  mL/hr  [wt-dependent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w/2).toFixed(2),
+  commonDoses:[0.25,0.5,1,2,3],
+  ranges:[
+   {dose:"0.25–3 mg/kg/hr",lbl:"Infusion",eff:"α+β blockade; ↓ HR and ↓ SVR"},
+  ],
+  bolus:"0.2–1 mg/kg IV over 2 min (max 20 mg/dose). Repeat q10 min up to 3 doses.",
+  notes:"Avoid in asthma, cardiogenic shock, bradycardia. α:β = 1:7 IV. Onset IV bolus 5–10 min."},
+
+ {name:"Nicardipine",color:"#457b9d",warn:false,
+  prep:"0.1 mg/mL = 100 mcg/mL in NS/D5W (fixed conc)",
+  prepFn:()=>`Dilute 5 mg in 50 mL NS → 0.1 mg/mL (100 mcg/mL)`,
+  rule:"Rate = dose × wt × 60 / 100  mL/hr  [wt-dependent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*w*60/100).toFixed(2),
+  commonDoses:[0.5,1,2,3,4],
+  ranges:[
+   {dose:"0.5–1",lbl:"Starting",eff:"↓ SVR; calcium channel blocker"},
+   {dose:"1–3",lbl:"Titrate",eff:"↓↓ BP; no negative inotrope"},
+   {dose:"3–4",lbl:"Maximum",eff:"Maximal vasodilation"},
+  ],
+  bolus:null,
+  notes:"Dihydropyridine CCB. Preferred post-cardiac surgery hypertension. Phlebitis risk peripheral IV. Onset 5–10 min."},
+
+ {name:"Sodium Nitroprusside (SNP) ⚠",color:"#e76f51",warn:true,
+  prep:"3 mg/kg in 50 mL D5W — WRAP IN FOIL",
+  prepFn:w=>`Draw ${(3*w).toFixed(1)} mg → make up to 50 mL D5W. WRAP SYRINGE IN FOIL immediately.`,
+  rule:"1 mL/hr = 1 mcg/kg/min  [wt-independent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*1).toFixed(2),  // dose × 3/3 = dose × 1
+  commonDoses:[0.3,0.5,1,2,4],
+  ranges:[
+   {dose:"0.3–0.5",lbl:"Starting",eff:"Arterial + venous vasodilation"},
+   {dose:"0.5–4",lbl:"Titrate",eff:"↓ SVR, ↓ preload & afterload"},
+   {dose:"≤8 (short-term)",lbl:"Maximum",eff:"⚠ Cyanide toxicity >72hr or >3 mcg/kg/min"},
+  ],
+  bolus:null,
+  notes:"⚠ WRAP SYRINGE (light → cyanide). Cyanide toxicity: ↑ lactate, high MvO2, metabolic acidosis. Na-thiosulphate if >3 mcg/kg/min. Max 72hr. Avoid hepatic/renal failure."},
+
+ {name:"Hydralazine (IV bolus)",color:"#457b9d",warn:false,
+  prep:"Dilute to 1 mg/mL in NS for IV use",
+  prepFn:w=>`Dose: ${(0.2*w).toFixed(1)}–${Math.min(0.5*w,20).toFixed(0)} mg IV (0.2–0.5 mg/kg, max 20 mg) over 5 min`,
+  rule:"BOLUS only. Total mg = dose × wt  (max 20 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,20)).toFixed(1),
+  commonDoses:[0.2,0.3,0.5],
+  ranges:[
+   {dose:"0.1–0.6 mg/kg",lbl:"IV bolus",eff:"Arteriolar vasodilation; onset 10–30 min"},
+   {dose:"0.75–7.5 mg/kg/day",lbl:"Oral maintenance",eff:"Divided q6–8h"},
+  ],
+  bolus:"0.2–0.5 mg/kg IV over 5 min (max 20 mg). Onset 10–20 min; duration 2–6 hr. Causes reflex tachycardia.",
+  notes:"NOT for infusion – intermittent bolus only. Combine with beta-blocker for sustained control."},
+
+ {name:"Enalaprilat (IV)",color:"#457b9d",warn:false,
+  prep:"Dilute to 0.1 mg/mL in NS",
+  prepFn:w=>`Dose: ${(0.005*w).toFixed(3)}–${Math.min(0.01*w,1.25).toFixed(3)} mg IV (0.005–0.01 mg/kg, max 1.25 mg)`,
+  rule:"BOLUS only. Total mg = dose × wt  (max 1.25 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,1.25)).toFixed(4),
+  commonDoses:[0.005,0.01],
+  ranges:[
+   {dose:"0.005–0.01 mg/kg",lbl:"Neonates/Children",eff:"ACE inhibition; q8–24h; monitor renal + K+"},
+  ],
+  bolus:"IV over 5 min. Max 1.25 mg/dose. Monitor creatinine and potassium.",
+  notes:"Avoid bilateral renal artery stenosis, dehydration. IV ACE inhibitor. Max 1.25 mg/dose."},
+],
+
+antiepi:[
+ {name:"Phenobarbitone",color:"#6d6875",warn:false,
+  prep:"Dilute 100 mg/mL ampoule to 10 mg/mL in NS for infusion",
+  prepFn:w=>`Loading: ${(20*w).toFixed(0)} mg total. In 10 mg/mL solution = ${(20*w/10).toFixed(0)} mL. Rate at max 1 mg/kg/min = ${w.toFixed(0)} mg/min → infuse over ${(20).toFixed(0)} min`,
+  rule:"LOADING. Max rate 1 mg/kg/min. Total mg = dose × wt",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(0),
+  commonDoses:[20,30,40],
+  ranges:[
+   {dose:"20 mg/kg",lbl:"Loading (neonates/infants)",eff:"Over 20–30 min; onset 15–30 min"},
+   {dose:"+10 mg/kg",lbl:"Additional (status)",eff:"Repeat q20 min; max total 40 mg/kg"},
+   {dose:"3–5 mg/kg/day",lbl:"Maintenance",eff:"Once daily; level 15–40 mcg/mL"},
+  ],
+  bolus:"Max infusion rate: 1 mg/kg/min. BVM at bedside. BP + respiratory monitoring.",
+  notes:"First-line for neonatal seizures. Max loading 40 mg/kg total. Respiratory depression risk – BVM at bedside. Therapeutic level 15–40 mcg/mL."},
+
+ {name:"Phenytoin/Fosphenytoin ⚠",color:"#6d6875",warn:true,
+  prep:"Dilute in NS ONLY (not D5W – precipitates). Use 1–10 mg/mL",
+  prepFn:w=>`Loading: ${(20*w).toFixed(0)} mg in 100 mL NS. Infuse over 20–30 min. Max rate 1 mg/kg/min = ${w.toFixed(0)} mg/min.`,
+  rule:"LOADING. NS ONLY. Max rate 1 mg/kg/min. Total mg = dose × wt",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(0),
+  commonDoses:[15,18,20],
+  ranges:[
+   {dose:"15–20 mg/kg",lbl:"Loading",eff:"Over 20–30 min; ECG + BP monitoring"},
+   {dose:"5–8 mg/kg/day",lbl:"Maintenance",eff:"Divided q12h; level 10–20 mcg/mL"},
+  ],
+  bolus:"NS ONLY. ECG + BP during infusion. Rate ≤1 mg/kg/min (phenytoin) or ≤3 mg PE/kg/min (fosphenytoin).",
+  notes:"⚠ NS ONLY – precipitates in D5W. Hypotension/arrhythmia risk during loading. Purple glove syndrome with peripheral extravasation. Fosphenytoin preferred."},
+
+ {name:"Valproate (Sodium) ⚠",color:"#6d6875",warn:true,
+  prep:"100 mg/mL ampoule; dilute in NS or D5W",
+  prepFn:w=>`Loading: ${(30*w).toFixed(0)}–${(40*w).toFixed(0)} mg total. Can push IV over 5 min.`,
+  rule:"LOADING. Total mg = dose × wt",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(0),
+  commonDoses:[20,30,40],
+  ranges:[
+   {dose:"20–40 mg/kg",lbl:"Acute seizure loading",eff:"IV over 5 min; rapid onset"},
+   {dose:"20–40 mg/kg/day",lbl:"Maintenance",eff:"q6–8h or continuous; level 50–100 mcg/mL"},
+  ],
+  bolus:null,
+  notes:"⚠ CONTRAINDICATED: liver disease, urea cycle disorders, mitochondrial disease, suspected metabolic disorder, children <2 yr. Check LFT + ammonia. Hyperammonaemia risk."},
+
+ {name:"Levetiracetam",color:"#6d6875",warn:false,
+  prep:"100 mg/mL; dilute in 100 mL NS; infuse over 15 min",
+  prepFn:w=>`Loading: ${Math.min(60*w,3000).toFixed(0)} mg (60 mg/kg, max 3000 mg) in 100 mL NS over 15 min`,
+  rule:"LOADING. Total mg = dose × wt  (max 3000 mg)",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,3000)).toFixed(0),
+  commonDoses:[20,40,60],
+  ranges:[
+   {dose:"20–60 mg/kg",lbl:"Loading (status)",eff:"Over 15 min; max 3000 mg"},
+   {dose:"20–60 mg/kg/day",lbl:"Maintenance",eff:"Divided q12h; max 3000 mg/day"},
+  ],
+  bolus:null,
+  notes:"Excellent safety profile; safe in liver disease; minimal drug interactions. Reduce dose in renal impairment. Behavioral side-effects (agitation) possible."},
+
+ {name:"Midazolam – Status Epilepticus",color:"#2a9d8f",warn:false,
+  prep:"Intranasal: 5 mg/mL undiluted. IV: 1 mg/mL. Infusion: 0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`IN/Buccal: ${(0.3*w).toFixed(1)} mg (0.3 mg/kg). IV bolus: ${(0.1*w).toFixed(1)} mg. Infusion: ${(0.5*w).toFixed(1)} mg in 50 mL NS → 1 mL/hr = 10 mcg/kg/hr`,
+  rule:"Infusion: 1 mL/hr = 10 mcg/kg/hr. Bolus: total mg = dose × wt",
+  doseUnit:"mg/kg (bolus)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.1,0.2,0.3],
+  ranges:[
+   {dose:"0.2–0.3 mg/kg",lbl:"Intranasal/Buccal (no IV)",eff:"Onset 3–5 min; max 10 mg"},
+   {dose:"0.05–0.15 mg/kg",lbl:"IV bolus",eff:"Onset 1–3 min; may repeat × 1"},
+   {dose:"50–500 mcg/kg/hr",lbl:"Status infusion",eff:"0.5mg/kg/50mL: 5–50 mL/hr"},
+  ],
+  bolus:"Status infusion: start 50 mcg/kg/hr (5 mL/hr using 0.5mg/kg/50mL), ↑ by 50 q15min to max 500 mcg/kg/hr.",
+  notes:"First-line benzodiazepine for acute seizures. Max single IV dose 10 mg. Respiratory monitoring essential."},
+
+ {name:"Lorazepam",color:"#2a9d8f",warn:false,
+  prep:"2 mg/mL ampoule; dilute 1:1 with NS → 1 mg/mL for IV",
+  prepFn:w=>`Dose: ${Math.min(0.1*w,4).toFixed(2)} mg (0.1 mg/kg, max 4 mg). Dilute in equal NS, give over 2–5 min.`,
+  rule:"BOLUS. Total mg = dose × wt  (max 4 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,4)).toFixed(2),
+  commonDoses:[0.05,0.1],
+  ranges:[
+   {dose:"0.05–0.1 mg/kg",lbl:"Status epilepticus IV",eff:"Over 2–5 min; duration 12–24hr; max 4 mg"},
+  ],
+  bolus:"Max 4 mg/dose regardless of weight. Preferred IV benzodiazepine for status epilepticus.",
+  notes:"Longer duration than diazepam. Avoid large doses in neonates (polyethylene glycol content). Respiratory depression monitoring."},
+
+ {name:"Lacosamide",color:"#6d6875",warn:false,
+  prep:"10 mg/mL vial; dilute in NS; infuse over 30–60 min",
+  prepFn:w=>`Loading: ${Math.min(10*w,400).toFixed(0)} mg (10 mg/kg, max 400 mg) in 100 mL NS over 30–60 min`,
+  rule:"LOADING. Total mg = dose × wt  (max 400 mg)",
+  doseUnit:"mg/kg (loading)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,400)).toFixed(0),
+  commonDoses:[5,8,10],
+  ranges:[
+   {dose:"5–10 mg/kg",lbl:"Loading (refractory status)",eff:"Over 30–60 min; max 400 mg"},
+   {dose:"2–8 mg/kg/day",lbl:"Maintenance",eff:"Divided q12h; max 400 mg/day"},
+  ],
+  bolus:null,
+  notes:"Third-line for refractory status. ECG before/during (PR prolongation). Avoid in 2nd/3rd degree AV block."},
+],
+
+broncho:[
+ {name:"Salbutamol IV (Status Asthmaticus)",color:"#2d6a4f",warn:false,
+  prep:"0.5 mg/kg in 50 mL NS",
+  prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
+  rule:"1 mL/hr = 10 mcg/kg/hr  [wt-independent]",
+  doseUnit:"mcg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d/10).toFixed(2),  // dose / (0.5 × 20) = dose / 10
+  commonDoses:[1,2,5,10],
+  ranges:[
+   {dose:"1–2",lbl:"Starting",eff:"Bronchodilation; monitor HR + K+"},
+   {dose:"2–5",lbl:"Moderate",eff:"Titrate q30 min"},
+   {dose:"5–10",lbl:"Severe/ventilated",eff:"Monitor ECG, K+, lactate closely"},
+  ],
+  bolus:"Loading: 15 mcg/kg IV over 10 min in 50 mL NS before starting infusion.",
+  notes:"Monitor: ECG (tachycardia, QTc), K+ (hypokalaemia – correct if <3.5 mmol/L), lactate. Add ipratropium for first 3 doses."},
+
+ {name:"Aminophylline ⚠",color:"#2d6a4f",warn:true,
+  prep:"Loading: 5 mg/kg in 100 mL NS over 20–30 min. Maintenance: 1 mg/mL (fixed conc)",
+  prepFn:w=>`Loading: ${(5*w).toFixed(0)} mg in 100 mL NS over 30 min. OMIT if on oral theophylline.`,
+  rule:"Rate = dose × wt  mL/hr  [wt-dependent, 1 mg/mL solution]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.5,0.8,1.0],
+  ranges:[
+   {dose:"5 mg/kg",lbl:"Loading",eff:"Over 20–30 min; skip if on oral theophylline"},
+   {dose:"0.5–1.0",lbl:"Maintenance (1–12yr)",eff:"Level 10–20 mcg/mL"},
+   {dose:"0.5–0.8",lbl:"Maintenance (adolescent)",eff:"Lower clearance"},
+  ],
+  bolus:"Loading: 5 mg/kg over 20–30 min IV. OMIT if patient already on oral theophylline.",
+  notes:"⚠ Narrow therapeutic index. Level monitoring mandatory (10–20 mcg/mL). Interactions: erythromycin, ciprofloxacin ↑ levels. Toxicity: seizures, tachycardia."},
+
+ {name:"Magnesium Sulphate (Bronchospasm)",color:"#2d6a4f",warn:false,
+  prep:"Dilute 50% MgSO4 to 10% (100 mg/mL) before IV use",
+  prepFn:w=>`Dose: ${Math.min(40*w,2000).toFixed(0)} mg (40 mg/kg, max 2g). Volume of 10%: ${Math.min(40*w/100,20).toFixed(1)} mL. Infuse over 20 min.`,
+  rule:"BOLUS over 20 min. Total mg = dose × wt  (max 2000 mg)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,2000)).toFixed(0),
+  commonDoses:[25,40,50],
+  ranges:[
+   {dose:"25–50 mg/kg",lbl:"Severe asthma not responding to beta-agonists",eff:"Over 20 min; max 2000 mg"},
+  ],
+  bolus:null,
+  notes:"Evidence-based for acute severe asthma not responding to beta-agonists. Monitor: flushing, hypotension, loss of patellar reflex. Calcium gluconate antidote."},
+
+ {name:"Ipratropium Bromide (Nebulised)",color:"#2d6a4f",warn:false,
+  prep:"250 mcg/2.5 mL (<20 kg) or 500 mcg/2.5 mL (>20 kg) unit-dose nebules",
+  prepFn:w=>`Fixed dose: ${w<20?250:500} mcg per dose. Add to salbutamol nebule.`,
+  rule:"Fixed dose by weight – NOT per kg calculation",
+  doseUnit:"Fixed dose (mcg)",isBolus:true,
+  rateFn:(w)=>w<20?250:500,
+  commonDoses:[],
+  ranges:[
+   {dose:"250 mcg",lbl:"<20 kg",eff:"q20min × 3, then q4–6h; add to salbutamol"},
+   {dose:"500 mcg",lbl:">20 kg",eff:"q20min × 3, then q4–6h; add to salbutamol"},
+  ],
+  bolus:null,
+  notes:"Use for FIRST 3 doses only (no evidence for continued use). Drive nebuliser with O2 6–8 L/min. Avoid eye contact."},
+],
+
+electrolytes:[
+ {name:"Potassium Chloride (KCl) ⚠",color:"#e9c46a",warn:true,
+  prep:"NEVER undiluted. Peripheral max 0.4 mmol/mL; Central max 0.8 mmol/mL",
+  prepFn:w=>`Deficit ≈ (3.5 – actual K+) × 0.4 × ${w.toFixed(1)} kg mmol. Dilute in NS or D5NS.`,
+  rule:"CORRECTION. Total mmol = dose × wt. Max 0.3 mmol/kg/hr peripheral; 0.5 central",
+  doseUnit:"mmol/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(1),
+  commonDoses:[0.3,0.5,1.0],
+  ranges:[
+   {dose:"0.3–0.5 mmol/kg",lbl:"K+ 3.0–3.4 (mild)",eff:"Over 2–4 hr peripheral; max 0.3 mmol/kg/hr | 3.0–3.4 mEq/L"},
+   {dose:"0.5–1 mmol/kg",lbl:"K+ 2.5–3.0 (moderate)",eff:"Over 4–6 hr CENTRAL; ECG monitoring | 2.5–3.0 mEq/L"},
+   {dose:"0.3–0.5 mmol/kg STAT",lbl:"K+ <2.5 (severe)",eff:"Over 1–2 hr central; continuous ECG | <2.5 mEq/L"},
+   {dose:"2–4 mmol/kg/day",lbl:"Maintenance",eff:"Added to IV fluids (max 40 mmol/L peripheral)"},
+  ],
+  bolus:null,
+  notes:"⚠ HIGH ALERT – DUAL NURSE CHECK MANDATORY. NEVER bolus. Replete Mg2+ first. Continuous ECG during rapid correction."},
+
+ {name:"3% Sodium Chloride ⚠ (Hyponatraemia)",color:"#e9c46a",warn:true,
+  prep:"3% NaCl = 513 mmol/L. For symptomatic acute hyponatraemia only",
+  prepFn:w=>`Dose: ${(2*w).toFixed(0)}–${(4*w).toFixed(0)} mL 3% NaCl over 10–20 min → raises Na ~2–4 mmol/L`,
+  rule:"BOLUS. Total mL = dose × wt. Max correction 8–10 mmol/L per 24hr",
+  doseUnit:"mL/kg (of 3% NaCl)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(1),
+  commonDoses:[2,3,4],
+  ranges:[
+   {dose:"2–4 mL/kg",lbl:"Symptomatic (seizures/coma)",eff:"Over 10–20 min; STOP when symptoms resolve"},
+   {dose:"Max 0.5 mmol/L/hr",lbl:"Chronic – safe rate",eff:"8–10 mmol/L/day max to avoid CPM"},
+  ],
+  bolus:null,
+  notes:"⚠ Only correct faster for ACUTE symptomatic. Chronic: max 0.5 mmol/L/hr to avoid central pontine myelinolysis. Check Na+ q2–4hr. Formula: Na deficit = (target – actual) × 0.6 × wt."},
+
+ {name:"Phosphate (IV) – Hypophosphataemia",color:"#e9c46a",warn:false,
+  prep:"Potassium or Sodium phosphate 1 mmol/mL; dilute to 0.1 mmol/mL",
+  prepFn:w=>`Dose: ${(0.3*w).toFixed(1)}–${(0.6*w).toFixed(1)} mmol. Infuse over 4–6 hr. Max rate 0.06 mmol/kg/hr.`,
+  rule:"CORRECTION. Total mmol = dose × wt. Max rate 0.06 mmol/kg/hr",
+  doseUnit:"mmol/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.15,0.3,0.5],
+  ranges:[
+   {dose:"0.15–0.3 mmol/kg",lbl:"Moderate PO4 0.5–0.8",eff:"Over 4–6 hr; max 0.06 mmol/kg/hr"},
+   {dose:"0.3–0.6 mmol/kg",lbl:"Severe PO4 <0.5",eff:"Over 6 hr; ECG if K-phosphate used"},
+  ],
+  bolus:null,
+  notes:"Common in PICU: refeeding, DKA recovery, malnutrition. Use sodium phosphate if hyperkalaemia. Check Ca2+ before/during."},
+],
+
+calcium:[
+ {name:"Calcium Gluconate 10% ⚠",color:"#f4a261",warn:true,
+  prep:"10% = 9 mg/mL elemental Ca = 0.225 mmol/mL",
+  prepFn:w=>`Bolus: ${(0.5*w).toFixed(1)}–${Math.min(w,20).toFixed(0)} mL 10% CaGluc (0.5–1 mL/kg). Slow IV over 5–10 min.`,
+  rule:"BOLUS. Total mL = dose × wt  (max 20 mL single dose)",
+  doseUnit:"mL/kg (of 10% CaGluc)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,20)).toFixed(1),
+  commonDoses:[0.5,1.0],
+  ranges:[
+   {dose:"0.5–1 mL/kg",lbl:"Hypocalcaemia / cardiac arrest",eff:"Slow IV over 5–10 min; max 20 mL"},
+   {dose:"0.5–1 mL/kg/hr",lbl:"Maintenance infusion",eff:"Titrate to iCa2+ 1.1–1.3 mmol/L (4.4–5.2 mg/dL)"},
+   {dose:"2 mL/kg",lbl:"Neonatal hypocalcaemia",eff:"Over 10 min; then 5–8 mL/kg/day infusion"},
+   {dose:"0.5–1 mL/kg",lbl:"Hyperkalaemia (cardiac protection)",eff:"Over 5 min; onset immediate; duration 30 min"},
+  ],
+  bolus:null,
+  notes:"⚠ NEVER IM or subcut (severe tissue necrosis). Large IV or central line. Rapid bolus → bradycardia/arrest. Incompatible with NaHCO3, phosphate, ceftriaxone."},
+
+ {name:"Calcium Chloride 10% ⚠ (arrest)",color:"#f4a261",warn:true,
+  prep:"10% CaCl2 = 27 mg/mL elemental Ca (3× more than gluconate)",
+  prepFn:w=>`Dose: ${(10*w).toFixed(0)}–${Math.min(20*w,200).toFixed(0)} mg = ${(0.1*w).toFixed(1)}–${Math.min(0.2*w,2).toFixed(1)} mL of 10% CaCl2`,
+  rule:"CENTRAL LINE PREFERRED. Volume (mL) = dose × wt / 100",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(d*w/100).toFixed(2),
+  commonDoses:[10,20],
+  ranges:[
+   {dose:"10–20 mg/kg",lbl:"Cardiac arrest / severe hypoCa",eff:"= 0.1–0.2 mL/kg of 10%; central preferred"},
+  ],
+  bolus:null,
+  notes:"More caustic than gluconate – CENTRAL LINE STRONGLY PREFERRED. 3× more elemental Ca than gluconate. 10 mg/kg = 0.1 mL/kg of 10% solution."},
+
+ {name:"Magnesium Sulphate (IV) ⚠",color:"#f4a261",warn:true,
+  prep:"Dilute 50% MgSO4 (500 mg/mL) to 10% (100 mg/mL) before IV use",
+  prepFn:w=>`Dose: ${Math.min(50*w,2000).toFixed(0)} mg (50 mg/kg, max 2g). Volume 10%: ${Math.min(50*w/100,20).toFixed(1)} mL. Infuse over 20–30 min.`,
+  rule:"BOLUS over 20–30 min. Total mg = dose × wt  (max 2000 mg single dose)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,2000)).toFixed(0),
+  commonDoses:[25,50,100],
+  ranges:[
+   {dose:"25–50 mg/kg",lbl:"Correction (mild-moderate)",eff:"Over 20–30 min; max 2000 mg"},
+   {dose:"50–100 mg/kg",lbl:"Severe/symptomatic",eff:"Over 30–60 min; max 2000 mg single dose"},
+   {dose:"25–50 mg/kg/day",lbl:"Maintenance",eff:"Infusion over 24hr; target Mg 0.7–1.0 mmol/L (1.7–2.4 mg/dL)"},
+   {dose:"25–50 mg/kg",lbl:"Torsades de Pointes",eff:"Over 10–20 min then infusion"},
+  ],
+  bolus:null,
+  notes:"⚠ Loss of patellar reflex → Mg ~4 mmol/L → STOP. Respiratory paralysis at ~6 mmol/L. ANTIDOTE: Calcium gluconate 10% – 0.5 mL/kg IV."},
+],
+
+hypoglycemia:[
+ {name:"Dextrose 10% (Neonates & Infants)",color:"#80b918",warn:false,
+  prep:"D10% = 100 mg/mL glucose",
+  prepFn:w=>`Bolus: ${(2*w).toFixed(1)}–${(4*w).toFixed(1)} mL D10% (2–4 mL/kg). Push over 5 min. Recheck BG at 15 and 30 min.`,
+  rule:"BOLUS. Total mL = dose × wt. NEVER use D50% in neonates.",
+  doseUnit:"mL/kg (of D10%)",isBolus:true,
+  rateFn:(w,d)=>+(d*w).toFixed(1),
+  commonDoses:[2,3,4,5],
+  ranges:[
+   {dose:"2–4 mL/kg D10%",lbl:"BG 27–45 mg/dL (1.5–2.5 mmol/L)",eff:"Over 5 min; recheck at 15–30 min"},
+   {dose:"4–5 mL/kg D10%",lbl:"BG <1.5 mmol/L (<27 mg/dL) / symptomatic",eff:"Over 5 min; then start GIR 6–8"},
+  ],
+  bolus:null,
+  notes:"NEVER use D50% in neonates/infants. Target BG 47–126 mg/dL (neonate) / 72–180 mg/dL (infant). Use GIR Calculator above for maintenance rate."},
+
+ {name:"Dextrose 25% (Children >5 yr)",color:"#80b918",warn:false,
+  prep:"D25% = 250 mg/mL glucose",
+  prepFn:w=>`Bolus: ${(1*w).toFixed(0)}–${Math.min(2*w,50).toFixed(0)} mL D25% (1–2 mL/kg, max 50 mL). Slow IV over 5 min.`,
+  rule:"BOLUS. Total mL = dose × wt  (max 50 mL). D10% preferred <5 yr.",
+  doseUnit:"mL/kg (of D25%)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,50)).toFixed(1),
+  commonDoses:[1,2],
+  ranges:[
+   {dose:"1–2 mL/kg D25%",lbl:"Hypoglycaemia (>5 yr)",eff:"= 250–500 mg/kg; over 5 min; max 50 mL"},
+   {dose:"2–4 mL/kg D10%",lbl:"1–5 years (preferred)",eff:"Safer osmolality than D25%"},
+  ],
+  bolus:null,
+  notes:"D25% = 250 mg/kg per 1 mL/kg. Max 50 mL single dose. Recheck BG at 15 and 30 min. NEVER use D50% in children."},
+
+ {name:"Glucagon",color:"#80b918",warn:false,
+  prep:"1 mg/vial; reconstitute with provided diluent → 1 mg/mL",
+  prepFn:w=>`Dose: ${Math.min(0.1*w,1).toFixed(2)} mg (0.1 mg/kg, max 1 mg). Give IM/SC/IV.`,
+  rule:"BOLUS. Total mg = 0.1 × wt  (max 1 mg). Fixed 1 mg if >25 kg.",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,1)).toFixed(3),
+  commonDoses:[0.03,0.05,0.1],
+  ranges:[
+   {dose:"0.03–0.1 mg/kg",lbl:"<25 kg",eff:"Max 1 mg; IM onset 10 min; IV onset 1 min"},
+   {dose:"1 mg fixed",lbl:">25 kg",eff:"IM/IV; duration 60–90 min"},
+   {dose:"0.005–0.02 mg/kg/hr",lbl:"Infusion (hyperinsulinism)",eff:"IV infusion; for PHHI, β-blocker OD"},
+  ],
+  bolus:null,
+  notes:"For hypoglycaemia without IV access, β-blocker/sulphonylurea OD, or hyperinsulinism. Effect limited by glycogen stores. Always follow with oral/IV glucose."},
+
+ {name:"Octreotide (Hyperinsulinism)",color:"#80b918",warn:false,
+  prep:"Dilute to 1 mcg/mL in NS; protect from light",
+  prepFn:w=>`Starting: ${(5*w).toFixed(0)} mcg/day → ${(5*w/24).toFixed(2)} mL/hr (1 mcg/mL solution)`,
+  rule:"Rate = dose × wt / 24  mL/hr  (using 1 mcg/mL solution)",
+  doseUnit:"mcg/kg/day",isBolus:false,
+  rateFn:(w,d)=>+(d*w/24).toFixed(3),
+  commonDoses:[2,5,10,20,40],
+  ranges:[
+   {dose:"2–5 mcg/kg/day",lbl:"Starting dose",eff:"SC or continuous IV; titrate up"},
+   {dose:"5–20 mcg/kg/day",lbl:"Maintenance",eff:"q6–8h SC or continuous IV"},
+   {dose:"40 mcg/kg/day",lbl:"Maximum",eff:"Monitor NEC, cholestasis, hypothyroidism"},
+  ],
+  bolus:null,
+  notes:"For persistent hyperinsulinaemic hypoglycaemia (PHHI). NEC risk in neonates. Side effects: feeding intolerance, bradycardia, cholestasis. Requires specialist input."},
+],
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// ANTIBIOTIC DATA
+// ══════════════════════════════════════════════════════════════
+const ANTIBIOTICS = [
+
+{
+  name:"Acyclovir",
+  color:"#004d40",
+  class:"Antiviral (Guanosine analogue)",
+  pkpd:"Concentration-dependent. Requires activation by viral thymidine kinase. CNS penetration 50% of plasma. Higher doses needed for CNS infections.",
+  spectrum:"HSV-1, HSV-2, VZV (high dose), EBV, CMV (less active — ganciclovir preferred for CMV). NOT: CMV (poor efficacy), adenovirus.",
+  doses:[
+    {indication:"Neonatal HSV (all forms)",dose:"20 mg/kg/dose",freq:"q8h × 14–21 days",max:"",notes:"IV over 1hr. Highest priority — start empirically if HSV suspected in neonate."},
+    {indication:"HSV encephalitis (children)",dose:"10–15 mg/kg/dose",freq:"q8h × 14–21 days",max:"750 mg/dose",notes:"IV over 1hr"},
+    {indication:"Severe VZV (immunocompromised)",dose:"10–15 mg/kg/dose",freq:"q8h × 7–10 days",max:"750 mg/dose",notes:""},
+    {indication:"HSV mucocutaneous (mild)",dose:"5 mg/kg/dose",freq:"q8h × 5–7 days",max:"",notes:"IV; or oral acyclovir/valacyclovir"},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"25–50",dose:"No change",freq:"q12h",notes:""},
+    {egfr:"10–25",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"<10",dose:"50% dose",freq:"q24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q12–24h guided by creatinine",notes:"Significantly removed"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24h + supplement post-HD",notes:"Highly dialysable — supplement after each HD"},
+    {mode:"CAPD",dose:"50% dose",freq:"q24h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Ensure adequate hydration to prevent crystalline nephropathy."},
+  interactions:[
+    "Nephrotoxic drugs (aminoglycosides, vancomycin, NSAIDs): additive nephrotoxicity",
+    "Probenecid: increases acyclovir levels (reduced renal excretion)",
+    "Mycophenolate: possible increased mycophenolate levels",
+    "Methotrexate: additive neurotoxicity",
+  ],
+  cautions:"Crystalline nephropathy if inadequately hydrated — maintain urine output >1 mL/kg/hr during infusion. Neurotoxicity (tremor, confusion, seizures) especially in renal impairment. Infuse over minimum 1hr. Never give IM or subcut.",
+},
+{
+  name:"Amikacin",
+  color:"#e65100",
+  class:"Aminoglycoside",
+  pkpd:"Concentration-dependent + PAE. Target: Cmax/MIC ≥8–10. Once-daily dosing preferred in children to maximise peak and reduce toxicity.",
+  spectrum:"Gram-negative: Pseudomonas, Acinetobacter, Enterobacteriaceae. Active against mycobacteria. NOT: anaerobes, Gram-positives (except synergy with beta-lactams).",
+  doses:[
+    {indication:"Standard (once daily)",dose:"15–20 mg/kg/dose",freq:"q24h",max:"1.5 g/dose",notes:"IV over 30 min. Extended interval preferred."},
+    {indication:"Neonates <32 wks",dose:"18 mg/kg/dose",freq:"q48h",max:"",notes:"IV over 30 min"},
+    {indication:"Neonates 32–37 wks",dose:"18 mg/kg/dose",freq:"q36h",max:"",notes:""},
+    {indication:"Neonates term",dose:"15–18 mg/kg/dose",freq:"q24h",max:"",notes:""},
+    {indication:"Synergy (with beta-lactam)",dose:"7.5 mg/kg/dose",freq:"q12h",max:"",notes:"For Gram-positive synergy"},
+  ],
+  renal:[
+    {egfr:">70",dose:"15–20 mg/kg",freq:"q24h",notes:""},
+    {egfr:"40–70",dose:"15 mg/kg",freq:"q36h",notes:"TDM essential"},
+    {egfr:"20–40",dose:"15 mg/kg",freq:"q48h",notes:"TDM essential"},
+    {egfr:"<20",dose:"10 mg/kg loading, TDM-guided",freq:"q48–72h",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"10 mg/kg",freq:"q24–36h guided by TDM",notes:"Moderately removed — TDM essential"},
+    {mode:"Intermittent HD",dose:"10 mg/kg post-HD",freq:"After each dialysis session",notes:"Highly dialysable — redose after HD"},
+    {mode:"CAPD",dose:"10 mg/kg",freq:"q48h + TDM",notes:""},
+  ],
+  tdm:{
+    required:true,
+    peak:"Peak (1hr post-infusion): 20–30 mg/L (target for once-daily dosing)",
+    trough:"Trough (pre-dose): <5 mg/L (standard); <2 mg/L preferred to minimise toxicity",
+    timing:"Peak at 1hr after end of infusion. Trough just before next dose. Check after 3rd dose or earlier in renal impairment.",
+    notes:"Nephrotoxicity and ototoxicity are cumulative — minimise duration (max 5–7 days if possible). Monitor renal function every 2–3 days.",
+  },
+  interactions:[
+    "Vancomycin: additive nephrotoxicity — avoid combination if possible; if essential, monitor renal function daily",
+    "Loop diuretics (furosemide): additive ototoxicity and nephrotoxicity",
+    "Neuromuscular blocking agents: enhanced neuromuscular blockade",
+    "Cisplatin: additive ototoxicity — avoid",
+    "NSAIDs: reduced renal clearance → amikacin accumulation",
+  ],
+  cautions:"Nephrotoxicity and irreversible ototoxicity (vestibular + cochlear) — limit duration. Ensure adequate hydration. Avoid in myasthenia gravis. Audiology follow-up after prolonged courses.",
+},
+{
+  name:"Amoxicillin",
+  color:"#2e7d32",
+  class:"Aminopenicillin",
+  pkpd:"Time-dependent. Target: %T>MIC ≥40–50%. Good oral bioavailability (~90%) — oral and IV are clinically equivalent for susceptible organisms.",
+  spectrum:"Gram-positive: Streptococcus (GAS, GBS, pneumoniae), Enterococcus (VSE), Listeria. Gram-negative: H. influenzae (sensitive strains), E. coli (sensitive), Proteus mirabilis. NOT: beta-lactamase producers, MRSA, Klebsiella, Pseudomonas.",
+  doses:[
+    {indication:"Standard mild–moderate infections",dose:"25–50 mg/kg/day",freq:"divided q8h",max:"500 mg/dose",notes:"Oral suspension or IV; equivalent bioavailability"},
+    {indication:"Severe / community pneumonia",dose:"75–90 mg/kg/day",freq:"divided q8h",max:"1 g/dose",notes:"High-dose oral or IV"},
+    {indication:"Meningitis / CNS infections",dose:"100 mg/kg/day",freq:"divided q6h",max:"2 g/dose",notes:"IV only; 6-hourly for CNS"},
+    {indication:"Neonates <7 days",dose:"50 mg/kg/day",freq:"divided q12h",max:"",notes:"IV; adjust for gestational age"},
+    {indication:"Neonates >7 days",dose:"75 mg/kg/day",freq:"divided q8h",max:"",notes:"IV"},
+    {indication:"Group B Streptococcus (GBS)",dose:"100–150 mg/kg/day",freq:"divided q6–8h",max:"2 g/dose",notes:"IV; for GBS meningitis/sepsis"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"10–30",dose:"No change",freq:"q12h",notes:"Extend interval"},
+    {egfr:"<10",dose:"50% of dose",freq:"q12–24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q8–12h",notes:"Moderately removed — normal dosing"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable — supplement after HD"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required. Oral suspension: 125 mg/5mL or 250 mg/5mL. IV: 250 mg, 500 mg, 1 g vials reconstituted in WFI."},
+  interactions:[
+    "Warfarin: may increase INR — monitor",
+    "Methotrexate: reduced renal elimination — toxicity risk",
+    "Allopurinol: increased risk of rash — monitor",
+    "Oral contraceptives: theoretical reduction in efficacy (not proven) — counsel patients",
+  ],
+  cautions:"Hypersensitivity: confirm penicillin allergy history (anaphylaxis: avoid; minor rash: use with caution). Maculopapular rash common in EBV/mononucleosis — do NOT use if EBV suspected. Dose-dependent seizures in renal failure. Suspension: shake well before use; refrigerate after reconstitution; discard after 7–14 days.",
+},
+{
+  name:"Amoxicillin-Clavulanate (Co-amoxiclav)",
+  color:"#2e7d32",
+  class:"Aminopenicillin + beta-lactamase inhibitor",
+  pkpd:"Time-dependent (amoxicillin component). Target: %T>MIC ≥40–50%. Clavulanate inhibits beta-lactamases (TEM, SHV, CTX-M). Dose expressed as amoxicillin component throughout.",
+  spectrum:"Extends amoxicillin to include beta-lactamase producing organisms: MSSA, H. influenzae (BLNAR variable), Moraxella, E. coli (sensitive), Klebsiella (oral strains), anaerobes (Bacteroides). NOT: MRSA, Pseudomonas, ESBL-producing organisms, Acinetobacter.",
+  doses:[
+    {indication:"Standard infections (oral)",dose:"25–45 mg/kg/day (amox)",freq:"divided q8h",max:"500 mg amox/dose (125 mg clav)",notes:"Oral suspension: 125/31.25 mg/5mL or 250/62.5 mg/5mL"},
+    {indication:"High dose — AOM, sinusitis, CAP (oral)",dose:"80–90 mg/kg/day (amox)",freq:"divided q8h",max:"875 mg amox/dose",notes:"Use 400/57 mg/5mL suspension for high dose; reduces GI side effects"},
+    {indication:"Standard IV (co-amoxiclav)",dose:"30 mg/kg/dose (amox component)",freq:"q8h",max:"1 g amox/dose (200 mg clav)",notes:"IV: 500/100 mg or 1000/200 mg vials; infuse over 30 min"},
+    {indication:"Severe IV infections",dose:"40–50 mg/kg/dose (amox)",freq:"q6–8h",max:"2 g amox/dose",notes:""},
+    {indication:"Neonates <7 days",dose:"25 mg/kg/dose (amox)",freq:"q12h",max:"",notes:"IV only; limited oral data in neonates"},
+    {indication:"Neonates >7 days",dose:"25–30 mg/kg/dose (amox)",freq:"q8h",max:"",notes:"IV"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"10–30",dose:"No change",freq:"q12h",notes:"Extend interval; clavulanate also accumulates"},
+    {egfr:"<10",dose:"Standard single dose, then halve",freq:"q24h",notes:"Clavulanate accumulation — monitor"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose",freq:"q8–12h",notes:"Both components moderately removed"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable — supplement after HD"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required. Oral suspension formulations vary — check amoxicillin:clavulanate ratio (most commonly 4:1 or 7:1). IV available as 500/100mg or 1000/200mg vials."},
+  interactions:[
+    "Warfarin: increased INR — monitor closely",
+    "Methotrexate: reduced renal elimination — methotrexate toxicity",
+    "Allopurinol: increased rash risk",
+    "Probenecid: increases amoxicillin levels",
+    "Oral contraceptives: theoretical efficacy reduction — counsel",
+  ],
+  cautions:"⚠ Hepatotoxicity risk with clavulanate component — cholestatic jaundice reported (more common in adults, males, prolonged use >14 days). Monitor LFTs if prolonged course. GI side effects (diarrhoea, nausea) common — take with food, use probiotic. Same penicillin allergy precautions as amoxicillin. EBV/mononucleosis: avoid (rash). Reconstituted suspension: refrigerate; discard after 7 days.",
+},
+{
+  name:"Amphotericin B (Liposomal)",
+  color:"#004d40",
+  class:"Polyene Antifungal",
+  pkpd:"Concentration-dependent. Liposomal formulation (AmBisome) preferred over conventional for better tolerability. NOT interchangeable with conventional amphotericin — different dosing.",
+  spectrum:"Broadest antifungal spectrum: Candida (all species including azole-resistant), Aspergillus, Mucor, Cryptococcus. Drug of choice for invasive mould infections.",
+  doses:[
+    {indication:"Invasive candidiasis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:"IV over 2hr via in-line filter (1.2 micron)"},
+    {indication:"Invasive aspergillosis",dose:"3–5 mg/kg/day (liposomal)",freq:"q24h",max:"5 mg/kg/day",notes:""},
+    {indication:"Mucormycosis",dose:"5–10 mg/kg/day (liposomal)",freq:"q24h",max:"10 mg/kg/day",notes:"Higher doses for Mucor"},
+    {indication:"Cryptococcal meningitis (induction)",dose:"3–6 mg/kg/day (liposomal)",freq:"q24h",max:"",notes:"+ flucytosine if available"},
+    {indication:"Conventional Ampho B (if liposomal unavailable)",dose:"0.5–1.5 mg/kg/day",freq:"q24h",max:"1.5 mg/kg",notes:"Start with 0.1 mg/kg test dose. Premedicate."},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"Normal",notes:"Monitor renal function closely"},
+    {egfr:"<50",dose:"Liposomal: no change. Conventional: use with extreme caution.",freq:"Normal",notes:"Liposomal significantly less nephrotoxic than conventional"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change (liposomal)",freq:"Normal",notes:"Not significantly removed by RRT"},
+  ],
+  tdm:{required:false,notes:"TDM not routinely available or required in most centres."},
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — monitor renal function",
+    "Ciclosporin/tacrolimus: additive nephrotoxicity",
+    "Corticosteroids: hypokalaemia risk amplified",
+    "Loop diuretics: hypokalaemia — aggressive potassium replacement required",
+    "Flucytosine: synergistic antifungal effect — often combined for cryptococcal meningitis",
+    "Digoxin: hypokalaemia potentiates digoxin toxicity — monitor K+ and digoxin levels",
+  ],
+  cautions:"⚠ Liposomal (AmBisome) NOT interchangeable with conventional amphotericin B — different doses. Infusion reactions: fever, rigors, hypotension — premedicate with paracetamol ± hydrocortisone. Nephrotoxicity (much less with liposomal). Hypokalaemia and hypomagnesaemia — aggressive electrolyte replacement. Infuse via dedicated line over 2hr through 1.2 micron filter.",
+},
+{
+  name:"Azithromycin",
+  color:"#1565c0",
+  class:"Macrolide",
+  pkpd:"Time-dependent (AUC/MIC). Very high tissue/intracellular concentrations. Long tissue half-life allows short courses and once-daily dosing.",
+  spectrum:"Gram-positive (Streptococcus, not Staph), atypicals (Mycoplasma, Chlamydia, Legionella), some Gram-negatives (H. influenzae, Moraxella). NOT: Enterobacteriaceae, Pseudomonas.",
+  doses:[
+    {indication:"Community-acquired pneumonia / atypicals",dose:"10 mg/kg/day",freq:"q24h × 3–5 days",max:"500 mg/day",notes:"Oral preferred. IV if unable to take oral."},
+    {indication:"IV (severe)",dose:"10 mg/kg/day",freq:"q24h",max:"500 mg/day",notes:"IV over 60 min minimum"},
+    {indication:"Whooping cough prophylaxis/treatment",dose:"10 mg/kg/day × 5 days",freq:"q24h",max:"500 mg/day",notes:""},
+    {indication:"Neonatal Chlamydia",dose:"20 mg/kg/day",freq:"q24h × 3 days",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily biliary/hepatic elimination — no renal dose adjustment required"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"Normal",notes:"Not significantly removed — no dose adjustment"},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "QTc-prolonging drugs (amiodarone, chloroquine, ondansetron, antipsychotics): additive QTc prolongation → torsades risk — ECG monitoring",
+    "Warfarin: may increase INR — monitor",
+    "Ciclosporin: increased ciclosporin levels",
+    "Digoxin: increased digoxin levels",
+    "Antacids: reduce absorption — give 1hr before or 2hr after",
+  ],
+  cautions:"QTc prolongation — ECG before and during IV use. Infantile hypertrophic pyloric stenosis (IHPS) risk in neonates <6 weeks — use only if essential, warn parents. Hepatotoxicity rare.",
+},
+{
+  name:"Cefoperazone-Sulbactam",
+  color:"#2e7d32",
+  class:"3rd Gen Cephalosporin + β-lactamase inhibitor",
+  pkpd:"Time-dependent (cefoperazone component). Target: %T>MIC ≥70%. Sulbactam has intrinsic activity against Acinetobacter.",
+  spectrum:"Gram-positive, Gram-negative including Pseudomonas, Acinetobacter (sulbactam component), ESBL. Anaerobes. NOT: MRSA. Particularly useful for MDR Acinetobacter.",
+  doses:[
+    {indication:"Standard (1:1 ratio)",dose:"40–80 mg/kg/day (combined)",freq:"divided q12h",max:"4 g/day combined",notes:"IV over 30 min"},
+    {indication:"Severe MDR Acinetobacter (2:1 ratio)",dose:"80–160 mg/kg/day (combined)",freq:"divided q8–12h",max:"8 g/day combined",notes:"Higher sulbactam dose for Acinetobacter"},
+    {indication:"Neonates",dose:"40–80 mg/kg/day",freq:"divided q12h",max:"",notes:"Limited data — use with caution"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:"Primarily biliary excretion"},
+    {egfr:"<30",dose:"Reduce sulbactam component",freq:"q12h",notes:"Max sulbactam 1 g/day if GFR<30"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"40 mg/kg/day combined",freq:"q12h",notes:"Sulbactam more dialysable than cefoperazone"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q12h + supplement post-HD",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required."},
+  interactions:[
+    "Alcohol/alcohol-containing medications: disulfiram-like reaction (flushing, tachycardia, hypotension) — avoid alcohol during and 72hr after treatment",
+    "Warfarin: significantly enhances anticoagulant effect (MTT side chain) — monitor INR closely",
+    "Vitamin K: may be required with prolonged use (inhibits vitamin K-dependent clotting factors)",
+  ],
+  cautions:"⚠ Disulfiram reaction with alcohol — warn parents/carers. Bleeding risk due to vitamin K interference — monitor coagulation. High biliary excretion — avoid in severe hepatic impairment.",
+},
+{
+  name:"Cefotaxime",
+  color:"#2e7d32",
+  class:"3rd Generation Cephalosporin",
+  pkpd:"Time-dependent. Target: %T>MIC ≥70%. Shorter half-life than ceftriaxone — requires q6–8h dosing.",
+  spectrum:"Similar to ceftriaxone. Preferred over ceftriaxone in neonates and hyperbilirubinaemia. Good CNS penetration.",
+  doses:[
+    {indication:"Neonates (standard)",dose:"50 mg/kg/dose",freq:"q12h (<7d) / q8h (>7d)",max:"",notes:"IV over 30 min"},
+    {indication:"Children — standard",dose:"50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+    {indication:"Meningitis/severe",dose:"75 mg/kg/dose",freq:"q6h",max:"3 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">20",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"<20",dose:"50% dose reduction",freq:"Normal",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"50 mg/kg/dose",freq:"q8h",notes:""},
+    {mode:"Intermittent HD",dose:"50 mg/kg/dose",freq:"q12h + supplement post-HD",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "Probenecid: increases cefotaxime levels",
+    "Aminoglycosides: possible additive nephrotoxicity — monitor renal function",
+  ],
+  cautions:"Preferred over ceftriaxone in neonates (no calcium interaction risk, no bilirubin displacement). Metabolite (desacetyl-cefotaxime) is microbiologically active.",
+},
+{
+  name:"Ceftazidime",
+  color:"#2e7d32",
+  class:"3rd Generation Cephalosporin (anti-pseudomonal)",
+  pkpd:"Time-dependent. Target: %T>MIC ≥70%. Consider continuous or prolonged infusion for Pseudomonas.",
+  spectrum:"Strong anti-Pseudomonas activity. Gram-negative coverage (including Pseudomonas, not ESBL). Weak Gram-positive activity. NOT: MRSA, anaerobes.",
+  doses:[
+    {indication:"Standard Gram-negative",dose:"30–50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Pseudomonas/severe",dose:"50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"Consider prolonged infusion"},
+    {indication:"Meningitis",dose:"50 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+    {indication:"Cystic fibrosis",dose:"50 mg/kg/dose",freq:"q8h",max:"3 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"31–50",dose:"No change",freq:"q12h",notes:""},
+    {egfr:"16–30",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"<15",dose:"50% dose",freq:"q24–48h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"30–50 mg/kg/dose",freq:"q12h",notes:""},
+    {mode:"Intermittent HD",dose:"30 mg/kg/dose",freq:"q24h + supplement post-HD",notes:"Highly dialysable"},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Trough >4× MIC desirable for Pseudomonas."},
+  interactions:[
+    "Chloramphenicol: antagonism reported — avoid combination",
+    "Loop diuretics: additive nephrotoxicity",
+  ],
+  cautions:"Select resistance can emerge during treatment of Pseudomonas — consider combination therapy for severe Pseudomonas infections.",
+},
+{
+  name:"Ceftriaxone",
+  color:"#2e7d32",
+  class:"3rd Generation Cephalosporin",
+  pkpd:"Time-dependent. Long half-life (6–9hr) allows once-daily dosing. Target: %T>MIC ≥70%.",
+  spectrum:"Gram-positive (not MRSA, Enterococcus), Gram-negative (not Pseudomonas, Acinetobacter), excellent CNS penetration. Good for meningitis, community-acquired infections.",
+  doses:[
+    {indication:"Standard infections",dose:"50–75 mg/kg/day",freq:"q24h or divided q12h",max:"2 g/day",notes:"IV over 30 min"},
+    {indication:"Meningitis/severe",dose:"100 mg/kg/day",freq:"divided q12h",max:"4 g/day",notes:"IV over 30 min"},
+    {indication:"Gonorrhoea",dose:"50 mg/kg",freq:"single dose",max:"500 mg",notes:"IM"},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment needed",freq:"Normal",notes:"Primarily biliary excretion — safe in renal impairment"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q24h",notes:"Not significantly removed by dialysis"},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "Calcium-containing IV fluids: NEVER mix or co-administer (precipitates in bloodstream — potentially fatal, especially neonates)",
+    "Ceftriaxone + calcium: avoid in neonates <28 days entirely",
+    "Warfarin: may enhance anticoagulant effect — monitor INR",
+  ],
+  cautions:"⚠ NEVER co-administer with calcium-containing solutions (including Ringer's lactate) — fatal precipitation risk in neonates. Biliary sludge/gallstones with prolonged use. Avoid in hyperbilirubinaemic neonates (displaces bilirubin).",
+},
+{
+  name:"Colistin (Polymyxin E)",
+  color:"#b71c1c",
+  class:"Polymyxin",
+  pkpd:"Concentration-dependent. AUC/MIC target. Used as last resort for XDR/PDR Gram-negatives. Dose in colistin base activity (CBA) — NOT colistimethate sodium (CMS) mg.",
+  spectrum:"MDR/XDR Gram-negatives: Acinetobacter, Pseudomonas, Klebsiella (carbapenem-resistant). NOT: Gram-positives, Proteus, Serratia, Burkholderia.",
+  doses:[
+    {indication:"All indications — LOADING",dose:"Loading: 5 mg/kg CBA (= 12.5 mg/kg CMS)",freq:"Single loading dose",max:"300 mg CBA",notes:"Loading essential to achieve rapid therapeutic levels. CMS 1 million IU = 30 mg CBA approx."},
+    {indication:"Maintenance (normal renal function)",dose:"2.5–3.5 mg/kg/day CBA",freq:"divided q8–12h",max:"300 mg CBA/day",notes:"Start 12–24hr after loading"},
+    {indication:"Inhaled (VAP adjunct)",dose:"1–2 million IU CMS nebulised",freq:"q8–12h",max:"",notes:"Adjunct to IV — not monotherapy"},
+  ],
+  renal:[
+    {egfr:">80",dose:"2.5–3.5 mg/kg/day CBA",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"50–80",dose:"2.5 mg/kg/day CBA",freq:"q12h",notes:""},
+    {egfr:"30–50",dose:"1.5 mg/kg/day CBA",freq:"q12h",notes:"TDM if available"},
+    {egfr:"<30",dose:"1 mg/kg/day CBA",freq:"q24h",notes:"TDM essential"},
+    {egfr:"Anuric",dose:"Loading only, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Loading + 2–2.5 mg/kg/day CBA",freq:"q12h",notes:"CRRT removes colistin — TDM essential. Target plateau plasma level 2–4 mg/L CBA."},
+    {mode:"Intermittent HD",dose:"Loading + 2 mg/kg/day CBA",freq:"q24h, supplement post-HD",notes:"Significantly dialysable — redose after HD"},
+    {mode:"CAPD",dose:"Reduced maintenance",freq:"q24h",notes:"Limited data"},
+  ],
+  tdm:{
+    required:true,
+    target:"Target plateau plasma CBA concentration: 2–4 mg/L. Trough >0.5 mg/L.",
+    timing:"Plateau sample at steady state (after 3rd maintenance dose). Trough just before dose.",
+    notes:"⚠ Unit confusion: doses may be expressed as CBA (colistin base activity) OR CMS (colistimethate sodium) — ALWAYS clarify units. 1 mg CBA ≈ 2.4–3 mg CMS ≈ 30,000 IU CMS.",
+  },
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — avoid combination",
+    "Vancomycin: additive nephrotoxicity",
+    "Loop diuretics: additive nephrotoxicity",
+    "Neuromuscular blocking agents: enhanced blockade — caution in ventilated patients",
+    "Non-depolarising muscle relaxants: prolonged blockade",
+  ],
+  cautions:"⚠ LAST RESORT antibiotic — for XDR/PDR organisms only. Significant nephrotoxicity (use with adequate hydration) and neurotoxicity (paraesthesia, dizziness, apnoea). ALWAYS use combination therapy — do not use as monotherapy for serious infections. Unit confusion between CBA and CMS — verify units with pharmacist.",
+},
+{
+  name:"Fluconazole",
+  color:"#004d40",
+  class:"Triazole Antifungal",
+  pkpd:"AUC/MIC-dependent. Excellent CNS penetration. Good oral bioavailability (~90%).",
+  spectrum:"Candida (C. albicans, C. parapsilosis, C. tropicalis — NOT C. glabrata, C. krusei), Cryptococcus. NOT: moulds (Aspergillus), Mucor.",
+  doses:[
+    {indication:"Invasive candidiasis (treatment)",dose:"12 mg/kg loading, then 6–12 mg/kg/day",freq:"q24h",max:"800 mg loading, 400 mg/day maintenance",notes:"IV or oral — bioequivalent"},
+    {indication:"Prophylaxis (high risk NICU/PICU)",dose:"3–6 mg/kg",freq:"3× weekly or q24h",max:"200 mg",notes:""},
+    {indication:"Cryptococcal meningitis",dose:"12 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"After amphotericin B induction"},
+    {indication:"Neonates",dose:"6–12 mg/kg",freq:"q24–72h (gestational age dependent)",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"11–50",dose:"50% of normal dose",freq:"Normal",notes:""},
+    {egfr:"<11 (not on RRT)",dose:"25–50% of normal",freq:"Normal",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal dose (6–12 mg/kg/day)",freq:"q24h",notes:"Significantly removed — normal dosing"},
+    {mode:"Intermittent HD",dose:"Normal dose",freq:"q24–48h + supplement post-HD",notes:"Give after dialysis"},
+    {mode:"CAPD",dose:"50% dose reduction",freq:"q24h",notes:""},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard in children. Consider in critically ill, immunocompromised, or treatment failure."},
+  interactions:[
+    "Warfarin: significantly increases INR — monitor closely, reduce warfarin dose",
+    "Ciclosporin/tacrolimus: significantly increases levels → toxicity — monitor levels and reduce dose",
+    "Phenytoin: increased phenytoin levels",
+    "Midazolam/benzodiazepines: increased sedation (CYP3A4 inhibition)",
+    "Rifampicin: reduces fluconazole levels — may need dose increase",
+    "QTc-prolonging drugs: additive QTc prolongation",
+    "Statins: increased statin levels → myopathy risk",
+  ],
+  cautions:"Hepatotoxicity — monitor LFTs. QTc prolongation. Strong CYP2C9 and CYP3A4 inhibitor — many drug interactions. Check susceptibility: C. glabrata and C. krusei are intrinsically resistant.",
+},
+{
+  name:"Gentamicin",
+  color:"#e65100",
+  class:"Aminoglycoside",
+  pkpd:"Concentration-dependent + PAE. Target: Cmax/MIC ≥8–10. Once-daily extended-interval dosing preferred.",
+  spectrum:"Similar to amikacin but less active against Pseudomonas and resistant organisms. Used for synergy with penicillins against Gram-positives (endocarditis, GBS). Gram-negative cover.",
+  doses:[
+    {indication:"Standard (once daily)",dose:"7 mg/kg/dose",freq:"q24h",max:"280 mg/dose",notes:"IV over 30 min"},
+    {indication:"Neonates <32 wks",dose:"5 mg/kg/dose",freq:"q48h",max:"",notes:""},
+    {indication:"Neonates 32–37 wks",dose:"4.5 mg/kg/dose",freq:"q36h",max:"",notes:""},
+    {indication:"Neonates term",dose:"4 mg/kg/dose",freq:"q24h",max:"",notes:""},
+    {indication:"Synergy (endocarditis/GBS)",dose:"3 mg/kg/day",freq:"divided q8h",max:"",notes:"Lower dose for synergy"},
+  ],
+  renal:[
+    {egfr:">70",dose:"7 mg/kg",freq:"q24h",notes:""},
+    {egfr:"40–70",dose:"7 mg/kg",freq:"q36h",notes:"TDM essential"},
+    {egfr:"20–40",dose:"7 mg/kg",freq:"q48h",notes:"TDM essential"},
+    {egfr:"<20",dose:"Loading dose only, TDM-guided",freq:"Redose when trough <1",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"5 mg/kg",freq:"q24–36h by TDM",notes:"TDM essential"},
+    {mode:"Intermittent HD",dose:"5 mg/kg post-HD",freq:"After each session",notes:"Highly dialysable"},
+    {mode:"CAPD",dose:"5 mg/kg",freq:"q48h + TDM",notes:""},
+  ],
+  tdm:{
+    required:true,
+    peak:"Peak (1hr post-infusion): 8–10 mg/L (once daily) / 3–5 mg/L (synergy dosing)",
+    trough:"Trough (pre-dose): <1 mg/L (once daily) / <1 mg/L",
+    timing:"Peak 1hr post-infusion. Trough before next dose. Check from 3rd dose.",
+    notes:"Similar toxicity profile to amikacin. Amikacin preferred for resistant Gram-negatives. Gentamicin preferred for synergy dosing.",
+  },
+  interactions:[
+    "Vancomycin: additive nephrotoxicity",
+    "Loop diuretics: additive ototoxicity/nephrotoxicity",
+    "Neuromuscular blockers: enhanced blockade",
+    "Penicillins (in vitro): inactivation if mixed in same solution — give separately",
+  ],
+  cautions:"Same as amikacin — nephrotoxicity and irreversible ototoxicity. Limit duration to 5–7 days. Monitor renal function regularly.",
+},
+{
+  name:"Linezolid",
+  color:"#6a1b9a",
+  class:"Oxazolidinone",
+  pkpd:"Time-dependent (AUC/MIC). Target: AUC24/MIC >100. 100% oral bioavailability — IV to oral switch at earliest opportunity.",
+  spectrum:"Gram-positive ONLY: MRSA, VRE, VRSA, Enterococcus, Streptococcus, Staphylococcus. NOT: Gram-negatives. Reserve for resistant Gram-positives.",
+  doses:[
+    {indication:"All indications (children)",dose:"10 mg/kg/dose",freq:"q8h",max:"600 mg/dose",notes:"IV or oral — equally bioavailable"},
+    {indication:"Neonates <7 days",dose:"10 mg/kg/dose",freq:"q12h",max:"",notes:""},
+    {indication:"Neonates >7 days",dose:"10 mg/kg/dose",freq:"q8h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment",freq:"Normal",notes:"Primarily non-renal elimination. Metabolites accumulate in severe renal failure but not clinically significant for short courses."},
+  ],
+  rrt:[
+    {mode:"CRRT/HD/CAPD",dose:"No change",freq:"q8h",notes:"Not significantly removed by RRT"},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard. Consider AUC monitoring in prolonged courses or suspected toxicity. Trough >2 mg/L associated with efficacy."},
+  interactions:[
+    "SSRIs (fluoxetine, sertraline): SEROTONIN SYNDROME — potentially life-threatening, avoid combination",
+    "SNRIs, TCAs, tramadol: serotonin syndrome risk",
+    "Sympathomimetics (adrenaline, dopamine, dobutamine): MAO inhibition → hypertensive crisis — reduce doses of vasoactives",
+    "Tyramine-rich foods: hypertensive crisis (MAO inhibition) — dietary restriction during treatment",
+    "Serotonergic drugs: any serotonergic agent — careful monitoring or avoid",
+  ],
+  cautions:"⚠ MAO inhibitor properties — serotonin syndrome and hypertensive crisis risks. Myelosuppression (thrombocytopenia, anaemia) with >2 weeks use — check FBC weekly. Lactic acidosis with prolonged use. Optic and peripheral neuropathy — eye examination if prolonged. Reserve for VRE/MRSA when other options failed.",
+},
+{
+  name:"Meropenem",
+  color:"#1565c0",
+  class:"Carbapenem",
+  pkpd:"Time-dependent. Target: %T>MIC ≥40% (bacteriostatic) to ≥100% (bactericidal). Optimise with extended/prolonged infusion.",
+  spectrum:"Gram-positive (not MRSA/Enterococcus), Gram-negative including Pseudomonas, ESBL, Acinetobacter, anaerobes. NOT: MRSA, VRE, Stenotrophomonas.",
+  doses:[
+    {indication:"Standard infections",dose:"20 mg/kg/dose",freq:"q8h",max:"1 g/dose",notes:"IV over 30 min"},
+    {indication:"Severe/meningitis/CNS",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Pseudomonas/non-fermenter",dose:"40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:"Consider extended infusion 3–4hr"},
+    {indication:"Febrile neutropenia",dose:"20–40 mg/kg/dose",freq:"q8h",max:"2 g/dose",notes:""},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"26–50",dose:"No change",freq:"q12h",notes:"Extend interval"},
+    {egfr:"10–25",dose:"50% of dose",freq:"q12h",notes:"Reduce dose and extend interval"},
+    {egfr:"<10",dose:"50% of dose",freq:"q24h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"20–40 mg/kg/dose",freq:"q12h",notes:"Monitor levels if available"},
+    {mode:"Intermittent HD",dose:"20 mg/kg/dose",freq:"q24h + supplement post-HD",notes:"Give after dialysis session"},
+    {mode:"CAPD",dose:"50% normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"Routine TDM not standard. Consider in severe infections, non-fermenter organisms. Target trough >4× MIC."},
+  interactions:[
+    "Valproate: meropenem significantly REDUCES valproate levels (↓40–60%) — avoid combination or monitor levels closely",
+    "Probenecid: increases meropenem levels — avoid",
+  ],
+  cautions:"Seizure risk at high doses especially with CNS infections or renal impairment. Cross-reactivity with penicillin allergy <1% — use with caution in severe penicillin allergy.",
+},
+{
+  name:"Metronidazole",
+  color:"#00695c",
+  class:"Nitroimidazole",
+  pkpd:"Concentration-dependent. AUC/MIC target. Excellent tissue penetration including CNS, bone, abscess.",
+  spectrum:"Anaerobes (Bacteroides, Clostridium, C. difficile), protozoa (Giardia, Entamoeba, Trichomonas). NOT: aerobes, Gram-positives (except anaerobic streptococci).",
+  doses:[
+    {indication:"Anaerobic infections",dose:"7.5 mg/kg/dose",freq:"q8h",max:"500 mg/dose",notes:"IV over 30–60 min. Oral equally bioavailable."},
+    {indication:"C. difficile (oral)",dose:"7.5 mg/kg/dose",freq:"q8h",max:"500 mg/dose",notes:"Oral preferred for C. diff"},
+    {indication:"Surgical prophylaxis",dose:"15 mg/kg",freq:"single dose",max:"500 mg",notes:"30 min pre-op"},
+    {indication:"Neonates",dose:"7.5 mg/kg/dose",freq:"q12h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:"Any",dose:"No adjustment needed",freq:"Normal",notes:"Primarily hepatic metabolism — safe in renal impairment"},
+  ],
+  rrt:[
+    {mode:"CRRT/HD",dose:"No change",freq:"Normal",notes:"Metabolites may accumulate — monitor for neurotoxicity"},
+    {mode:"CAPD",dose:"No change",freq:"Normal",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required."},
+  interactions:[
+    "Warfarin: significantly increases INR — reduce warfarin dose by 50%, monitor INR closely",
+    "Alcohol: disulfiram-like reaction (severe flushing, nausea, vomiting) — avoid alcohol during and 48hr after treatment",
+    "Lithium: increased lithium toxicity",
+    "Phenytoin: increased phenytoin levels",
+    "Phenobarbitone: may reduce metronidazole levels",
+    "Ciclosporin: increased ciclosporin levels",
+  ],
+  cautions:"Peripheral neuropathy and CNS toxicity (seizures, encephalopathy) with prolonged high-dose use. Metallic taste common. Urine may turn dark brown — warn family.",
+},
+{
+  name:"Piperacillin-Tazobactam",
+  color:"#1565c0",
+  class:"Ureidopenicillin + β-lactamase inhibitor",
+  pkpd:"Time-dependent. Target: %T>MIC ≥50%. Prolonged infusion (over 4hr) improves PK/PD target attainment for resistant organisms.",
+  spectrum:"Gram-positive (not MRSA), Gram-negative including Pseudomonas, ESBL (variable), anaerobes. Good coverage for hospital-acquired infections.",
+  doses:[
+    {indication:"Moderate infections",dose:"100 mg/kg/dose (pip component)",freq:"q8h",max:"4 g pip/dose",notes:"IV over 30 min"},
+    {indication:"Severe/Pseudomonas",dose:"100 mg/kg/dose",freq:"q6h",max:"4 g pip/dose",notes:"IV over 4hr (prolonged infusion)"},
+    {indication:"Neonates <7 days",dose:"75 mg/kg/dose",freq:"q12h",max:"",notes:""},
+    {indication:"Neonates >7 days",dose:"75 mg/kg/dose",freq:"q8h",max:"",notes:""},
+  ],
+  renal:[
+    {egfr:">40",dose:"No change",freq:"q6–8h",notes:"Normal dosing"},
+    {egfr:"20–40",dose:"No change",freq:"q8h",notes:""},
+    {egfr:"<20",dose:"No change",freq:"q12h",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"100 mg/kg/dose",freq:"q8h",notes:""},
+    {mode:"Intermittent HD",dose:"100 mg/kg/dose",freq:"q12h + supplement post-HD",notes:"Highly dialysable"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Consider AUC-guided dosing in critically ill with augmented renal clearance."},
+  interactions:[
+    "Methotrexate: pip-tazo reduces renal elimination → methotrexate toxicity",
+    "Vecuronium/neuromuscular blockers: may prolong neuromuscular blockade",
+    "Vancomycin: combination associated with increased nephrotoxicity — monitor renal function",
+  ],
+  cautions:"Hyponatraemia risk (high sodium content). Thrombocytopenia with prolonged use. Electrolyte monitoring recommended.",
+},
+{
+  name:"Teicoplanin",
+  color:"#6a1b9a",
+  class:"Glycopeptide",
+  pkpd:"AUC/MIC-dependent. Long half-life (70–100hr) allows once-daily dosing after loading. Target trough: 10–20 mg/L (standard); 20–30 mg/L (endocarditis/bone/severe).",
+  spectrum:"Same as vancomycin: MRSA, MRSE, Enterococcus (not VRE). Slightly better activity against some Enterococcus than vancomycin. NOT: Gram-negatives.",
+  doses:[
+    {indication:"Loading (all)",dose:"10 mg/kg/dose",freq:"q12h × 3 doses (day 1)",max:"400 mg/dose",notes:"IV over 30 min or IM"},
+    {indication:"Maintenance standard",dose:"6–10 mg/kg/day",freq:"q24h",max:"400 mg/day",notes:"Start after loading"},
+    {indication:"Severe (endocarditis/bone/MRSA)",dose:"10 mg/kg/day",freq:"q24h",max:"800 mg/day",notes:"Higher trough target 20–30"},
+    {indication:"Neonates",dose:"16 mg/kg loading × 1, then 8 mg/kg/day",freq:"q24h",max:"",notes:"IM or IV over 30 min"},
+  ],
+  renal:[
+    {egfr:">80",dose:"No change",freq:"q24h",notes:""},
+    {egfr:"40–80",dose:"No change",freq:"q48h (from day 4)",notes:""},
+    {egfr:"<40",dose:"No change",freq:"q72h (from day 4)",notes:"TDM essential"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Normal maintenance",freq:"q48–72h guided by TDM",notes:"Minimal removal by CRRT"},
+    {mode:"Intermittent HD",dose:"Normal maintenance",freq:"q72–96h",notes:"Not significantly removed — dose after TDM trough"},
+    {mode:"CAPD",dose:"Normal maintenance",freq:"q7 days",notes:"Minimal removal"},
+  ],
+  tdm:{
+    required:true,
+    trough:"Standard: 10–20 mg/L. Severe infections/endocarditis/osteomyelitis: 20–30 mg/L.",
+    timing:"Check trough just before 4th or 5th maintenance dose (steady state). Recheck after dose changes.",
+    notes:"Less nephrotoxic than vancomycin. No red man syndrome. Can be given IM. Check trough weekly once stable.",
+  },
+  interactions:[
+    "Aminoglycosides: additive nephrotoxicity — monitor renal function",
+    "Loop diuretics: additive ototoxicity",
+    "Ciclosporin: additive nephrotoxicity",
+  ],
+  cautions:"Less nephrotoxic than vancomycin. Well tolerated. IM administration possible (useful when IV access difficult). TDM essential for severe infections.",
+},
+{
+  name:"Vancomycin",
+  color:"#6a1b9a",
+  class:"Glycopeptide",
+  pkpd:"AUC/MIC-dependent. Target: AUC24/MIC 400–600 (AUC-guided). OR trough 10–20 mg/L (trough-guided). MIC breakpoint for S. aureus ≤1 mg/L.",
+  spectrum:"Gram-positive ONLY: MRSA, MRSE, Enterococcus (not VRE), C. difficile (oral only). NOT: Gram-negatives, fungi.",
+  doses:[
+    {indication:"Standard (all indications)",dose:"15 mg/kg/dose",freq:"q6h",max:"750 mg/dose (or 3 g/day)",notes:"IV over 60 min minimum (1hr/500mg). Loading dose 25–30 mg/kg for severe infections."},
+    {indication:"CNS infections/endocarditis",dose:"15–20 mg/kg/dose",freq:"q6h",max:"1 g/dose",notes:"Target higher AUC 400–600"},
+    {indication:"Neonates <7 days",dose:"15 mg/kg/dose",freq:"q12–18h",max:"",notes:"Adjust by TDM"},
+    {indication:"Neonates >7 days",dose:"15 mg/kg/dose",freq:"q8–12h",max:"",notes:"Adjust by TDM"},
+  ],
+  renal:[
+    {egfr:">70",dose:"15 mg/kg/dose",freq:"q6h",notes:"Normal dosing"},
+    {egfr:"40–70",dose:"15 mg/kg/dose",freq:"q8–12h",notes:"Adjust by TDM"},
+    {egfr:"20–40",dose:"15 mg/kg/dose",freq:"q12–24h",notes:"Adjust by TDM — essential"},
+    {egfr:"<20",dose:"15 mg/kg loading, then TDM-guided",freq:"q24–48h",notes:"TDM mandatory"},
+    {egfr:"Anuric",dose:"15–25 mg/kg loading only",freq:"Redose when trough <10",notes:"TDM mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"15 mg/kg/dose",freq:"q24–48h guided by TDM",notes:"CVVHDF removes ~50% — TDM essential. Target trough 15–20."},
+    {mode:"Intermittent HD",dose:"15–25 mg/kg post-HD",freq:"Redose after each HD session",notes:"Highly removed by HD — check trough before each session"},
+    {mode:"CAPD",dose:"15–25 mg/kg",freq:"q4–7 days",notes:"Minimal removal — extended dosing interval"},
+  ],
+  tdm:{
+    required:true,
+    trough:"Target trough: 10–15 mg/L (standard); 15–20 mg/L (CNS/endocarditis/severe MRSA)",
+    auc:"Target AUC24/MIC: 400–600. Use Bayesian software (e.g. DoseMeRx) or two-level AUC calculation.",
+    timing:"Trough: 30 min before 4th or 5th dose. AUC: pair of levels (1hr post-infusion + pre-dose).",
+    notes:"Check at steady state (after 4th dose). Recheck after dose adjustment. Monitor renal function twice weekly.",
+  },
+  interactions:[
+    "Aminoglycosides (amikacin, gentamicin): additive nephrotoxicity — avoid combination or monitor renal function very closely",
+    "Loop diuretics (furosemide): additive nephrotoxicity and ototoxicity",
+    "Piperacillin-tazobactam: combination associated with increased AKI risk — monitor closely",
+    "NSAIDs: increased nephrotoxicity",
+    "Neuromuscular blocking agents: may enhance blockade",
+  ],
+  cautions:"Red man syndrome with rapid infusion (not allergy) — always infuse over ≥60 min. Nephrotoxicity and ototoxicity — monitor renal function and consider audiology in prolonged courses. Dose adjustment ESSENTIAL in renal impairment.",
+}
+];
+
+// Schwartz eGFR calculator
+function schwartzEGFR(creatinine_umol_L, height_cm, age_yr) {
+  const k = age_yr < 1 ? 0.33 : (age_yr <= 13 ? 0.55 : (0.7)); // simplified k
+  const creat_mg_dL = creatinine_umol_L / 88.4;
+  return Math.round((k * height_cm) / creat_mg_dL);
+}
+
+// Age-based eGFR thresholds
+const AGE_THRESHOLDS = [
+  {age:"Neonate (term)",normal:">40",mild:"25–40",moderate:"10–25",severe:"<10"},
+  {age:"Infant (1–12 mo)",normal:">60",mild:"40–60",moderate:"20–40",severe:"<20"},
+  {age:"1–2 yr",normal:">70",mild:"50–70",moderate:"25–50",severe:"<25"},
+  {age:"2–5 yr",normal:">80",mild:"50–80",moderate:"25–50",severe:"<25"},
+  {age:"5–12 yr",normal:">90",mild:"60–90",moderate:"30–60",severe:"<30"},
+  {age:">12 yr",normal:">90",mild:"60–90",moderate:"30–60",severe:"<30"},
+];
+
+
+// ── Antibiotic rendering ─────────────────────────────────────
+let selectedAbx = 0;
+let abxEgfr = '';
+let abxDoseInput = '';
+let abxDoseSelected = null; // stores {dose, freq, max, notes} from clicked row
+let abxCreat = '';
+let abxHeight = '';
+let abxAge = '';
+let vancoMode = 'auc';
+
+function renderAbxTab() {
+  if(activeCategory !== 'antibiotics') return;
+  const el = document.getElementById('drug-display');
+
+  const drug = ANTIBIOTICS[selectedAbx];
+  if(!drug){ el.innerHTML=''; return; }
+
+  // eGFR panel
+  const schwartz = (abxCreat && abxHeight && abxAge)
+    ? schwartzEGFR(parseFloat(abxCreat), parseFloat(abxHeight), parseFloat(abxAge))
+    : null;
+  const egfrDisplay = abxEgfr ? parseFloat(abxEgfr) : schwartz;
+
+  // Renal band
+  let renalBand = null;
+  if(egfrDisplay !== null){
+    renalBand = drug.renal.find(r => {
+      const g = r.egfr;
+      if(g.includes('>')) return egfrDisplay > parseFloat(g.replace('>',''));
+      if(g.includes('<')) return egfrDisplay < parseFloat(g.replace('<',''));
+      if(g.includes('–')){const [a,b]=g.split('–');return egfrDisplay>=parseFloat(a)&&egfrDisplay<=parseFloat(b);}
+      return false;
+    }) || drug.renal[drug.renal.length-1];
+  }
+
+  // Dose rows
+  // Extract numeric dose for calculator
+  function extractNumericDose(doseStr) {
+    if(!doseStr) return null;
+    // Try range like "15–20 mg/kg" → take midpoint
+    const rangeMatch = doseStr.match(/([\d.]+)\s*[–-]\s*([\d.]+)/);
+    if(rangeMatch) return ((parseFloat(rangeMatch[1]) + parseFloat(rangeMatch[2])) / 2).toFixed(1);
+    // Try single value like "20 mg/kg"
+    const singleMatch = doseStr.match(/([\d.]+)\s*mg\/kg/);
+    if(singleMatch) return parseFloat(singleMatch[1]).toFixed(1);
+    return null;
+  }
+
+  const doseRows = drug.doses.map((d,i)=>{
+    const numeric = extractNumericDose(d.dose);
+    const isSelected = abxDoseSelected && abxDoseSelected.idx === i;
+    // Store dose data in global lookup to avoid escaping issues
+    window._abxDoseLookup = window._abxDoseLookup || {};
+    window._abxDoseLookup[selectedAbx + '_' + i] = {idx:i, indication:d.indication, dose:d.dose, freq:d.freq, max:d.max||'', notes:d.notes||''};
+    return `
+    <tr style="background:${isSelected?(drug.color+'18'):(i%2===0?'#fafbff':'#fff')};cursor:${numeric?'pointer':'default'};border:${isSelected?'2px solid '+drug.color:'2px solid transparent'}"
+      ${numeric?`onclick="abxDoseInput='${numeric}';abxDoseSelected=window._abxDoseLookup['${selectedAbx}_${i}'];renderAbxTab()"`:''}
+      title="${numeric?'Tap to calculate dose for this indication':''}">
+      <td style="padding:8px 10px;font-size:13px;font-weight:600;color:${esc(drug.color)}">${esc(d.indication)}${numeric?` <span style="font-size:10px;color:${esc(drug.color)};opacity:0.7">▶ tap</span>`:''}
+      </td>
+      <td style="padding:8px 10px;font-size:13px;font-weight:700;font-family:var(--mono)">${esc(d.dose)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(d.freq)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim)">${esc(d.max||'—')}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(d.notes||'')}</td>
+    </tr>`;
+  }).join('');
+
+  // Dose calculator
+  const wt = parseFloat(weight)||0;
+  const doseNum = parseFloat(abxDoseInput)||0;
+  const totalDose = (wt && doseNum) ? (wt * doseNum).toFixed(0) : null;
+  const maxDoseNum = abxDoseSelected?.max ? parseFloat(abxDoseSelected.max) : null;
+  const cappedDose = totalDose && maxDoseNum && parseFloat(totalDose) > maxDoseNum ? maxDoseNum : (totalDose ? parseFloat(totalDose) : null);
+  const wasCapped = cappedDose && totalDose && cappedDose < parseFloat(totalDose);
+
+  const calcSection = `
+    <div style="background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;margin-top:10px;border:2px solid ${esc(drug.color)}33">
+      <div style="font-size:12px;font-weight:800;color:${esc(drug.color)};letter-spacing:.06em;margin-bottom:10px">
+        💊 DOSE CALCULATOR ${wt?`| ${wt} kg`:'| Enter patient weight above'}
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em">DOSE (mg/kg)</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" inputmode="decimal" placeholder="mg/kg"
+              value="${esc(abxDoseInput)}"
+              onchange="abxDoseInput=this.value;renderAbxTab()"
+              style="width:110px;padding:10px;background:#fff;border:2px solid ${abxDoseInput?esc(drug.color):'var(--bdr)'};border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:${abxDoseInput?esc(drug.color):'var(--text)'}">
+            <span style="font-size:13px;color:var(--dim);font-weight:600">mg/kg</span>
+          </div>
+        </div>
+        ${totalDose ? `
+        <div style="background:#fff;border:2px solid ${esc(drug.color)};border-radius:11px;padding:10px 16px;min-width:140px">
+          <div style="font-size:10px;font-weight:700;color:${esc(drug.color)};letter-spacing:.1em">TOTAL DOSE</div>
+          <div style="display:flex;align-items:baseline;gap:5px;margin-top:2px">
+            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose}</span>
+            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">mg</span>
+          </div>
+          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum} mg</div>`:''}
+        </div>` : ''}
+      </div>
+      ${abxDoseSelected ? `
+      <div style="background:#fff;border-radius:9px;padding:10px 12px;border:1px solid var(--bdr);margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.08em;margin-bottom:4px">SELECTED INDICATION</div>
+        <div style="font-size:13px;font-weight:700;color:${esc(drug.color)}">${esc(abxDoseSelected.indication)}</div>
+        <div style="font-size:12px;color:var(--dim);margin-top:3px">
+          Dose: <b>${esc(abxDoseSelected.dose)}</b> &nbsp;·&nbsp;
+          Freq: <b>${esc(abxDoseSelected.freq)}</b>
+          ${abxDoseSelected.max?` &nbsp;·&nbsp; Max: <b>${esc(abxDoseSelected.max)}</b>`:''}
+        </div>
+        ${abxDoseSelected.notes?`<div style="font-size:11px;color:var(--dim2);margin-top:3px">${esc(abxDoseSelected.notes)}</div>`:''}
+      </div>` : `
+      <div style="font-size:12px;color:var(--dim);font-style:italic">
+        💡 Tap any row in the dose table above to auto-fill, or type a dose manually
+      </div>`}
+      ${totalDose && wt ? `
+      <div style="background:#f0faf4;border-radius:8px;padding:8px 12px;border-left:3px solid #2e7d32;font-size:12px;color:#1b4d20">
+        <b>Quick dose ladder @ ${wt} kg:</b><br>
+        ${drug.doses.filter(d=>extractNumericDose(d.dose)).map(d=>{
+          const dn = parseFloat(extractNumericDose(d.dose));
+          const total = Math.round(dn * wt);
+          const max = d.max ? parseFloat(d.max) : null;
+          const capped = max && total > max ? max : total;
+          const capNote = max && total > max ? ` (max ${max} mg)` : '';
+          return `${d.indication}: <b>${capped} mg</b>${capNote} ${d.freq}`;
+        }).join('<br>')}
+      </div>` : ''}
+    </div>`;
+
+  // Renal rows
+  const renalRows = drug.renal.map((r,i)=>`
+    <tr style="background:${renalBand&&renalBand===r?'#fff8e1':'#fff'};${renalBand&&renalBand===r?'font-weight:700;':''}">
+      <td style="padding:8px 10px;font-size:13px;font-family:var(--mono);font-weight:700;color:${renalBand&&renalBand===r?'#e65100':'var(--text)'}">${esc(r.egfr)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.dose)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.freq)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(r.notes||'')}</td>
+    </tr>`).join('');
+
+  // RRT rows
+  const rrtRows = drug.rrt.map((r,i)=>`
+    <tr style="background:${i%2===0?'#f3f0ff':'#fff'}">
+      <td style="padding:8px 10px;font-size:13px;font-weight:700;color:#6a1b9a">${esc(r.mode)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.dose)}</td>
+      <td style="padding:8px 10px;font-size:13px">${esc(r.freq)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:var(--dim2)">${esc(r.notes||'')}</td>
+    </tr>`).join('');
+
+  // Interactions
+  const ixList = drug.interactions.map(i=>`
+    <div style="padding:7px 10px;background:#fff8f0;border-left:3px solid #e65100;border-radius:4px;margin-bottom:5px;font-size:13px;color:#5a2a00;line-height:1.5">${esc(i)}</div>`).join('');
+
+  // TDM section
+  let tdmHtml = '';
+  if(drug.tdm.required){
+    if(drug.name==='Vancomycin'){
+      tdmHtml = `
+        <div style="margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="vancoMode='auc';renderAbxTab()" style="flex:1;padding:8px;border-radius:8px;border:2px solid ${vancoMode==='auc'?'#6a1b9a':'var(--bdr)'};background:${vancoMode==='auc'?'#f3f0ff':'#fff'};font-weight:700;font-size:12px;cursor:pointer;color:${vancoMode==='auc'?'#6a1b9a':'var(--dim)'}">AUC-GUIDED (Preferred)</button>
+          <button onclick="vancoMode='trough';renderAbxTab()" style="flex:1;padding:8px;border-radius:8px;border:2px solid ${vancoMode==='trough'?'#6a1b9a':'var(--bdr)'};background:${vancoMode==='trough'?'#f3f0ff':'#fff'};font-weight:700;font-size:12px;cursor:pointer;color:${vancoMode==='trough'?'#6a1b9a':'var(--dim)'}">TROUGH-BASED</button>
+        </div>
+        ${vancoMode==='auc'?`
+          <div style="background:#f3f0ff;border-radius:8px;padding:11px;border:1.5px solid #6a1b9a22">
+            <div style="font-weight:700;font-size:12px;color:#6a1b9a;margin-bottom:5px">AUC-GUIDED DOSING (Recommended)</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.7">Target AUC24/MIC: <b>400–600</b> (for MIC ≤1 mg/L)<br>
+            Method: Two-level AUC calculation or Bayesian software<br>
+            Timing: Peak at 1hr post-infusion end + trough pre-dose<br>
+            AUC = (C1 + C2)/2 × dosing interval (simplified trapezoidal)<br>
+            <span style="color:var(--dim);font-size:12px">${esc(drug.tdm.auc||'')}</span></div>
+          </div>`:`
+          <div style="background:#f3f0ff;border-radius:8px;padding:11px;border:1.5px solid #6a1b9a22">
+            <div style="font-weight:700;font-size:12px;color:#6a1b9a;margin-bottom:5px">TROUGH-BASED DOSING</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.7">Standard infections: <b>10–15 mg/L</b><br>
+            Severe/CNS/endocarditis: <b>15–20 mg/L</b><br>
+            Timing: 30 min before 4th or 5th dose (steady state)<br>
+            <span style="color:#c62828;font-size:12px">Note: Trough-only monitoring underestimates toxicity. AUC-guided preferred when feasible.</span></div>
+          </div>`}
+        <div style="margin-top:7px;font-size:12px;color:var(--dim);padding:7px;background:var(--bg3);border-radius:6px">${esc(drug.tdm.notes||'')}</div>`;
+    } else {
+      tdmHtml = `
+        <div style="background:#f3f0ff;border-radius:8px;padding:11px;border:1.5px solid #6a1b9a22">
+          ${drug.tdm.peak?`<div style="font-size:13px;margin-bottom:4px"><b>Peak:</b> ${esc(drug.tdm.peak)}</div>`:''}
+          ${drug.tdm.trough?`<div style="font-size:13px;margin-bottom:4px"><b>Trough:</b> ${esc(drug.tdm.trough)}</div>`:''}
+          ${drug.tdm.target?`<div style="font-size:13px;margin-bottom:4px"><b>Target:</b> ${esc(drug.tdm.target)}</div>`:''}
+          ${drug.tdm.timing?`<div style="font-size:13px;margin-bottom:4px;color:var(--dim)"><b>Timing:</b> ${esc(drug.tdm.timing)}</div>`:''}
+          <div style="font-size:12px;color:var(--dim);margin-top:5px">${esc(drug.tdm.notes||'')}</div>
+        </div>`;
+    }
+  } else {
+    tdmHtml = `<div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;color:var(--dim)">${esc(drug.tdm.notes)}</div>`;
+  }
+
+  el.innerHTML = `
+    <div class="drug-panel" style="--drug-color:${esc(drug.color)}">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:${esc(drug.color)}"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">${esc(drug.name)}</div>
+          <div class="drug-badges">
+            <span class="badge badge-type" style="background:${esc(drug.color)}18;color:${esc(drug.color)}">${esc(drug.class)}</span>
+            ${drug.tdm.required?'<span class="badge" style="background:#f3f0ff;color:#6a1b9a;border:1px solid #6a1b9a40">TDM REQUIRED</span>':''}
+          </div>
+        </div>
+      </div>
+
+      <!-- PK/PD -->
+      <div class="section">
+        <div class="section-title">Pharmacodynamics (PK/PD)</div>
+        <div style="background:#e8f4fd;border-left:4px solid #1565c0;border-radius:8px;padding:10px 13px;font-size:13px;color:#0d3c6e;line-height:1.7">${esc(drug.pkpd)}</div>
+      </div>
+
+      <!-- Spectrum -->
+      <div class="section">
+        <div class="section-title">Spectrum of Activity</div>
+        <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:8px;padding:10px 13px;font-size:13px;color:#1b4d20;line-height:1.7">${esc(drug.spectrum)}</div>
+      </div>
+
+      <!-- Doses -->
+      <div class="section">
+        <div class="section-title">Paediatric Dosing <span style="font-size:10px;color:var(--dim);font-weight:400">(tap a row to calculate)</span></div>
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
+          <table style="width:100%;border-collapse:collapse;min-width:500px">
+            <thead><tr style="background:${esc(drug.color)};color:#fff">
+              <th style="padding:9px 10px;text-align:left;font-size:11px;letter-spacing:.05em">INDICATION</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">DOSE</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">FREQUENCY</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">MAX</th>
+              <th style="padding:9px 10px;text-align:left;font-size:11px">NOTES</th>
+            </tr></thead>
+            <tbody>${doseRows}</tbody>
+          </table>
+        </div>
+        ${calcSection}
+      </div>
+
+      <!-- eGFR Calculator -->
+      <div class="section">
+        <div class="section-title">eGFR Calculator</div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px;letter-spacing:.08em">SCHWARTZ FORMULA — eGFR (mL/min/1.73m²) = k × Height(cm) / Creatinine(mg/dL)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            ${[['Creatinine (µmol/L)',abxCreat,'abxCreat'],['Height (cm)',abxHeight,'abxHeight'],['Age (yr)',abxAge,'abxAge']].map(([lbl,val,key])=>`
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:700;color:var(--dim)">${lbl}</label>
+              <input type="number" value="${esc(val)}" inputmode="decimal" onchange="${key}=this.value;renderAbxTab()"
+                style="width:100px;padding:8px;background:#fff;border:1.5px solid var(--bdr);border-radius:7px;font-size:14px;font-family:var(--mono);outline:none">
+            </div>`).join('')}
+          </div>
+          ${schwartz!==null?`<div style="background:#e8f4fd;border:2px solid #1565c0;border-radius:8px;padding:8px 12px;display:inline-block">
+            <span style="font-size:11px;color:#1565c0;font-weight:700">Schwartz eGFR: </span>
+            <span style="font-size:22px;font-weight:900;color:#1565c0;font-family:var(--mono)">${schwartz}</span>
+            <span style="font-size:12px;color:#1565c0"> mL/min/1.73m²</span>
+          </div>`:''}
+          <div style="margin-top:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px">OR ENTER eGFR DIRECTLY:</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="number" value="${esc(abxEgfr)}" placeholder="eGFR" inputmode="decimal" onchange="abxEgfr=this.value;renderAbxTab()"
+                style="width:110px;padding:8px;background:#fff;border:2px solid ${egfrDisplay?'#1565c0':'var(--bdr)'};border-radius:7px;font-size:16px;font-family:var(--mono);font-weight:700;outline:none">
+              <span style="font-size:12px;color:var(--dim)">mL/min/1.73m²</span>
+              ${egfrDisplay!==null?`<span style="background:#e8f4fd;border:1.5px solid #1565c0;border-radius:6px;padding:4px 10px;font-size:13px;font-weight:700;color:#1565c0">Using: ${egfrDisplay}</span>`:''}
+            </div>
+          </div>
+        </div>
+
+        <!-- Age-based thresholds reference -->
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr);margin-bottom:10px">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr style="background:#1565c0;color:#fff">
+              <th style="padding:7px 10px;text-align:left;font-size:11px">AGE GROUP</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#a5d6a7">NORMAL</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#fff59d">MILD ↓</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#ffcc80">MODERATE ↓</th>
+              <th style="padding:7px 10px;text-align:center;font-size:11px;color:#ef9a9a">SEVERE ↓</th>
+            </tr></thead>
+            <tbody>${AGE_THRESHOLDS.map((t,i)=>`
+              <tr style="background:${i%2===0?'#f8f9ff':'#fff'}">
+                <td style="padding:7px 10px;font-size:12px;font-weight:600">${esc(t.age)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#2e7d32;font-weight:700">${esc(t.normal)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#f57f17">${esc(t.mild)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#e65100">${esc(t.moderate)}</td>
+                <td style="padding:7px 10px;font-size:12px;text-align:center;color:#c62828;font-weight:700">${esc(t.severe)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Renal dose adjustment -->
+        <div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:6px;letter-spacing:.06em">DOSE ADJUSTMENT BY eGFR
+          ${renalBand?`<span style="margin-left:8px;background:#fff3e0;border:1.5px solid #e65100;border-radius:6px;padding:3px 8px;font-size:11px;color:#e65100">⚡ Active band: eGFR ${esc(renalBand.egfr)}</span>`:''}
+        </div>
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr style="background:#e65100;color:#fff">
+              <th style="padding:8px 10px;text-align:left;font-size:11px">eGFR (mL/min/1.73m²)</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">DOSE</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">INTERVAL</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">NOTES</th>
+            </tr></thead>
+            <tbody>${renalRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RRT -->
+      <div class="section">
+        <div class="section-title">🔄 Renal Replacement Therapy (RRT) Dosing</div>
+        <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr style="background:#6a1b9a;color:#fff">
+              <th style="padding:8px 10px;text-align:left;font-size:11px">RRT MODE</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">DOSE</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">FREQUENCY</th>
+              <th style="padding:8px 10px;text-align:left;font-size:11px">NOTES</th>
+            </tr></thead>
+            <tbody>${rrtRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TDM -->
+      <div class="section">
+        <div class="section-title">🧪 Therapeutic Drug Monitoring (TDM)
+          <span style="margin-left:6px;padding:2px 8px;border-radius:10px;font-size:10px;background:${drug.tdm.required?'#f3f0ff':'#f0f8f0'};color:${drug.tdm.required?'#6a1b9a':'#2e7d32'};font-weight:700">${drug.tdm.required?'REQUIRED':'NOT ROUTINELY REQUIRED'}</span>
+        </div>
+        ${tdmHtml}
+      </div>
+
+      <!-- Drug interactions -->
+      <div class="section">
+        <div class="section-title">⚠️ Significant Drug Interactions</div>
+        ${ixList||`<div style="font-size:13px;color:var(--dim);padding:8px">No significant interactions noted.</div>`}
+      </div>
+
+      <!-- Cautions -->
+      <div class="section">
+        <div class="section-title">Clinical Cautions</div>
+        <div class="notes-box${drug.cautions.includes('⚠')?'  warn':''}"><p>${esc(drug.cautions)}</p></div>
+      </div>
+    </div>`;
+}
+
+// ── Build flat index ──────────────────────────────────────────
+const ALL_DRUGS = [];
+Object.entries(DRUGS).forEach(([cat, arr]) => {
+  arr.forEach(d => ALL_DRUGS.push({...d, cat, id: ALL_DRUGS.length}));
+});
+
+// ── State ─────────────────────────────────────────────────────
+let weight = '';
+let activeCategory = 'inotropes';
+let selectedDrugId = 0; // which drug pill is selected
+let searchTerm = '';
+let unitSystem = 'mmol'; // 'mmol' or 'alt' (mEq/mg)
+let doseInput = '';
+
+// ── Helpers ───────────────────────────────────────────────────
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function hex2rgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function getResult(drug,wt,dose){
+  if(!wt||!dose||isNaN(dose))return null;
+  const w=parseFloat(wt),d=parseFloat(dose);
+  if(!w||!d)return null;
+  const val=drug.rateFn(w,d);
+  let unit='mL/hr',lbl='INFUSION RATE';
+  if(drug.isBolus){
+    if(drug.doseUnit.includes('mL/kg')){unit='mL total';lbl='TOTAL VOLUME';}
+    else if(drug.doseUnit.includes('mmol/kg')){unit='mmol total';lbl='TOTAL DOSE';}
+    else if(drug.doseUnit.includes('mg/kg')){unit='mg total';lbl='TOTAL DOSE';}
+  }
+  if(drug.doseUnit==='mcg/kg/day'){unit='mL/hr';lbl='INFUSION RATE';}
+  return{val,unit,lbl};
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// UNIT CONVERSION SYSTEM
+// ══════════════════════════════════════════════════════════════
+
+const UNIT_CONVERSIONS = {
+  // Electrolytes where mmol = mEq (valence 1) — number same, label changes
+  potassium:  { mmol: 'mmol/L', alt: 'mEq/L',  factor: 1,      note: '1 mmol/L = 1 mEq/L' },
+  sodium:     { mmol: 'mmol/L', alt: 'mEq/L',  factor: 1,      note: '1 mmol/L = 1 mEq/L' },
+  // Electrolytes where conversion changes the number
+  calcium:    { mmol: 'mmol/L', alt: 'mg/dL',  factor: 4.008,  note: '1 mmol/L = 4.008 mg/dL; normal 2.2–2.7 mmol/L = 8.8–10.8 mg/dL' },
+  magnesium:  { mmol: 'mmol/L', alt: 'mg/dL',  factor: 2.432,  note: '1 mmol/L = 2.432 mg/dL; normal 0.7–1.0 mmol/L = 1.7–2.4 mg/dL' },
+  phosphate:  { mmol: 'mmol/L', alt: 'mg/dL',  factor: 3.097,  note: '1 mmol/L = 3.097 mg/dL; normal 1.0–2.0 mmol/L = 3.1–6.2 mg/dL' },
+  glucose:    { mmol: 'mmol/L', alt: 'mg/dL',  factor: 18.018, note: '1 mmol/L = 18 mg/dL' },
+};
+
+// Convert a value string like "3.5" or "2.5–3.0" from mmol to alt unit
+function convertUnits(valueStr, electrolyte) {
+  if(unitSystem === 'mmol') return { value: valueStr, unit: UNIT_CONVERSIONS[electrolyte].mmol };
+  const factor = UNIT_CONVERSIONS[electrolyte].factor;
+  const unit = UNIT_CONVERSIONS[electrolyte].alt;
+  // Handle ranges like "2.5–3.0"
+  if(valueStr.includes('–')) {
+    const parts = valueStr.split('–');
+    const converted = parts.map(p => {
+      const n = parseFloat(p);
+      return isNaN(n) ? p : (n * factor).toFixed(factor === 1 ? 1 : 1);
+    });
+    return { value: converted.join('–'), unit };
+  }
+  const n = parseFloat(valueStr);
+  if(isNaN(n)) return { value: valueStr, unit };
+  return { value: (n * factor).toFixed(factor === 1 ? 1 : 1), unit };
+}
+
+// Unit toggle bar — shown in electrolytes, calcium, hypoglycemia tabs
+function renderUnitToggle() {
+  const isAlt = unitSystem === 'alt';
+  return `
+    <div style="background:#fff;border-bottom:1px solid var(--bdr);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em">DISPLAY UNITS:</span>
+      <div style="display:flex;background:var(--bg3);border-radius:20px;padding:3px;gap:2px">
+        <button onclick="unitSystem='mmol';renderAll()"
+          style="padding:5px 14px;border-radius:16px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;
+          background:${!isAlt?'#1565c0':'transparent'};color:${!isAlt?'#fff':'var(--dim)'}">
+          mmol/L
+        </button>
+        <button onclick="unitSystem='alt';renderAll()"
+          style="padding:5px 14px;border-radius:16px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;
+          background:${isAlt?'#1565c0':'transparent'};color:${isAlt?'#fff':'var(--dim)'}">
+          mEq/L · mg/dL
+        </button>
+      </div>
+      ${isAlt ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${Object.entries(UNIT_CONVERSIONS).map(([k,v])=>`
+          <span style="background:#e8f4fd;border-radius:8px;padding:3px 8px;font-size:10px;color:#1565c0">
+            <b>${k.charAt(0).toUpperCase()+k.slice(1)}:</b> 1 ${v.mmol} = ${v.factor === 1 ? '1' : v.factor} ${v.alt}
+          </span>`).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+// ── Drug panel HTML ───────────────────────────────────────────
+function renderDrugPanel(drug){
+  const wt = parseFloat(weight)||0;
+  const col = drug.color;
+  const res = wt && doseInput ? getResult(drug,wt,doseInput) : null;
+
+  // Ranges
+  const rangeRows = drug.ranges.map(r=>`
+    <div class="range-row">
+      <div class="rd" style="color:${esc(col)}">${esc(r.dose)}</div>
+      <div class="rl">${esc(r.lbl)}</div>
+      <div class="re">${esc(r.eff)}</div>
+    </div>`).join('');
+
+  // Dose ladder
+  const ladderPills = (drug.commonDoses||[]).map(d=>{
+    const r = wt ? drug.rateFn(wt,d) : null;
+    const unitL = drug.isBolus?(drug.doseUnit.includes('mL/kg')?'mL':drug.doseUnit.includes('mmol')?'mmol':'mg'):'mL/hr';
+    return `<div class="l-pill" onclick="fillDose(${drug.id},${d})" style="border-color:${esc(col)}22">
+      <span class="l-dose" style="color:${esc(col)}">${d}</span>
+      ${wt&&r!==null?`<span class="l-arrow">→</span><span class="l-rate" style="color:${esc(col)}">${r} ${unitL}</span>`:''}
+    </div>`;
+  }).join('');
+
+  // Result display
+  const resultHtml = res ? `
+    <div class="result-box show" style="border-color:${esc(col)}">
+      <div>
+        <div class="result-label">${esc(res.lbl)}</div>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span class="result-val" style="color:${esc(col)}">${esc(String(res.val))}</span>
+          <span class="result-unit">${esc(res.unit)}</span>
+        </div>
+      </div>
+    </div>` : `<div class="result-box" id="res-box-${drug.id}"></div>`;
+
+  return `
+    <div class="drug-panel" style="--drug-color:${esc(col)}">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:${esc(col)}"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">${esc(drug.name)}</div>
+          <div class="drug-badges">
+            ${drug.warn?'<span class="badge badge-warn">⚠ HIGH ALERT</span>':''}
+            <span class="badge badge-type">${drug.isBolus?'BOLUS / LOADING':'CONTINUOUS INFUSION'}</span>
+            <span class="badge badge-rule">${esc(drug.rule)}</span>
+            ${REFERENCES.drugLinks[drug.name]?`<a href="${REFERENCES.drugLinks[drug.name]}" target="_blank" rel="noopener noreferrer" style="background:#e8f4fd;color:#1565c0;border:1.5px solid #1565c040;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:700;text-decoration:none">🔗 Verify (Medscape)</a>`:''}
+          </div>
+        </div>
+      </div>
+
+      ${wt?`<div class="section">
+        <div class="section-title">Preparation for ${wt} kg patient</div>
+        <div class="prep-box" style="border-left-color:${esc(col)}">${esc(drug.prepFn(wt))}</div>
+      </div>`:`<div class="section">
+        <div class="section-title">Standard Preparation</div>
+        <div class="prep-box" style="border-left-color:${esc(col)}">${esc(drug.prep)}</div>
+      </div>`}
+
+      <div class="section">
+        <div class="section-title">Dose Ranges</div>
+        <div class="range-table">${rangeRows}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Calculator${wt?' | '+wt+' kg':' | enter weight above'}</div>
+        <div class="calc-card">
+          <div class="calc-inputs">
+            <div class="calc-field">
+              <label>ENTER DOSE</label>
+              <input type="number" inputmode="decimal" placeholder="${esc(drug.doseUnit)}"
+                value="${esc(doseInput)}" data-drugid="${drug.id}"
+                oninput="handleDoseInput(event)"
+                style="border-color:${doseInput?esc(col):'var(--bdr)'}">
+            </div>
+            <div class="calc-unit-lbl">${esc(drug.doseUnit)}</div>
+          </div>
+          ${resultHtml}
+          ${(drug.commonDoses&&drug.commonDoses.length)?`
+          <div style="margin-top:10px">
+            <div class="section-title" style="margin-bottom:6px">${wt?'QUICK DOSES @ '+wt+' KG':'COMMON DOSES (tap to fill)'}</div>
+            <div class="ladder-pills">${ladderPills}</div>
+          </div>`:''}
+        </div>
+      </div>
+
+      ${drug.bolus?`<div class="section">
+        <div class="section-title">Bolus / Loading Guidance</div>
+        <div class="bolus-box"><p>${esc(drug.bolus)}</p></div>
+      </div>`:''}
+
+      <div class="section">
+        <div class="section-title">Clinical Notes</div>
+        <div class="notes-box${drug.warn?' warn':''}"><p>${esc(drug.notes)}</p></div>
+      </div>
+    </div>`;
+}
+
+// ── Search results ────────────────────────────────────────────
+function renderSearchResults(){
+  const term = searchTerm.toLowerCase();
+  const results = ALL_DRUGS.filter(d=>d.name.toLowerCase().includes(term));
+  if(!results.length) return `<div class="empty"><div class="e-icon">🔍</div><p>No drugs found for "${esc(searchTerm)}"</p></div>`;
+  return results.map(d=>{
+    const catLabel = CATEGORIES.find(c=>c.id===d.cat)?.label||'';
+    return `<div style="margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.1em;margin-bottom:4px;padding-left:4px">${esc(catLabel.toUpperCase())}</div>
+      ${renderDrugPanel(d)}
+    </div>`;
+  }).join('');
+}
+
+// ── Render functions ──────────────────────────────────────────
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = CATEGORIES.map(c=>`
+    <button class="tab${activeCategory===c.id?' active':''}" onclick="setCategory('${c.id}')">
+      <span class="t-icon">${c.icon}</span>
+      <span>${c.label.toUpperCase()}</span>
+    </button>`).join('');
+}
+
+function renderUnitToggleBar(){
+  const showToggle = ['electrolytes','calcium','hypoglycemia'].includes(activeCategory) && !searchTerm;
+  const bar = document.getElementById('unit-toggle-bar');
+  if(bar) {
+    bar.style.display = showToggle ? 'block' : 'none';
+    if(showToggle) bar.innerHTML = renderUnitToggle();
+  }
+}
+
+function renderPillBar(){
+  if(activeCategory==='intubation'){
+    document.getElementById('pill-bar').innerHTML =
+      `<button class="drug-pill active" style="background:#c1121f;border-color:#c1121f;color:#fff">🫁 Intubation Drug Calculator</button>`;
+    return;
+  }
+  if(activeCategory==='references'){
+    document.getElementById('pill-bar').innerHTML =
+      `<button class="drug-pill active" style="background:#1565c0;border-color:#1565c0;color:#fff">📚 References & Verification</button>`;
+    return;
+  }
+  if(activeCategory==='antibiotics'){
+    document.getElementById('pill-bar').innerHTML = ANTIBIOTICS.map((d,i)=>`
+      <button class="drug-pill${selectedAbx===i?' active':''}"
+        style="${selectedAbx===i?`background:${esc(d.color)};border-color:${esc(d.color)};color:#fff`:'color:var(--text2)'}"
+        onclick="selectAbx(${i})">${esc(d.name)}</button>`).join('');
+    return;
+  }
+  const drugs = ALL_DRUGS.filter(d=>d.cat===activeCategory);
+  document.getElementById('pill-bar').innerHTML = drugs.map(d=>`
+    <button class="drug-pill${selectedDrugId===d.id?' active':''}"
+      style="${selectedDrugId===d.id?`background:${esc(d.color)};border-color:${esc(d.color)};color:#fff`:'color:var(--text2)'}"
+      onclick="selectDrug(${d.id})">${esc(d.name)}</button>`).join('');
+}
+
+function renderDrugDisplay(){
+  const el = document.getElementById('drug-display');
+  if(activeCategory==='intubation'){
+    renderIntubationTab();
+    return;
+  }
+  if(activeCategory==='references'){
+    renderReferencesTab();
+    return;
+  }
+  if(activeCategory==='antibiotics'){
+    renderAbxTab();
+    return;
+  }
+  if(searchTerm.length>1){
+    el.innerHTML = renderSearchResults();
+    return;
+  }
+  const drug = ALL_DRUGS[selectedDrugId];
+  if(!drug||drug.cat!==activeCategory){
+    const first = ALL_DRUGS.find(d=>d.cat===activeCategory);
+    if(first){selectedDrugId=first.id;}
+  }
+  const d = ALL_DRUGS[selectedDrugId];
+  el.innerHTML = d ? renderDrugPanel(d) : '';
+}
+
+function renderGIR(){
+  const show = activeCategory==='hypoglycemia'&&!searchTerm;
+  document.getElementById('gir-section').style.display = show?'block':'none';
+}
+
+function renderWeightBanner(){
+  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references')?'none':'flex';
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// INTUBATION CALCULATOR — KMCT PICU Modified RSI Protocol
+// ══════════════════════════════════════════════════════════════
+
+let intuWeight = '';
+let intuAge = '';   // in years (decimals ok)
+let intuRaisedICP = false;
+let intuThio = false;
+
+function ettSize(ageYr) {
+  // Always cuffed: (Age/4) + 3.5
+  const age = parseFloat(ageYr);
+  if(isNaN(age)) return null;
+  if(age < 0.083) return {size:3.0, uncuffed:3.5}; // <1 month
+  if(age < 1) return {size:3.5, formula:'Neonatal/infant'};
+  const cuffed = ((age/4) + 3.5).toFixed(1);
+  return {size:parseFloat(cuffed), plus:parseFloat((parseFloat(cuffed)+0.5).toFixed(1)), minus:parseFloat((parseFloat(cuffed)-0.5).toFixed(1))};
+}
+
+function ettDepth(ageYr, wt) {
+  // Oral: (Age/2) + 12 for children >2yr; weight × 1 + 6 for neonates/infants
+  const age = parseFloat(ageYr);
+  const w = parseFloat(wt);
+  if(isNaN(age)) return null;
+  if(age < 1) return {depth: (w + 6).toFixed(0), formula:'Weight(kg) + 6 cm (lip)'};
+  if(age < 2) return {depth: (10).toFixed(0), formula:'~10 cm (lip)'};
+  return {depth: ((age/2) + 12).toFixed(0), formula:'Age/2 + 12 cm (lip)'};
+}
+
+function bladeSize(ageYr) {
+  const age = parseFloat(ageYr);
+  if(isNaN(age)) return null;
+  if(age < 0.083) return {size:0, type:'Miller (straight)', notes:'Premature/newborn'};
+  if(age < 1)     return {size:1, type:'Miller (straight)', notes:'Infant <1 yr — straight blade preferred'};
+  if(age < 2)     return {size:1, type:'Miller or Macintosh 1', notes:'Small infant/toddler'};
+  if(age < 6)     return {size:2, type:'Macintosh 2', notes:'Toddler to preschool'};
+  if(age < 12)    return {size:2, type:'Macintosh 2–3', notes:'School age'};
+  return           {size:3, type:'Macintosh 3', notes:'Adolescent'};
+}
+
+function renderIntubationTab() {
+  const el = document.getElementById('drug-display');
+  const wt = parseFloat(intuWeight);
+  const age = parseFloat(intuAge);
+  const hasWt = !isNaN(wt) && wt > 0;
+  const hasAge = !isNaN(age) && age >= 0;
+
+  // Drug calculations
+  const drugs = [
+    // PREOXYGENATION PHASE
+    {phase:'⚠️ PHYSIOLOGICALLY DIFFICULT AIRWAY (PDA) — ASSESS FIRST', phaseColor:'#b71c1c', phaseNote:'Every PICU intubation is a potential PDA. Anatomical ease does NOT predict physiological safety. A child can have a Grade I airway and still arrest on induction. Identify the PDA type before giving any drug.', isDivider:true},
+
+    // PDA assessment block rendered as a special section
+    {isPDA:true},
+
+    {phase:'STEP 1 — PREOXYGENATION & OPTIMISATION', phaseColor:'#1565c0', phaseNote:'Preoxygenate with 100% O₂ for 3–5 min via BVM/HFNC/NIV (NIV preferred in hypoxaemia — better SpO2 at induction). Position: sniffing position (roll under shoulders for infants). Do NOT rush this step.', isDivider:true},
+
+    // PRE-MEDICATION
+    {phase:'STEP 2 — PRE-MEDICATION', phaseColor:'#2e7d32', phaseNote:'Give 2–3 minutes before induction agents', isDivider:true},
+    {
+      name:'Fentanyl', color:'#2a9d8f', routine:true,
+      indication:'Pre-medication (all patients)',
+      dose:2, unit:'mcg/kg', route:'IV slow over 2 min',
+      calc: hasWt ? (2*wt).toFixed(0) : null,
+      calcUnit:'mcg',
+      volume: hasWt ? `${((2*wt)/50).toFixed(2)} mL of 50mcg/mL` : null,
+      note:'Attenuates intubation response. Give over 2 min to avoid chest wall rigidity.',
+      warn:false,
+    },
+    {
+      name:'Lignocaine (Lidocaine)', color:'#1565c0', routine:false,
+      indication:'Raised ICP / head injury / status asthmaticus ONLY',
+      dose:1.5, unit:'mg/kg', route:'IV over 2 min',
+      calc: hasWt ? (1.5*wt).toFixed(1) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(1.5*wt/10).toFixed(2)} mL of 10mg/mL (1%)` : null,
+      note:'Blunts ICP rise with laryngoscopy. Give 3 min before induction for raised ICP cases.',
+      warn:false, optional:true, optionalLabel:'Raised ICP only',
+    },
+
+    // INDUCTION
+    {phase:'STEP 3 — INDUCTION AGENTS', phaseColor:'#e65100', phaseNote:'Give simultaneously — wait 60–90 sec for full effect before laryngoscopy. Dose-reduce in haemodynamic compromise.', isDivider:true},
+    {
+      name:'Midazolam', color:'#2a9d8f', routine:true,
+      indication:'Induction (routine)',
+      dose:0.1, unit:'mg/kg', route:'IV',
+      calc: hasWt ? (0.1*wt).toFixed(2) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(0.1*wt/5).toFixed(2)} mL of 5mg/mL` : null,
+      note:'Lower dose — haemodynamically stable induction. Reduce further to 0.05 mg/kg if shocked.',
+      warn:false,
+      altDose: hasWt ? `Shocked/unstable: ${(0.05*wt).toFixed(2)} mg (0.05 mg/kg)` : '0.05 mg/kg if shocked',
+    },
+    {
+      name:'Ketamine', color:'#2a9d8f', routine:true,
+      indication:'Induction (routine)',
+      dose:1, unit:'mg/kg', route:'IV',
+      calc: hasWt ? (1*wt).toFixed(1) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(1*wt/50).toFixed(2)} mL of 50mg/mL` : null,
+      note:'Haemodynamically stable. Bronchodilator. Safe in most raised ICP — AVOID ONLY in obstructive hydrocephalus. Use thiopentone instead for obstructive hydrocephalus only.',
+      warn:false,
+      altDose: hasWt ? `Shocked/unstable: ${(0.5*wt).toFixed(1)} mg (0.5 mg/kg)` : '0.5 mg/kg if shocked',
+    },
+    {
+      name:'Thiopentone', color:'#6d6875', routine:false,
+      indication:'Selective use: raised ICP / status epilepticus / head injury',
+      dose:4, unit:'mg/kg', route:'IV slow',
+      calc: hasWt ? `${(3*wt).toFixed(0)}–${(5*wt).toFixed(0)}` : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(3*wt/25).toFixed(1)}–${(5*wt/25).toFixed(1)} mL of 25mg/mL (2.5%)` : null,
+      note:'USE INSTEAD OF ketamine ONLY for obstructive hydrocephalus. Causes hypotension — ensure normovolaemia first. Do NOT use if haemodynamically unstable. Ketamine is acceptable for most other raised ICP scenarios.',
+      warn:true, optional:true, optionalLabel:'Selective — replaces Ketamine',
+    },
+
+    // MUSCLE RELAXANT
+    {phase:'STEP 4 — MUSCLE RELAXANT', phaseColor:'#c62828', phaseNote:'Give immediately after induction agents. Wait for full relaxation (60–90 sec for rocuronium) before laryngoscopy.', isDivider:true},
+    {
+      name:'Rocuronium', color:'#c62828', routine:true,
+      indication:'Neuromuscular blockade (first line)',
+      dose:1.2, unit:'mg/kg', route:'IV rapid bolus',
+      calc: hasWt ? (1.2*wt).toFixed(1) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(1.2*wt/10).toFixed(2)} mL of 10mg/mL` : null,
+      note:'Full paralysis in 60–90 sec. Duration 30–45 min. Reversed by Sugammadex 16 mg/kg (immediate reversal).',
+      warn:false,
+      altDose: hasWt ? `Sugammadex reversal: ${(16*wt).toFixed(0)} mg (16 mg/kg)` : 'Sugammadex 16 mg/kg for reversal',
+    },
+
+    // RESCUE
+    {phase:'STEP 5 — RESCUE DRUGS (draw up, keep at bedside)', phaseColor:'#b71c1c', phaseNote:'Drawn up and labelled BEFORE induction starts. Give only if needed.', isDivider:true},
+    {
+      name:'Atropine', color:'#b71c1c', routine:false,
+      indication:'Bradycardia during/after intubation (rescue only)',
+      dose:0.02, unit:'mg/kg', route:'IV rapid',
+      calc: hasWt ? Math.max(0.1, Math.min(0.02*wt, 0.5)).toFixed(2) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(Math.max(0.1, Math.min(0.02*wt, 0.5))/0.6*2).toFixed(2)} mL of 0.6mg/mL` : null,
+      note:'Min 0.1 mg, Max 0.5 mg. Draw up and have ready — give only if HR drops during laryngoscopy.',
+      warn:false, optional:true, optionalLabel:'Rescue — bradycardia only',
+    },
+    {
+      name:'Adrenaline', color:'#b71c1c', routine:false,
+      indication:'Cardiac arrest / severe haemodynamic collapse',
+      dose:0.01, unit:'mg/kg', route:'IV/IO',
+      calc: hasWt ? (0.01*wt).toFixed(3) : null,
+      calcUnit:'mg',
+      volume: hasWt ? `${(0.01*wt/0.1).toFixed(2)} mL of 1:10,000 (0.1mg/mL)` : null,
+      note:'Have drawn up for all intubations. 0.01 mg/kg IV/IO.',
+      warn:true, optional:true, optionalLabel:'Cardiac arrest only',
+    },
+  ];
+
+  // ETT, depth, blade
+  const ett = hasAge ? ettSize(age) : null;
+  const depth = (hasAge && hasWt) ? ettDepth(age, wt) : (hasAge ? ettDepth(age, wt) : null);
+  const blade = hasAge ? bladeSize(age) : null;
+
+  // PDA card HTML
+  const pdaCard = `
+    <div style="background:#fff;border-radius:14px;border:2px solid #b71c1c;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 10px rgba(183,28,28,0.12)">
+      <div style="background:#b71c1c;padding:10px 14px">
+        <div style="font-size:13px;font-weight:900;color:#fff;letter-spacing:.04em">🔍 IDENTIFY YOUR PDA TYPE</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:2px">Assess ALL domains before giving any drug. Multiple PDA types often coexist.</div>
+      </div>
+      <div style="padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${[
+          {type:'HYPOXAEMIA',color:'#1565c0',icon:'🫁',
+           signs:'SpO₂ <94% on high-flow O₂, Type 1 or 2 respiratory failure, ARDS, pneumonia',
+           optimise:'NIV pre-oxygenation preferred. Apnoeic oxygenation during laryngoscopy. Gentle BVM post-induction (pressure <15 cmH₂O). Maximise first-pass success.'},
+          {type:'HAEMODYNAMIC INSTABILITY',color:'#c62828',icon:'❤️',
+           signs:'MAP <55 mmHg, SBP <70+(2×age) mmHg, on vasopressors, signs of shock',
+           optimise:'Fluid responsiveness assessment (SLR, IVC). Vasopressor running before induction. Dose-reduce induction agents (midaz 0.05, keta 0.5 mg/kg). Have norad ready to ↑.'},
+          {type:'RAISED ICP',color:'#6a1b9a',icon:'🧠',
+           signs:'Cushing triad, papilloedema, reduced GCS, post-TBI, meningitis, non-obstructive hydrocephalus',
+           optimise:'Fentanyl 3–5 mcg/kg pre-med. Lignocaine 1.5 mg/kg. Head-up 30°. Avoid hypoxia and hypercapnia. Ketamine safe EXCEPT obstructive hydrocephalus → use thiopentone.'},
+          {type:'RIGHT HEART FAILURE',color:'#e65100',icon:'🫀',
+           signs:'Known PH, post-cardiac surgery, dilated RV on echo, hepatomegaly, raised JVP',
+           optimise:'Avoid ↑ PVR: prevent hypoxia, hypercapnia, acidosis. Low PEEP ventilation. Avoid aggressive fluid. Consider inhaled NO if severe PH. Ketamine preserves RV.'},
+          {type:'SEVERE BRONCHOSPASM / OBSTRUCTIVE',color:'#2d6a4f',icon:'🌬️',
+           signs:'Status asthmaticus, severe wheeze, silent chest, dynamic hyperinflation on ventilator',
+           optimise:'Ketamine preferred (bronchodilator). Maximise pre-treatment (salbutamol, MgSO₄). Allow full expiration post-intubation. Low RR, high I:E ratio (1:3–1:4). Have BVM ready.'},
+          {type:'METABOLIC / SEPSIS',color:'#795548',icon:'⚗️',
+           signs:'Severe acidosis pH <7.1, septic shock, compensatory tachypnoea, DKA',
+           optimise:'Do NOT apnoeate a patient compensating metabolic acidosis — match pre-intubation RR post-intubation. Avoid ↓ minute volume. Correct pH before if possible.'},
+        ].map(p=>`
+          <div style="background:${p.color}08;border:1.5px solid ${p.color}40;border-radius:10px;padding:10px">
+            <div style="font-size:12px;font-weight:800;color:${p.color};margin-bottom:4px">${p.icon} ${p.type}</div>
+            <div style="font-size:11px;color:#5a2020;margin-bottom:5px;line-height:1.4"><b>Signs:</b> ${p.signs}</div>
+            <div style="font-size:11px;color:var(--dim);line-height:1.4"><b>Optimise:</b> ${p.optimise}</div>
+          </div>`).join('')}
+      </div>
+      <div style="padding:8px 14px 12px">
+        <div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:8px;padding:9px 12px;font-size:12px;color:#5a3e00;line-height:1.6">
+          <b>Key principle (Karamchandani et al. SOCCA Delphi 2024):</b> Peri-intubation adverse events occur in ~20–45% of critically ill patients — irrespective of first-pass success. The PDA concept recognises that physiological optimisation before induction is as important as anatomical airway preparation.
+          <br><a href="https://www.anaesthesiacollective.com/the-physiologically-difficult-airway-considerations-beyond-anatomy/" target="_blank" style="color:#1565c0;font-size:11px;display:inline-block;margin-top:4px">📖 Read more: The Anaesthesia Collective — PDA</a>
+        </div>
+      </div>
+    </div>`;
+
+  // Render drug cards
+  const drugCards = drugs.map(d => {
+    if(d.isPDA) return pdaCard;
+    if(d.isDivider) return `
+      <div style="background:linear-gradient(135deg,${esc(d.phaseColor)},${esc(d.phaseColor)}dd);border-radius:12px;padding:11px 14px;margin:14px 0 8px;display:flex;align-items:flex-start;gap:10px">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:#fff;letter-spacing:.05em">${esc(d.phase)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:3px;line-height:1.5">${esc(d.phaseNote)}</div>
+        </div>
+      </div>`;
+
+    return `
+      <div style="background:#fff;border-radius:12px;border:1.5px solid ${d.optional?'#e0e0e0':esc(d.color)+'55'};margin-bottom:8px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06)">
+        <div style="display:flex;align-items:stretch">
+          <div style="width:5px;background:${esc(d.color)};flex-shrink:0;border-radius:0"></div>
+          <div style="flex:1;padding:12px 14px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+              <div>
+                <div style="font-size:15px;font-weight:800;color:${esc(d.color)}">${esc(d.name)}</div>
+                <div style="font-size:11px;color:var(--dim);margin-top:2px">${esc(d.indication)}</div>
+                ${d.optional?`<span style="background:${esc(d.color)}18;color:${esc(d.color)};border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;display:inline-block;margin-top:4px">${esc(d.optionalLabel)}</span>`:''}
+              </div>
+              ${d.calc !== null ? `
+              <div style="background:${esc(d.color)}12;border:2px solid ${esc(d.color)}55;border-radius:10px;padding:8px 14px;text-align:center;min-width:100px">
+                <div style="font-size:10px;font-weight:700;color:${esc(d.color)};letter-spacing:.08em">DOSE</div>
+                <div style="font-size:26px;font-weight:900;color:${esc(d.color)};font-family:var(--mono);line-height:1.1">${esc(String(d.calc))}</div>
+                <div style="font-size:12px;color:${esc(d.color)};font-weight:600">${esc(d.calcUnit)}</div>
+              </div>` : hasWt ? '' : `
+              <div style="background:var(--bg3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--dim)">Enter weight ↑</div>`}
+            </div>
+            ${d.calc !== null && d.volume ? `
+            <div style="margin-top:8px;background:var(--bg3);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text2);font-family:var(--mono)">
+              📏 ${esc(d.volume)} &nbsp;·&nbsp; ${esc(d.unit)} &nbsp;·&nbsp; ${esc(d.route)}
+            </div>` : ''}
+            ${d.altDose ? `
+            <div style="margin-top:6px;background:#fff8e1;border-radius:6px;padding:6px 10px;font-size:12px;color:#e65100;border-left:3px solid #e65100">
+              ⚡ ${esc(d.altDose)}
+            </div>` : ''}
+            <div style="margin-top:7px;font-size:12px;color:var(--dim);line-height:1.6">${esc(d.note)}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <!-- Title card -->
+    <div class="drug-panel" style="--drug-color:#c1121f">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:#c1121f"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">🫁 Intubation Calculator</div>
+          <div class="drug-badges">
+            <span class="badge badge-type" style="background:#fff0f0;color:#c1121f">Modified RSI — KMCT PICU Protocol</span>
+            <span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">Dr. Ananya · AI-assisted</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weight + Age inputs -->
+      <div class="section">
+        <div class="section-title">Patient Details</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          ${[['Weight (kg)', intuWeight, 'intuWeight', '0.5', '100', '0.1'],
+             ['Age (years)', intuAge, 'intuAge', '0', '18', '0.1']].map(([lbl,val,key,min,max,step])=>`
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.08em">${lbl}</label>
+            <input type="number" value="${esc(val)}" min="${min}" max="${max}" step="${step}" inputmode="decimal"
+              onchange="${key}=this.value;renderIntubationTab()"
+              style="width:110px;padding:10px;background:var(--bg3);border:2px solid ${val?'#c1121f':'var(--bdr)'};border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:${val?'#c1121f':'var(--text)'}">
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- ETT / Blade panel -->
+      ${(ett||blade) ? `
+      <div class="section">
+        <div class="section-title">Airway Equipment</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          ${ett ? `
+          <div style="background:linear-gradient(135deg,#1565c0,#1976d2);border-radius:11px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:.1em">ETT SIZE</div>
+            <div style="font-size:30px;font-weight:900;color:#fff;font-family:var(--mono);line-height:1.1">${esc(String(ett.size))}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">mm (cuffed)</div>
+            ${ett.plus ? `<div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px">Have ${esc(String(ett.minus))} & ${esc(String(ett.plus))} ready</div>` : ''}
+          </div>` : ''}
+          ${depth ? `
+          <div style="background:linear-gradient(135deg,#2e7d32,#388e3c);border-radius:11px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:.1em">ETT DEPTH</div>
+            <div style="font-size:30px;font-weight:900;color:#fff;font-family:var(--mono);line-height:1.1">${esc(String(depth.depth))}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">cm at lip</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px">${esc(depth.formula)}</div>
+          </div>` : ''}
+          ${blade ? `
+          <div style="background:linear-gradient(135deg,#6a1b9a,#7b1fa2);border-radius:11px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);letter-spacing:.1em">BLADE</div>
+            <div style="font-size:30px;font-weight:900;color:#fff;font-family:var(--mono);line-height:1.1">${esc(String(blade.size))}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8)">${esc(blade.type)}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px">${esc(blade.notes)}</div>
+          </div>` : ''}
+        </div>
+        ${(!ett && !blade) ? `<div style="font-size:13px;color:var(--dim);padding:8px">Enter age above for equipment sizes</div>` : ''}
+      </div>` : ''}
+
+      <!-- Drug sequence -->
+      <div class="section">
+        <div class="section-title">Drug Sequence${hasWt ? ` | ${intuWeight} kg` : ' | Enter weight above'}</div>
+        <div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:9px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#5a3e00;line-height:1.6">
+          ⚠️ <b>Modified RSI — KMCT PICU:</b> Preoxygenate fully first. Optimise haemodynamics before giving drugs. Have BVM, suction, and difficult airway trolley at bedside. Two IV lines checked and patent.
+        </div>
+        ${drugCards}
+      </div>
+
+      <!-- Post-intubation -->
+      <div class="section">
+        <div class="section-title">✅ Post-Intubation Checklist</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${[
+            ['Confirm ETT position','Bilateral air entry + EtCO2 waveform'],
+            ['CXR','ETT tip at T2–T3 (above carina)'],
+            ['Secure ETT','Tape/tie firmly at calculated depth (cm at lip)'],
+            ['SpO2 target','92–96% (adjust FiO2)'],
+            ['Start sedation infusion','Midazolam + Morphine/Fentanyl'],
+            ['Gastric tube','Insert OGT/NGT post-intubation'],
+            ['IV fluid','Ensure maintenance running'],
+            ['Document','Time, tube size, depth, who intubated'],
+          ].map(([t,d])=>`
+          <div style="background:var(--bg3);border-radius:8px;padding:9px 11px;border-left:3px solid #2e7d32">
+            <div style="font-size:12px;font-weight:700;color:var(--text2)">${esc(t)}</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:2px">${esc(d)}</div>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:10px;background:#e8f5e9;border-radius:9px;padding:11px 13px;border-left:4px solid #2e7d32">
+          <div style="font-size:12px;font-weight:700;color:#1b4d20;margin-bottom:6px">POST-INTUBATION SEDATION — Suggested starting infusions:</div>
+          <div style="font-size:13px;color:#2e7d32;line-height:1.8">
+            ${hasWt ? `
+            • Midazolam: ${(0.5*wt/10).toFixed(2)} mL/hr → <b>${(30*wt/1000*50/0.5).toFixed(2)} mL/hr</b> start at 30 mcg/kg/hr (0.5mg/kg in 50mL)<br>
+            • Morphine: start at 20 mcg/kg/hr → <b>${(20/10).toFixed(1)} mL/hr</b> (0.5mg/kg in 50mL)<br>
+            • Fentanyl: start at 1 mcg/kg/hr → <b>${(1*2).toFixed(1)} mL/hr</b> (25mcg/kg in 50mL)
+            ` : '• Enter weight above for post-intubation infusion rates'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+
+
+// ══════════════════════════════════════════════════════════════
+// REFERENCES & VERIFICATION DATA
+// ══════════════════════════════════════════════════════════════
+
+const REFERENCES = {
+  // General references used across all sections
+  general: [
+    {
+      title: "BNF for Children (BNFc)",
+      publisher: "NICE / BMJ / RCPCH, UK",
+      url: "https://bnfc.nice.org.uk",
+      description: "Primary reference for paediatric drug doses. ⚠ NHS login required — available in UK only. Not accessible in India without subscription. Use Medscape (free) for dose verification.",
+      free: false,
+      usedFor: ["All drug doses", "Renal dose adjustments", "Drug interactions", "Maximum doses"],
+    },
+    {
+      title: "Harriet Lane Handbook, 22nd Edition",
+      publisher: "Johns Hopkins Hospital, Elsevier",
+      url: "https://www.us.elsevierhealth.com/the-harriet-lane-handbook-9780323674072.html",
+      description: "Standard paediatric reference for drug dosing, emergency protocols, and clinical guidelines.",
+      free: false,
+      usedFor: ["Emergency drug doses", "Intubation drugs", "Electrolyte corrections"],
+    },
+    {
+      title: "Pediatric Advanced Life Support (PALS) Guidelines",
+      publisher: "AHA / AAP, 2025 — Published October 2025 (supersedes 2020)",
+      url: "https://www.ahajournals.org/doi/10.1161/CIR.0000000000001368",
+      description: "AHA 2020 PALS guidelines for paediatric resuscitation, cardiac arrest, and emergency drug doses.",
+      free: true,
+      usedFor: ["Resuscitation drugs", "Intubation", "Adrenaline doses", "Cardiac arrest protocols"],
+    },
+    {
+      title: "IAP-PALS Manual, 3rd Edition",
+      publisher: "Indian Academy of Pediatrics (IAP), 2022",
+      url: "https://www.iapindia.org",
+      description: "Indian paediatric advanced life support manual — adapted for Indian clinical context.",
+      free: false,
+      usedFor: ["Emergency drug doses", "Resuscitation protocols", "Indian context dosing"],
+    },
+    {
+      title: "Pediatric Critical Care Society of India (PCCSI) Guidelines 2023",
+      publisher: "PCCSI, India",
+      url: "https://www.pccsi.org",
+      description: "Consensus guidelines for paediatric intensive care in India.",
+      free: true,
+      usedFor: ["PICU protocols", "Sepsis management", "Vasoactive drug dosing"],
+    },
+    {
+      title: "Surviving Sepsis Campaign — Paediatric Guidelines 2026",
+      publisher: "Weiss S et al. Pediatr Crit Care Med. 2026 Mar 23. doi:10.1097/PCC.0000000000003927 (supersedes 2020)",
+      url: "https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-pediatric-guidelines",
+      description: "Surviving Sepsis Campaign Paediatric Guidelines 2026 — updated to incorporate Phoenix Sepsis Criteria. 20 new recommendations vs 2020 guidelines. For management of septic shock and sepsis-associated organ dysfunction in children.",
+      free: true,
+      usedFor: ["Sepsis management", "Vasoactive selection", "Fluid resuscitation"],
+    },
+    {
+      title: "SCCM PANDEM Guidelines 2022 (Current — no update as of 2026)",
+      publisher: "Smith HA et al. Pediatr Crit Care Med. 2022;23(2):e74–e110",
+      url: "https://doi.org/10.1097/PCC.0000000000002873",
+      description: "Pain, Agitation, Neuromuscular Blockade, and Delirium in paediatric critical care — comprehensive sedoanalgesia guidelines.",
+      free: true,
+      usedFor: ["Sedation doses", "Midazolam", "Fentanyl", "Dexmedetomidine", "Propofol", "Ketamine", "Morphine"],
+    },
+    {
+      title: "Phoenix Sepsis Criteria — New Paediatric Sepsis Definition (2024)",
+      publisher: "Schlapbach LJ et al. SCCM Pediatric Sepsis Definition Task Force. JAMA. 2024;331(8):665–674",
+      url: "https://doi.org/10.1001/jama.2024.0695",
+      description: "Replaces SIRS-based criteria (2005). Paediatric sepsis = Phoenix Sepsis Score ≥2 in child with suspected infection (dysfunction of respiratory, cardiovascular, coagulation and/or neurologic systems). Septic shock = sepsis + cardiovascular score ≥1 (hypotension, lactate ≥5 mmol/L, or vasoactive requirement). Validated in >3 million EHR encounters across 4 continents.",
+      free: true,
+      usedFor: ["Sepsis definition", "Septic shock criteria", "Vasoactive thresholds", "Sepsis recognition"],
+    },
+    {
+      title: "Medscape Drug Reference",
+      publisher: "WebMD / Medscape, Updated continuously",
+      url: "https://reference.medscape.com",
+      description: "Free, comprehensive drug reference used for dose verification in this tool. Accessible globally without subscription. Each drug card links directly to its Medscape monograph.",
+      free: true,
+      usedFor: ["Dose verification", "Drug interactions", "Renal dosing", "All drug categories"],
+    },
+    {
+      title: "Lexicomp Pediatric & Neonatal Dosage Handbook, 30th Edition",
+      publisher: "Wolters Kluwer",
+      url: "https://www.wolterskluwer.com/en/solutions/lexicomp",
+      description: "Comprehensive paediatric and neonatal drug reference. Subscription required.",
+      free: false,
+      usedFor: ["All drug doses", "Neonatal dosing", "Drug interactions", "TDM guidance"],
+    },
+  ],
+
+  // Section-specific references
+  sections: [
+    {
+      section: "Inotropes & Vasopressors",
+      icon: "♥",
+      color: "#e63946",
+      refs: [
+        {title:"Surviving Sepsis Campaign Paediatric Guidelines 2026 — Weiss S et al. Pediatr Crit Care Med. 2026", url:"https://www.sccm.org/survivingsepsiscampaign/guidelines-and-resources/surviving-sepsis-campaign-pediatric-guidelines"},
+        {title:"Kissoon N et al. World Federation of Pediatric Intensive Care — Sepsis Guidelines", url:"https://doi.org/10.1097/PCC.0000000000001081"},
+        {title:"BNFc — Cardiovascular drugs", url:"https://bnfc.nice.org.uk"},
+        {title:"Norepinephrine via peripheral IV — Loubani OM et al. J Crit Care. 2015", url:"https://doi.org/10.1016/j.jcrc.2015.01.014"},
+      ]
+    },
+    {
+      section: "Sedation & Analgesia",
+      icon: "◎",
+      color: "#2a9d8f",
+      refs: [
+        {title:"SCCM PANDEM Guidelines 2022 — Smith HA et al.", url:"https://doi.org/10.1097/PCC.0000000000002873"},
+        {title:"Ketamine and ICP — Cohen L et al. Ann Emerg Med. 2015", url:"https://doi.org/10.1016/j.annemergmed.2015.03.004"},
+        {title:"Propofol Infusion Syndrome — Parke TJ et al. BMJ. 1992", url:"https://doi.org/10.1136/bmj.305.6854.613"},
+        {title:"Dexmedetomidine in PICU — Tobias JD. Pediatr Crit Care Med. 2007", url:"https://doi.org/10.1097/01.PCC.0000269399.50115.b7"},
+      ]
+    },
+    {
+      section: "Antihypertensives",
+      icon: "⟁",
+      color: "#457b9d",
+      refs: [
+        {title:"PAHO/WHO Paediatric Hypertensive Crisis Guidelines", url:"https://www.paho.org"},
+        {title:"Flynn JT et al. Clinical Practice Guideline for Screening and Management of High Blood Pressure in Children. Pediatrics. 2017", url:"https://doi.org/10.1542/peds.2017-1904"},
+        {title:"BNFc — Cardiovascular drugs", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Antiepileptics",
+      icon: "⚡",
+      color: "#6d6875",
+      refs: [
+        {title:"APLS Status Epilepticus Guidelines — RCPCH 2021", url:"https://www.rcpch.ac.uk"},
+        {title:"IAP Consensus Guidelines on Status Epilepticus 2022", url:"https://www.iapindia.org"},
+        {title:"Levetiracetam vs Phenytoin for Status — ECLIPSE Trial. Lancet. 2019", url:"https://doi.org/10.1016/S0140-6736(19)30724-X"},
+        {title:"BNFc — Antiepileptics", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Bronchodilators",
+      icon: "◈",
+      color: "#2d6a4f",
+      refs: [
+        {title:"GINA Global Strategy for Asthma Management and Prevention, 2026 (Updated May 2026)", url:"https://ginasthma.org"},
+        {title:"BTS/NICE/SIGN Guideline on Asthma (updated 2023; used alongside GINA 2026)", url:"https://www.brit-thoracic.org.uk/quality-improvement/guidelines/asthma/"},
+        {title:"Magnesium in severe asthma — MAGNETIC Trial. Lancet Respir Med. 2013", url:"https://doi.org/10.1016/S2213-2600(13)70070-5"},
+        {title:"BNFc — Respiratory drugs", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Electrolyte Corrections",
+      icon: "⬡",
+      color: "#e9a100",
+      refs: [
+        {title:"Sterns RH. Disorders of plasma sodium — causes, consequences and correction. NEJM. 2015", url:"https://doi.org/10.1056/NEJMra1404489"},
+        {title:"Hypokalaemia management — BNFc", url:"https://bnfc.nice.org.uk"},
+        {title:"Paediatric Electrolyte Disorders — Pediatr Clin North Am. 2019", url:"https://doi.org/10.1016/j.pcl.2018.09.002"},
+      ]
+    },
+    {
+      section: "Calcium & Magnesium",
+      icon: "◇",
+      color: "#f4a261",
+      refs: [
+        {title:"Hypocalcaemia in critically ill children — Pediatr Crit Care Med. 2013", url:"https://doi.org/10.1097/PCC.0b013e318283f2e6"},
+        {title:"Magnesium in paediatric critical care — BNFc", url:"https://bnfc.nice.org.uk"},
+        {title:"Calcium Gluconate vs Chloride — Roberts et al. Ann Emerg Med. 2016", url:"https://doi.org/10.1016/j.annemergmed.2016.06.014"},
+      ]
+    },
+    {
+      section: "Hypoglycaemia",
+      icon: "◆",
+      color: "#80b918",
+      refs: [
+        {title:"Thornton PS et al. Recommendations from the Pediatric Endocrine Society for Evaluation and Management of Persistent Hypoglycemia. J Pediatr. 2015", url:"https://doi.org/10.1016/j.jpeds.2015.03.057"},
+        {title:"ISPAD Clinical Practice Consensus Guidelines — Neonatal Hypoglycaemia. 2022", url:"https://www.ispad.org"},
+        {title:"BNFc — Glucose and insulin", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
+    {
+      section: "Antibiotics",
+      icon: "🦠",
+      color: "#1565c0",
+      refs: [
+        {title:"BNFc — Antibacterials", url:"https://bnfc.nice.org.uk"},
+        {title:"Patel N et al. Pharmacokinetic/pharmacodynamic target attainment in paediatric sepsis. Pediatr Infect Dis J. 2021", url:"https://doi.org/10.1097/INF.0000000000003014"},
+        {title:"Vancomycin AUC-guided dosing — ASHP/IDSA/SIDP Consensus Guidelines 2020", url:"https://doi.org/10.1093/ajhp/zxaa036"},
+        {title:"Colistin dosing in children — Nation RL et al. Lancet Infect Dis. 2015", url:"https://doi.org/10.1016/S1473-3099(15)70117-X"},
+        {title:"Antibiotic dosing in CRRT — Eyler RF et al. Clin J Am Soc Nephrol. 2011", url:"https://doi.org/10.2215/CJN.00340111"},
+        {title:"PCCSI Antibiotic Stewardship Guidelines 2023", url:"https://www.pccsi.org"},
+        {title:"Phoenix Sepsis Criteria 2024 — Schlapbach LJ et al. JAMA 2024;331(8):665–674", url:"https://doi.org/10.1001/jama.2024.0695"},
+        {title:"WHO AWaRe Antibiotic Book 2022", url:"https://www.who.int/publications/i/item/9789240047495"},
+        {title:"Amoxicillin-clavulanate — BNFc / Medscape", url:"https://reference.medscape.com/drug/augmentin-amoxicillin-clavulanate-342376"},
+      ]
+    },
+    {
+      section: "Intubation",
+      icon: "🫁",
+      color: "#c1121f",
+      refs: [
+        {title:"Physiologically Difficult Airway — The Anaesthesia Collective", url:"https://www.anaesthesiacollective.com/the-physiologically-difficult-airway-considerations-beyond-anatomy/"},
+        {title:"Karamchandani K et al. The Physiologically Difficult Airway — SOCCA Delphi Consensus 2024. J Cardiothorac Vasc Anesth. 2024", url:"https://doi.org/10.1053/j.jvca.2023.09.028"},
+        {title:"Difficult Airway Society (DAS) Paediatric Guidelines 2015", url:"https://das.uk.com/guidelines/paediatric_difficult_airway_guidelines"},
+        {title:"Ketamine safety in raised ICP — Cohen L et al. Ann Emerg Med. 2015", url:"https://doi.org/10.1016/j.annemergmed.2015.03.004"},
+        {title:"ETT size formulae — Khine HH et al. Anesthesiology. 1997", url:"https://doi.org/10.1097/00000542-199703000-00015"},
+        {title:"Rapid Sequence Intubation in PICU — Kerrey BT et al. Ann Emerg Med. 2012", url:"https://doi.org/10.1016/j.annemergmed.2011.09.010"},
+      ]
+    },
+  ],
+
+  // Per-drug verify links (shown as button on each drug card)
+  drugLinks: {
+    "Amoxicillin": "https://reference.medscape.com/drugs#query=amoxicillin",
+    "Amoxicillin-Clavulanate (Co-amoxiclav)": "https://reference.medscape.com/drugs#query=amoxicillin+clavulanate",
+    "Acyclovir": "https://reference.medscape.com/drugs#query=acyclovir",
+    "Amikacin": "https://reference.medscape.com/drugs#query=amikacin",
+    "Amphotericin B (Liposomal)": "https://reference.medscape.com/drugs#query=amphotericin+liposomal",
+    "Azithromycin": "https://reference.medscape.com/drugs#query=azithromycin",
+    "Cefoperazone-Sulbactam": "https://reference.medscape.com/drugs#query=cefoperazone+sulbactam",
+    "Cefotaxime": "https://reference.medscape.com/drugs#query=cefotaxime",
+    "Ceftazidime": "https://reference.medscape.com/drugs#query=ceftazidime",
+    "Ceftriaxone": "https://reference.medscape.com/drugs#query=ceftriaxone",
+    "Colistin (Polymyxin E)": "https://reference.medscape.com/drugs#query=colistin",
+    "Fluconazole": "https://reference.medscape.com/drugs#query=fluconazole",
+    "Gentamicin": "https://reference.medscape.com/drugs#query=gentamicin",
+    "Linezolid": "https://reference.medscape.com/drugs#query=linezolid",
+    "Meropenem": "https://reference.medscape.com/drugs#query=meropenem",
+    "Metronidazole": "https://reference.medscape.com/drugs#query=metronidazole",
+    "Piperacillin-Tazobactam": "https://reference.medscape.com/drugs#query=piperacillin+tazobactam",
+    "Teicoplanin": "https://reference.medscape.com/drugs#query=teicoplanin",
+    "Vancomycin": "https://reference.medscape.com/drugs#query=vancomycin",
+    "Dopamine": "https://reference.medscape.com/drugs#query=dopamine",
+    "Dobutamine": "https://reference.medscape.com/drugs#query=dobutamine",
+    "Adrenaline (Epinephrine)": "https://reference.medscape.com/drugs#query=epinephrine",
+    "Noradrenaline (Norepinephrine)": "https://reference.medscape.com/drugs#query=norepinephrine",
+    "Milrinone": "https://reference.medscape.com/drugs#query=milrinone",
+    "Vasopressin": "https://reference.medscape.com/drugs#query=vasopressin",
+    "Midazolam": "https://reference.medscape.com/drugs#query=midazolam",
+    "Morphine": "https://reference.medscape.com/drugs#query=morphine",
+    "Fentanyl": "https://reference.medscape.com/drugs#query=fentanyl",
+    "Ketamine": "https://reference.medscape.com/drugs#query=ketamine",
+    "Dexmedetomidine": "https://reference.medscape.com/drugs#query=dexmedetomidine",
+    "Propofol ⚠": "https://reference.medscape.com/drugs#query=propofol",
+    "Labetalol": "https://reference.medscape.com/drugs#query=labetalol",
+    "Nicardipine": "https://reference.medscape.com/drugs#query=nicardipine",
+    "Sodium Nitroprusside (SNP) ⚠": "https://reference.medscape.com/drugs#query=sodium+nitroprusside",
+    "Hydralazine (IV bolus)": "https://reference.medscape.com/drugs#query=hydralazine",
+    "Enalaprilat (IV)": "https://reference.medscape.com/drugs#query=enalaprilat",
+    "Phenobarbitone": "https://reference.medscape.com/drugs#query=phenobarbital",
+    "Phenytoin/Fosphenytoin ⚠": "https://reference.medscape.com/drugs#query=phenytoin",
+    "Valproate (Sodium) ⚠": "https://reference.medscape.com/drugs#query=valproate",
+    "Levetiracetam": "https://reference.medscape.com/drugs#query=levetiracetam",
+    "Midazolam – Status Epilepticus": "https://reference.medscape.com/drugs#query=midazolam",
+    "Lorazepam": "https://reference.medscape.com/drugs#query=lorazepam",
+    "Lacosamide": "https://reference.medscape.com/drugs#query=lacosamide",
+    "Salbutamol IV (Status Asthmaticus)": "https://reference.medscape.com/drugs#query=salbutamol",
+    "Aminophylline ⚠": "https://reference.medscape.com/drugs#query=aminophylline",
+    "Magnesium Sulphate (Bronchospasm)": "https://reference.medscape.com/drugs#query=magnesium+sulfate",
+    "Ipratropium Bromide (Nebulised)": "https://reference.medscape.com/drugs#query=ipratropium",
+    "Potassium Chloride (KCl) ⚠": "https://reference.medscape.com/drugs#query=potassium+chloride",
+    "3% Sodium Chloride ⚠ (Hyponatraemia)": "https://reference.medscape.com/drugs#query=sodium+chloride",
+    "Phosphate (IV) – Hypophosphataemia": "https://reference.medscape.com/drugs#query=phosphate",
+    "Calcium Gluconate 10% ⚠": "https://reference.medscape.com/drugs#query=calcium+gluconate",
+    "Calcium Chloride 10% ⚠ (arrest)": "https://reference.medscape.com/drugs#query=calcium+chloride",
+    "Magnesium Sulphate (IV) ⚠": "https://reference.medscape.com/drugs#query=magnesium+sulfate",
+    "Dextrose 10% (Neonates & Infants)": "https://reference.medscape.com/drugs#query=dextrose",
+    "Dextrose 25% (Children >5 yr)": "https://reference.medscape.com/drugs#query=dextrose",
+    "Glucagon": "https://reference.medscape.com/drugs#query=glucagon",
+    "Octreotide (Hyperinsulinism)": "https://reference.medscape.com/drugs#query=octreotide",
+  }
+};
+
+// ── References tab renderer ───────────────────────────────────
+function renderReferencesTab() {
+  const el = document.getElementById('drug-display');
+
+  const generalCards = REFERENCES.general.map(r => `
+    <div style="background:#fff;border-radius:11px;border:1.5px solid var(--bdr);padding:13px 15px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,0.05)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:var(--text)">${esc(r.title)}</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px">${esc(r.publisher)}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:5px;line-height:1.6">${esc(r.description)}</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+            ${r.usedFor.map(u=>`<span style="background:#f0f2f8;border-radius:10px;padding:2px 8px;font-size:10px;color:var(--dim);font-weight:600">${esc(u)}</span>`).join('')}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;background:${r.free?'#e8f5e9':'#fff8e1'};color:${r.free?'#2e7d32':'#e65100'}">${r.free?'FREE':'SUBSCRIPTION'}</span>
+          <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer"
+            style="background:#1565c0;color:#fff;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block">
+            🔗 Open
+          </a>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const sectionCards = REFERENCES.sections.map(s => `
+    <div style="background:#fff;border-radius:11px;border:1.5px solid ${esc(s.color)}33;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,0.05)">
+      <div style="background:${esc(s.color)};padding:9px 14px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:16px">${s.icon}</span>
+        <span style="font-size:13px;font-weight:800;color:#fff">${esc(s.section)}</span>
+      </div>
+      <div style="padding:10px 14px">
+        ${s.refs.map(r=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)">
+            <div style="font-size:12px;color:var(--text2);flex:1;line-height:1.5">${esc(r.title)}</div>
+            <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer"
+              style="background:var(--bg3);color:#1565c0;border:1.5px solid #1565c040;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none;flex-shrink:0">
+              🔗 Verify
+            </a>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="drug-panel" style="--drug-color:#1565c0">
+      <div class="drug-panel-header">
+        <div class="drug-color-bar" style="background:#1565c0"></div>
+        <div class="drug-header-info">
+          <div class="drug-name">📚 References & Verification</div>
+          <div class="drug-badges">
+            <span class="badge badge-type" style="background:#e8f4fd;color:#1565c0">Dr. Ananya · KMCT Medical College · Built with AI assistance</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification statement -->
+      <div class="section">
+        <div style="background:#e8f4fd;border:2px solid #1565c0;border-radius:11px;padding:13px 15px">
+          <div style="font-size:13px;font-weight:800;color:#1565c0;margin-bottom:6px">📋 Verification Statement</div>
+          <div style="font-size:13px;color:#0d3c6e;line-height:1.75">
+            Doses in this calculator are based on BNFc, Harriet Lane Handbook, SCCM PANDEM Guidelines 2022, AHA/AAP PALS 2025, IAP-PALS, Surviving Sepsis Campaign Paediatric Guidelines 2026, GINA 2026, and current PICU consensus guidelines. Sepsis criteria use the Phoenix Sepsis Score (SCCM 2024) — see reference below. Users are encouraged to verify against current references before clinical use.
+          </div>
+          <div style="margin-top:10px;background:#fff3e0;border:1.5px solid #e65100;border-radius:10px;padding:12px 14px">
+            <div style="font-size:12px;font-weight:800;color:#e65100;margin-bottom:8px">🔥 PHOENIX SEPSIS CRITERIA 2024 (Replaces SIRS-based criteria)</div>
+            <div style="font-size:13px;color:#3e1f00;line-height:1.7;margin-bottom:8px">
+              <b>Paediatric Sepsis</b> = Suspected infection + <b>Phoenix Sepsis Score ≥ 2</b><br>
+              <b>Septic Shock</b> = Sepsis + Cardiovascular score ≥ 1 (hypotension, lactate ≥5 mmol/L, or vasoactive requirement)
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+              ${[
+                {domain:"🫁 RESPIRATORY",color:"#1565c0",score:"0–3 pts",criteria:"PaO₂/FiO₂ or SpO₂/FiO₂ ratio, invasive ventilation"},
+                {domain:"❤️ CARDIOVASCULAR",color:"#c62828",score:"0–6 pts",criteria:"Vasoactives, lactate ≥5, MAP below age threshold"},
+                {domain:"🩸 COAGULATION",color:"#6a1b9a",score:"0–2 pts",criteria:"Platelets <100, INR >1.3, D-dimer >2, fibrinogen <100"},
+                {domain:"🧠 NEUROLOGIC",color:"#2e7d32",score:"0–2 pts",criteria:"GCS ≤10 or fixed bilateral pupils"},
+              ].map(d=>`
+                <div style="background:#fff;border-radius:8px;padding:8px 10px;border-left:3px solid ${d.color}">
+                  <div style="font-size:11px;font-weight:700;color:${d.color}">${d.domain} <span style="font-weight:400;color:var(--dim)">${d.score}</span></div>
+                  <div style="font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4">${d.criteria}</div>
+                </div>`).join('')}
+            </div>
+            <div style="font-size:11px;color:#5a3000">
+              Reference: Schlapbach LJ et al. JAMA. 2024;331(8):665–674. Validated in >3 million EHR encounters, 10 sites, 4 continents. Applies to children 1 month to &lt;18 years.
+              <a href="https://doi.org/10.1001/jama.2024.0695" target="_blank" style="color:#e65100;margin-left:6px;font-weight:700">🔗 Open</a>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:12px;color:#1565c0;font-style:italic">
+            All clinical decisions remain the responsibility of the treating clinician.
+          </div>
+        </div>
+      </div>
+
+      <!-- General references -->
+      <div class="section">
+        <div class="section-title">Primary References Used</div>
+        ${generalCards}
+      </div>
+
+      <!-- Section-specific references -->
+      <div class="section">
+        <div class="section-title">Section-Specific References</div>
+        ${sectionCards}
+      </div>
+
+
+    </div>`;
+}
+
+
+function selectAbx(i){
+  selectedAbx=i;
+  abxEgfr=''; abxCreat=''; abxHeight=''; abxAge='';
+  abxDoseInput=''; abxDoseSelected=null;
+  renderPillBar();
+  renderAbxTab();
+  setTimeout(()=>{document.getElementById('content').scrollIntoView({behavior:'smooth',block:'start'});},50);
+}
+
+function renderAll(){
+  renderTabs();
+  if(!searchTerm){
+    document.getElementById('pill-bar').style.display='flex';
+    renderPillBar();
+  } else {
+    document.getElementById('pill-bar').style.display='none';
+  }
+  renderGIR();
+  renderWeightBanner();
+  renderUnitToggleBar();
+  renderDrugDisplay();
+}
+
+// ── Actions ───────────────────────────────────────────────────
+function setCategory(id){
+  activeCategory=id;
+  doseInput='';
+  if(id!=='antibiotics' && id!=='intubation'){
+    const first=ALL_DRUGS.find(d=>d.cat===id);
+    if(first)selectedDrugId=first.id;
+  }
+  renderAll();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectDrug(id){
+  selectedDrugId=id;
+  doseInput='';
+  renderPillBar();
+  renderDrugDisplay();
+  // scroll drug display into view
+  setTimeout(()=>{
+    const el=document.getElementById('content');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  },50);
+}
+
+function fillDose(drugId,dose){
+  selectedDrugId=drugId;
+  doseInput=String(dose);
+  renderDrugDisplay();
+}
+
+function handleDoseInput(e){
+  doseInput=e.target.value;
+  const drugId=parseInt(e.target.dataset.drugid);
+  const drug=ALL_DRUGS[drugId];
+  if(!drug)return;
+  // update result box without full re-render
+  const panel=e.target.closest('.drug-panel');
+  if(!panel)return;
+  let resBox=panel.querySelector('.result-box');
+  if(!resBox){resBox=document.createElement('div');resBox.className='result-box';e.target.closest('.calc-card').appendChild(resBox);}
+  const res=weight&&doseInput?getResult(drug,weight,doseInput):null;
+  if(res){
+    resBox.className='result-box show';
+    resBox.style.borderColor=drug.color;
+    resBox.innerHTML=`<div><div class="result-label">${esc(res.lbl)}</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="result-val" style="color:${esc(drug.color)}">${esc(String(res.val))}</span>
+        <span class="result-unit">${esc(res.unit)}</span>
+      </div></div>`;
+  } else {
+    resBox.className='result-box';
+    resBox.innerHTML='';
+  }
+  // update input border
+  e.target.style.borderColor=doseInput?drug.color:'var(--bdr)';
+}
+
+// Weight input
+document.getElementById('wt-input').addEventListener('input',e=>{
+  weight=e.target.value;
+  e.target.classList.toggle('filled',!!weight);
+  doseInput='';
+  renderAll();
+});
+
+// Search
+document.getElementById('search').addEventListener('input',e=>{
+  searchTerm=e.target.value;
+  doseInput='';
+  renderAll();
+});
+
+// GIR
+function calcGIR(){
+  const w=parseFloat(document.getElementById('g-wt').value);
+  const dex=parseFloat(document.getElementById('g-dex').value);
+  const rate=parseFloat(document.getElementById('g-rate').value);
+  const out=document.getElementById('gir-out1');
+  if(w&&dex&&rate){document.getElementById('gv1').textContent=((dex*rate)/(w*6)).toFixed(2);out.className='gir-result show';}
+  else out.className='gir-result';
+}
+function calcRate(){
+  const w=parseFloat(document.getElementById('g-wt2').value);
+  const dex=parseFloat(document.getElementById('g-dex2').value);
+  const gir=parseFloat(document.getElementById('g-gir').value);
+  const out=document.getElementById('gir-out2');
+  if(w&&dex&&gir){document.getElementById('gv2').textContent=((gir*w*6)/dex).toFixed(1);out.className='gir-result show';}
+  else out.className='gir-result';
+}
+['g-wt','g-dex','g-rate'].forEach(id=>document.getElementById(id).addEventListener('input',calcGIR));
+['g-wt2','g-dex2','g-gir'].forEach(id=>document.getElementById(id).addEventListener('input',calcRate));
+
+// ── Init ──────────────────────────────────────────────────────
+renderAll();
+</script>
+<!-- Install banner -->
+<div id="install-banner">
+  <div class="ib-icon">＋</div>
+  <div class="ib-text">
+    <div class="ib-title">PICU Reckoner</div>
+    <div class="ib-sub">Add to home screen for offline use</div>
+  </div>
+  <button class="ib-btn" id="install-btn">Install</button>
+  <button class="ib-close" id="install-close">✕</button>
+</div>
+
+<script>
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  }
+});
+document.getElementById('install-close').addEventListener('click', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+</script>
+</body>
+</html>
