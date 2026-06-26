@@ -94,13 +94,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 
 /* RANGES */
 .range-table{border-radius:10px;overflow:hidden;border:1px solid var(--bdr)}
-.range-row{display:grid;grid-template-columns:30% 25% 1fr;gap:8px;padding:9px 11px;font-size:13px}
+.range-row{display:flex;flex-direction:column;padding:9px 11px;font-size:13px;gap:3px}
 .range-row:not(:last-child){border-bottom:1px solid var(--bdr)}
 .range-row:nth-child(odd){background:#fafbff}
 .range-row:nth-child(even){background:#fff}
-.rd{font-weight:700;font-family:var(--mono)}
-.rl{color:var(--dim);font-size:12px}
-.re{color:var(--text2);font-size:12px}
+.range-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rd{font-weight:700;font-family:var(--mono);font-size:14px}
+.rl{color:var(--dim);font-size:12px;background:var(--bg3);padding:2px 8px;border-radius:10px}
+.re{color:var(--text2);font-size:12px;line-height:1.5;padding-left:2px}
 
 /* CALCULATOR */
 .calc-card{background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;border:1.5px solid var(--bdr)}
@@ -264,6 +265,7 @@ const CATEGORIES = [
   {id:"calcium",      label:"Calcium & Magnesium",      icon:"◇"},
   {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
   {id:"antibiotics",  label:"Antibiotics",              icon:"🦠"},
+  {id:"diuretics",    label:"Diuretics",                icon:"💧"},
   {id:"intubation",   label:"Intubation",               icon:"🫁"},
   {id:"references",   label:"References & Verify",       icon:"📚"},
 ];
@@ -418,7 +420,7 @@ sedation:[
 
  {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
   prep:"4 mcg/kg in 50 mL NS",
-  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/100).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
+  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/200).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
   rule:"1 mL/hr = 0.08 mcg/kg/hr  [wt-independent]",
   doseUnit:"mcg/kg/hr",isBolus:false,
   rateFn:(w,d)=>+(d*12.5).toFixed(2),  // dose / (0.004 × 20) = dose × 12.5
@@ -1537,7 +1539,19 @@ function renderAbxTab() {
   const wt = parseFloat(weight)||0;
   const doseNum = parseFloat(abxDoseInput)||0;
   const totalDose = (wt && doseNum) ? (wt * doseNum).toFixed(0) : null;
-  const maxDoseNum = abxDoseSelected?.max ? parseFloat(abxDoseSelected.max) : null;
+  // Parse max dose — handle both mg and g units
+  function parseMaxDose(maxStr) {
+    if(!maxStr) return null;
+    const n = parseFloat(maxStr);
+    if(isNaN(n)) return null;
+    // If string contains 'g' (but not 'mg'), convert g → mg
+    const lower = maxStr.toLowerCase();
+    if(lower.includes(' g ') || lower.includes(' g/') || lower.endsWith('g') || lower.match(/\d+\s*g\b/)) {
+      if(!lower.includes('mg')) return n * 1000;
+    }
+    return n;
+  }
+  const maxDoseNum = abxDoseSelected?.max ? parseMaxDose(abxDoseSelected.max) : null;
   const cappedDose = totalDose && maxDoseNum && parseFloat(totalDose) > maxDoseNum ? maxDoseNum : (totalDose ? parseFloat(totalDose) : null);
   const wasCapped = cappedDose && totalDose && cappedDose < parseFloat(totalDose);
 
@@ -1561,10 +1575,10 @@ function renderAbxTab() {
         <div style="background:#fff;border:2px solid ${esc(drug.color)};border-radius:11px;padding:10px 16px;min-width:140px">
           <div style="font-size:10px;font-weight:700;color:${esc(drug.color)};letter-spacing:.1em">TOTAL DOSE</div>
           <div style="display:flex;align-items:baseline;gap:5px;margin-top:2px">
-            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose}</span>
-            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">mg</span>
+            <span style="font-size:32px;font-weight:900;color:${esc(drug.color)};font-family:var(--mono)">${cappedDose>=1000?(cappedDose/1000).toFixed(cappedDose%1000===0?0:1):cappedDose}</span>
+            <span style="font-size:14px;color:${esc(drug.color)};font-weight:600">${cappedDose>=1000?'g':'mg'}</span>
           </div>
-          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum} mg</div>`:''}
+          ${wasCapped?`<div style="font-size:10px;color:#e65100;margin-top:2px">⚠ Capped at max ${maxDoseNum>=1000?(maxDoseNum/1000)+'g':maxDoseNum+' mg'}</div>`:''}
         </div>` : ''}
       </div>
       ${abxDoseSelected ? `
@@ -1587,10 +1601,10 @@ function renderAbxTab() {
         ${drug.doses.filter(d=>extractNumericDose(d.dose)).map(d=>{
           const dn = parseFloat(extractNumericDose(d.dose));
           const total = Math.round(dn * wt);
-          const max = d.max ? parseFloat(d.max) : null;
+          const max = d.max ? parseMaxDose(d.max) : null;
           const capped = max && total > max ? max : total;
-          const capNote = max && total > max ? ` (max ${max} mg)` : '';
-          return `${d.indication}: <b>${capped} mg</b>${capNote} ${d.freq}`;
+          const capNote = max && total > max ? ` (max ${max>=1000?(max/1000)+'g':max+' mg'})` : '';
+          return `${d.indication}: <b>${capped>=1000?(capped/1000)+'g':capped+' mg'}</b>${capNote} ${d.freq}`;
         }).join('<br>')}
       </div>` : ''}
     </div>`;
@@ -1686,7 +1700,7 @@ function renderAbxTab() {
       <div class="section">
         <div class="section-title">Paediatric Dosing <span style="font-size:10px;color:var(--dim);font-weight:400">(tap a row to calculate)</span></div>
         <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
-          <table style="width:100%;border-collapse:collapse;min-width:500px">
+          <table style="width:100%;border-collapse:collapse;min-width:420px">
             <thead><tr style="background:${esc(drug.color)};color:#fff">
               <th style="padding:9px 10px;text-align:left;font-size:11px;letter-spacing:.05em">INDICATION</th>
               <th style="padding:9px 10px;text-align:left;font-size:11px">DOSE</th>
@@ -1806,6 +1820,117 @@ function renderAbxTab() {
     </div>`;
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// DIURETICS DATA
+// Ref: BNFc 2024; Harriet Lane Handbook 23rd Ed 2024;
+//      Furosemide infusion: Kesavan et al. Crit Care Med 1997
+//      Continuous vs intermittent: Frontiers Pediatrics 2023
+// ══════════════════════════════════════════════════════════════
+
+DRUGS.diuretics = [
+ {name:"Furosemide — IV Infusion",color:"#0277bd",warn:false,
+  prep:"Continuous infusion: dilute to 1 mg/mL in NS/D5W (fixed concentration)",
+  prepFn:w=>`Loading dose: ${(0.1*w).toFixed(1)} mg (0.1 mg/kg) IV over 5–10 min.\nInfusion prep: dilute furosemide 10 mg/mL to 1 mg/mL in NS.\nStarting rate: ${(0.1*w).toFixed(1)} mL/hr (0.1 mg/kg/hr)`,
+  rule:"Rate = dose × wt  mL/hr  [1 mg/mL fixed conc — wt-dependent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.05,0.1,0.2,0.3,0.4],
+  bolus:"IV bolus (intermittent): 0.5–2 mg/kg/dose q6–12h. Max 40 mg/dose (child); 80 mg (adolescent). Rate: max 0.5 mg/kg/min IV push. Oral: 1–4 mg/kg/day divided q6–12h (max 6 mg/kg/day).",
+  ranges:[
+   {dose:"Loading: 0.1 mg/kg",lbl:"Before starting infusion",eff:"IV bolus over 5–10 min; minimum 1 mg"},
+   {dose:"Starting: 0.1",lbl:"mg/kg/hr",eff:"Initial infusion rate; titrate every 2 hr"},
+   {dose:"Titrate: 0.2",lbl:"mg/kg/hr",eff:"Double if UO <1 mL/kg/hr after 2 hr"},
+   {dose:"Maximum: 0.4",lbl:"mg/kg/hr",eff:"Max infusion rate; reassess if no response"},
+  ],
+  maxDose:0.4,
+  notes:"Continuous infusion preferred over intermittent bolus in PICU — more controlled UO, less electrolyte loss, better haemodynamic stability (Frontiers Pediatrics 2023). Target UO ≥1–2 mL/kg/hr. Monitor electrolytes (K+, Na+, Mg2+) at least 12-hourly. ECMO: administer outside circuit (substantially adsorbed by ECMO components). Neonates <32 wks: use with caution — nephrocalcinosis risk with prolonged use.",
+ },
+ {name:"Furosemide — IV Bolus / Oral",color:"#0277bd",warn:false,
+  prep:"IV: 10 mg/mL ampoule — give undiluted or dilute 1:1 with NS. Oral: 10 mg/mL solution or 40 mg tablets",
+  prepFn:w=>`IV dose: ${(0.5*w).toFixed(1)}–${Math.min(2*w,80).toFixed(0)} mg (0.5–2 mg/kg, max 80 mg).\nVolume of 10 mg/mL ampoule: ${(0.5*w/10).toFixed(2)}–${Math.min(2*w/10,8).toFixed(1)} mL`,
+  rule:"BOLUS. Total mg = dose × wt  (max 40 mg child; 80 mg adolescent)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,80)).toFixed(1),
+  commonDoses:[0.5,1,1.5,2],
+  bolus:"Rate of IV administration: max 0.5 mg/kg/min (ototoxicity risk with rapid injection). Oral bioavailability ~60% — oral dose usually 2× IV dose.",
+  ranges:[
+   {dose:"0.5–1 mg/kg/dose",lbl:"Standard IV/oral",eff:"q6–12h; max 40 mg/dose (child)"},
+   {dose:"1–2 mg/kg/dose",lbl:"Resistant oedema",eff:"q6–8h; max 80 mg/dose (adolescent)"},
+   {dose:"1–4 mg/kg/day",lbl:"Oral maintenance",eff:"Divided q6–12h; max 6 mg/kg/day"},
+   {dose:"0.5–1 mg/kg/dose",lbl:"Neonates (>32 wks)",eff:"q12–24h IV; limit duration (nephrocalcinosis)"},
+   {dose:"1 mg/kg/dose",lbl:"Neonates (<32 wks)",eff:"q24h only; monitor renal function"},
+  ],
+  maxDose:2,
+  notes:"Max rate IV push: 0.5 mg/kg/min (faster → ototoxicity). Oral bioavailability ~60% — oral dose typically 2× IV dose. Neonates <32 wks: limit duration (nephrocalcinosis, hypercalciuria). Monitor U&E, glucose, uric acid. Loop diuretic — acts on thick ascending limb of loop of Henle.",
+ },
+ {name:"Spironolactone",color:"#2e7d32",warn:false,
+  prep:"Oral: 25 mg tablets (crush and disperse) or 5 mg/mL oral suspension (compounded)",
+  prepFn:w=>`Dose: ${(1*w).toFixed(0)}–${(3*w).toFixed(0)} mg/day (1–3 mg/kg/day). Give in 1–2 divided doses with food.`,
+  rule:"ORAL only. Total mg/day = dose × wt  (max 100–200 mg/day)",
+  doseUnit:"mg/kg/day",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,200)).toFixed(1),
+  commonDoses:[1,1.5,2,3,3.3],
+  bolus:"Give with food — improves absorption. Onset of action: 2–3 days; maximum effect: 3–5 days. No IV formulation available.",
+  ranges:[
+   {dose:"1–3.3 mg/kg/day",lbl:"Oedema / heart failure",eff:"Once daily or divided q12h; max 100 mg/day"},
+   {dose:"1–2 mg/kg/day",lbl:"Hypertension",eff:"Once daily; max 100 mg/day"},
+   {dose:"1–3 mg/kg/day",lbl:"Neonates",eff:"Divided q12h; limited data — use with caution"},
+   {dose:"Up to 9 mg/kg/day",lbl:"Primary hyperaldosteronism",eff:"Divided q6–12h; specialist use only; max 400 mg/day"},
+  ],
+  maxDose:3.3,
+  notes:"Potassium-sparing — risk of HYPERKALAEMIA (especially with ACE inhibitors, ARBs, K+ supplements). Monitor K+ and renal function. Avoid in renal impairment (GFR<30). Gynaecomastia with prolonged use. Aldosterone antagonist — useful adjunct with furosemide to prevent K+ loss. Onset slow (2–3 days) — not for acute diuresis.",
+ },
+ {name:"Metolazone",color:"#6a1b9a",warn:false,
+  prep:"Oral: 2.5 mg or 5 mg tablets (no paediatric suspension commercially available — crush tablet)",
+  prepFn:w=>`Dose: ${(0.1*w).toFixed(2)}–${(0.2*w).toFixed(2)} mg (0.1–0.2 mg/kg). Crush tablet; give 30 min BEFORE furosemide for maximum synergy.`,
+  rule:"ORAL only. Total mg = dose × wt  (max 10 mg/day)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
+  commonDoses:[0.1,0.15,0.2],
+  bolus:"Give 30–60 min before furosemide for synergistic sequential nephron blockade. Can be given daily or on alternate days. Start low and titrate.",
+  ranges:[
+   {dose:"0.1–0.2 mg/kg/dose",lbl:"Once daily (standard)",eff:"Max 10 mg/day; give 30 min before furosemide"},
+   {dose:"0.2–0.4 mg/kg/day",lbl:"Resistant oedema",eff:"May divide q12h; specialist use"},
+  ],
+  maxDose:0.2,
+  notes:"Thiazide-like diuretic — acts on distal convoluted tubule. Potent synergy with furosemide (sequential nephron blockade) — can dramatically increase urine output in furosemide-resistant oedema. Start with low intermittent dosing (alternate days) — profound diuresis and electrolyte losses possible. Monitor U&E closely (q12h when starting). HYPOKALAEMIA and HYPONATRAEMIA risk — aggressive replacement needed. Ref: Harriet Lane Handbook 23rd Ed, 2024.",
+ },
+ {name:"Hydrochlorothiazide (HCTZ)",color:"#6a1b9a",warn:false,
+  prep:"Oral: 12.5 mg, 25 mg, 50 mg tablets. No IV form available. May be compounded as 5 mg/mL suspension.",
+  prepFn:w=>`Dose: ${(1*w).toFixed(0)}–${(2*w).toFixed(0)} mg/day (1–2 mg/kg/day). Divide q12h.`,
+  rule:"ORAL only. Total mg/day = dose × wt  (max 37.5–50 mg/day)",
+  doseUnit:"mg/kg/day",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,50)).toFixed(1),
+  commonDoses:[1,1.5,2,3],
+  bolus:"Give in morning (or split morning/afternoon) to avoid nocturia. Take with food.",
+  ranges:[
+   {dose:"1–2 mg/kg/day",lbl:"Oedema (infants/children)",eff:"Divided q12h; max 37.5 mg/day (<2yr); 50 mg/day (>2yr)"},
+   {dose:"1–3 mg/kg/day",lbl:"Hypertension",eff:"Divided q12h; max 50 mg/day"},
+   {dose:"2–4 mg/kg/day",lbl:"Neonates",eff:"Divided q12h; max 3 mg/kg/day in neonates"},
+  ],
+  maxDose:3,
+  notes:"Thiazide diuretic — acts on distal convoluted tubule. Less potent than furosemide as sole agent. Useful in combination for diuretic resistance. Monitor K+, Na+, glucose (hyperglycaemia), uric acid (hyperuricaemia). Avoid in severe renal impairment (GFR <30 — ineffective). Paradoxical antidiuretic effect in neonatal diabetes insipidus (nephrogenic). Ref: BNFc 2024; Harriet Lane 23rd Ed.",
+ },
+ {name:"Acetazolamide",color:"#795548",warn:false,
+  prep:"Oral: 125 mg, 250 mg tablets. IV: 500 mg/vial — dilute to 50–100 mg/mL in sterile water.",
+  prepFn:w=>`Dose: ${(5*w).toFixed(0)} mg (5 mg/kg/dose). IV or oral.`,
+  rule:"BOLUS. Total mg = dose × wt  (max 500 mg/dose)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,500)).toFixed(1),
+  commonDoses:[5,10],
+  bolus:"IV: give slowly over 5–10 min. Useful as adjunct in metabolic alkalosis from diuresis (corrects Cl-depletion alkalosis). Also used for altitude sickness, ICP, CSF production.",
+  ranges:[
+   {dose:"5 mg/kg/dose",lbl:"Diuresis / metabolic alkalosis",eff:"q6–8h oral/IV; max 500 mg/dose"},
+   {dose:"5–10 mg/kg/dose",lbl:"Raised ICP",eff:"q6–8h; max 100 mg/kg/day"},
+   {dose:"2.5 mg/kg/dose",lbl:"Altitude sickness prophylaxis",eff:"q12h; start 24hr before ascent"},
+  ],
+  maxDose:10,
+  notes:"Carbonic anhydrase inhibitor — acts on proximal tubule. Useful to correct metabolic alkalosis caused by loop/thiazide diuretics (loss of Cl-). Causes metabolic acidosis — monitor blood gas. Avoid in sulfonamide allergy. Avoid in severe hepatic impairment (hyperammonaemia). Ref: BNFc 2024.",
+ },
+];
+
+
 // ── Build flat index ──────────────────────────────────────────
 const ALL_DRUGS = [];
 Object.entries(DRUGS).forEach(([cat, arr]) => {
@@ -1914,8 +2039,10 @@ function renderDrugPanel(drug){
   // Ranges
   const rangeRows = drug.ranges.map(r=>`
     <div class="range-row">
-      <div class="rd" style="color:${esc(col)}">${esc(r.dose)}</div>
-      <div class="rl">${esc(r.lbl)}</div>
+      <div class="range-row-top">
+        <div class="rd" style="color:${esc(col)}">${esc(r.dose)}</div>
+        <div class="rl">${esc(r.lbl)}</div>
+      </div>
       <div class="re">${esc(r.eff)}</div>
     </div>`).join('');
 
@@ -2648,12 +2775,29 @@ const REFERENCES = {
         {title:"Rapid Sequence Intubation in PICU — Kerrey BT et al. Ann Emerg Med. 2012", url:"https://doi.org/10.1016/j.annemergmed.2011.09.010"},
       ]
     },
+    {
+      section: "Diuretics",
+      icon: "💧",
+      color: "#0277bd",
+      refs: [
+        {title:"Furosemide continuous infusion in PICU — Frontiers Pediatrics 2023", url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC10824983/"},
+        {title:"Continuous vs intermittent furosemide paediatric cardiac PICU — Crit Care Med 1997;25(12):1949–54", url:"https://pubmed.ncbi.nlm.nih.gov/1729038/"},
+        {title:"Harriet Lane Handbook 23rd Ed 2024 — Furosemide, Spironolactone, Metolazone, HCTZ", url:"https://www.unboundmedicine.com/harrietlane"},
+        {title:"BNFc 2024 — Diuretics chapter", url:"https://bnfc.nice.org.uk"},
+      ]
+    },
   ],
 
   // Per-drug verify links (shown as button on each drug card)
   drugLinks: {
     "Amoxicillin": "https://reference.medscape.com/drugs#query=amoxicillin",
     "Amoxicillin-Clavulanate (Co-amoxiclav)": "https://reference.medscape.com/drugs#query=amoxicillin+clavulanate",
+    "Furosemide — IV Infusion": "https://reference.medscape.com/drugs#query=furosemide",
+    "Furosemide — IV Bolus / Oral": "https://reference.medscape.com/drugs#query=furosemide",
+    "Spironolactone": "https://reference.medscape.com/drugs#query=spironolactone",
+    "Metolazone": "https://reference.medscape.com/drugs#query=metolazone",
+    "Hydrochlorothiazide (HCTZ)": "https://reference.medscape.com/drugs#query=hydrochlorothiazide",
+    "Acetazolamide": "https://reference.medscape.com/drugs#query=acetazolamide",
     "Acyclovir": "https://reference.medscape.com/drugs#query=acyclovir",
     "Amikacin": "https://reference.medscape.com/drugs#query=amikacin",
     "Amphotericin B (Liposomal)": "https://reference.medscape.com/drugs#query=amphotericin+liposomal",
