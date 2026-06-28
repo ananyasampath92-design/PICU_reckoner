@@ -565,7 +565,7 @@ sedation:[
 
  {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
   prep:"4 mcg/kg in 50 mL NS",
-  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/200).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
+  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/100).toFixed(2)} mL of 200 mcg/2mL (100 mcg/mL) vial → make up to 50 mL NS`,
   rule:"1 mL/hr = 0.08 mcg/kg/hr  [wt-independent]",
   doseUnit:"mcg/kg/hr",isBolus:false,
   rateFn:(w,d)=>+(d*12.5).toFixed(2),  // dose / (0.004 × 20) = dose × 12.5
