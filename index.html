@@ -2810,11 +2810,6 @@ function renderDrugDisplay(){
     return;
   }
   if(activeCategory==='dka'){
-    document.getElementById('pill-bar').innerHTML =
-      `<button class="drug-pill active" style="background:#b71c1c;border-color:#b71c1c;color:#fff">🩸 DKA Management Calculator</button>`;
-    return;
-  }
-  if(activeCategory==='dka'){
     renderDKATab();
     return;
   }
@@ -3687,6 +3682,8 @@ function bgMmol(mgdl) { return (parseFloat(mgdl)/18).toFixed(1); }
 
 function renderDKATab() {
   const el = document.getElementById('drug-display');
+  if(!el) return;
+
   const wt = parseFloat(dkaWt)||0;
   const sev = DKA_SEVERITY[dkaSeverity];
   const bolusGiven = parseFloat(dkaBolus)||0;
@@ -3708,257 +3705,185 @@ function renderDKATab() {
   let kGuide = '', kColor = '#2e7d32';
   if(!isNaN(k)){
     if(k<3.0){kGuide='SEVERE HYPOKALAEMIA — Withhold insulin until K+ >3.0. Replace aggressively.';kColor='#b71c1c';}
-    else if(k<3.5){kGuide='Hypokalaemia — Add 40 mmol/L KCl to ALL fluids. Check K+ every 1–2hr.';kColor='#e65100';}
+    else if(k<3.5){kGuide='Hypokalaemia — Add 40 mmol/L KCl to ALL fluids. Check K+ q1-2hr.';kColor='#e65100';}
     else if(k<=5.5){kGuide='Normal — Add 40 mmol/L KCl to ALL fluids (except bolus).';kColor='#2e7d32';}
     else{kGuide='Hyperkalaemia — DO NOT add K+ to fluids. Recheck in 2hr.';kColor='#f57f17';}
   }
-
   let naGuide = '';
   if(corrNa!==null){
-    naGuide = parseFloat(corrNa)<130 ? 'Corrected Na LOW — risk of cerebral oedema. If falls >5 mmol/L in 4hr reduce fluid rate by 50%.'
-      : parseFloat(corrNa)>150 ? 'Corrected Na HIGH — risk of hypernatraemia. Review fluid Na content.'
-      : 'Corrected Na within expected range. Recheck every 4hr.';
+    naGuide = parseFloat(corrNa)<130 ? 'LOW — risk of cerebral oedema. If falls >5 mmol/L in 4hr reduce fluid rate 50%.'
+      : parseFloat(corrNa)>150 ? 'HIGH — risk of hypernatraemia. Review fluid Na content.'
+      : 'Within expected range. Recheck every 4hr.';
   }
-
   let bgGuide = '';
   if(!isNaN(bg)){
-    if(bg<72){bgGuide='HYPOGLYCAEMIA — Add 10% glucose to fluid NOW. Do NOT stop insulin.';}
-    else if(bg<126){bgGuide='Add 5–10% glucose to maintenance fluid. Do NOT reduce insulin below 0.05 units/kg/hr.';}
-    else if(bg<252){bgGuide='Add 5% glucose to maintenance fluid to prevent BG falling too fast.';}
-    else{bgGuide='Continue current fluid and insulin. Aim for BG fall max 90 mg/dL/hr (5 mmol/L/hr).';}
+    if(bg<72)bgGuide='HYPOGLYCAEMIA — Add 10% glucose NOW. Do NOT stop insulin.';
+    else if(bg<126)bgGuide='Add 5-10% glucose to fluid. Do NOT reduce insulin below 0.05 u/kg/hr.';
+    else if(bg<252)bgGuide='Add 5% glucose to fluid to prevent BG falling too fast.';
+    else bgGuide='Continue fluid and insulin. Target BG fall max 90 mg/dL/hr.';
   }
 
-  // Severity buttons
-  const sevButtons = Object.entries(DKA_SEVERITY).map(function(entry){
-    const key=entry[0], s=entry[1];
-    const isActive = dkaSeverity===key;
-    return '<button onclick="dkaSeverity=\''+key+'\';renderDKATab()" style="padding:10px 6px;border-radius:10px;border:2px solid '+(isActive?s.color:'var(--bdr)')+';background:'+(isActive?s.color+'18':'var(--bg3)')+';cursor:pointer;text-align:center">'
+  const sevBtns = Object.entries(DKA_SEVERITY).map(function(e){
+    const key=e[0],s=e[1],active=dkaSeverity===key;
+    return '<button onclick="dkaSeverity=\''+key+'\';renderDKATab()" style="padding:10px 6px;border-radius:10px;border:2px solid '+(active?s.color:'var(--bdr)')+';background:'+(active?s.color+'18':'var(--bg3)')+';cursor:pointer;text-align:center">'
       +'<div style="font-size:13px;font-weight:800;color:'+s.color+'">'+s.label+'</div>'
       +'<div style="font-size:10px;color:var(--dim);margin-top:2px">pH '+s.ph+'</div>'
-      +'<div style="font-size:10px;color:var(--dim)">HCO₃ '+s.hco3+' mEq/L</div>'
-      +'<div style="font-size:10px;font-weight:700;color:'+s.color+'">Deficit '+s.dehydration+'</div>'
-      +'</button>';
+      +'<div style="font-size:10px;color:var(--dim)">HCO&#8323; '+s.hco3+' mEq/L</div>'
+      +'<div style="font-size:10px;font-weight:700;color:'+s.color+'">Deficit '+s.dehydration+'</div></button>';
   }).join('');
 
-  // Input fields
-  function inputField(lbl, val, key, mn, mx){
+  function numInput(lbl,val,key,mn,mx){
     return '<div style="display:flex;flex-direction:column;gap:4px">'
       +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em">'+lbl+'</label>'
-      +'<input type="number" value="'+esc(val)+'" min="'+mn+'" max="'+mx+'" step="any" inputmode="decimal"'
-      +' onchange="'+key+'=this.value;renderDKATab()"'
+      +'<input type="number" value="'+esc(val)+'" min="'+mn+'" max="'+mx+'" step="any" inputmode="decimal" onchange="'+key+'=this.value;renderDKATab()"'
       +' style="width:110px;padding:10px;background:var(--bg3);border:2px solid '+(val?'#b71c1c':'var(--bdr)')+';border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:'+(val?'#b71c1c':'var(--text)')+'"></div>';
   }
 
-  // Fluid calc boxes
-  const fluidBoxData = [
-    {lbl:'Deficit volume', val: deficit.toFixed(0)+' mL', note: sev.label+' = '+sev.deficit+'% x '+wt+' kg x 10', col:'#b71c1c'},
-    {lbl:'48hr maintenance', val: maintenance48.toFixed(0)+' mL', note: 'Holliday-Segar: '+maintenanceDay.toFixed(0)+' mL/day x 2', col:'#1565c0'},
-    {lbl:'Minus bolus given', val: '– '+bolusGiven.toFixed(0)+' mL', note: 'Subtract resuscitation fluid given', col:'#2e7d32'},
-    {lbl:'TOTAL over 48hr', val: totalVol.toFixed(0)+' mL', note: 'Replacement + maintenance', col:'#b71c1c'},
-  ];
-  const fluidBoxes = fluidBoxData.map(function(b){
-    return '<div style="background:#fff;border-radius:8px;padding:10px;border-left:3px solid '+b.col+'">'
-      +'<div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.07em">'+b.lbl+'</div>'
-      +'<div style="font-size:22px;font-weight:900;color:'+b.col+';font-family:var(--mono)">'+b.val+'</div>'
-      +'<div style="font-size:10px;color:var(--dim);margin-top:2px">'+b.note+'</div>'
-      +'</div>';
+  const fluidBoxes = [
+    ['Deficit volume', deficit.toFixed(0)+' mL', sev.label+' = '+sev.deficit+'% x '+wt+' kg x 10', '#b71c1c'],
+    ['48hr maintenance', maintenance48.toFixed(0)+' mL', 'Holliday-Segar: '+maintenanceDay.toFixed(0)+' mL/day x 2', '#1565c0'],
+    ['Minus bolus given', '- '+bolusGiven.toFixed(0)+' mL', 'Subtract resuscitation fluid given', '#2e7d32'],
+    ['TOTAL over 48hr', totalVol.toFixed(0)+' mL', 'Replacement + maintenance', '#b71c1c'],
+  ].map(function(b){
+    return '<div style="background:#fff;border-radius:8px;padding:10px;border-left:3px solid '+b[3]+'">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.07em">'+b[0]+'</div>'
+      +'<div style="font-size:22px;font-weight:900;color:'+b[3]+';font-family:var(--mono)">'+b[1]+'</div>'
+      +'<div style="font-size:10px;color:var(--dim);margin-top:2px">'+b[2]+'</div></div>';
   }).join('');
 
-  // Insulin buttons
-  const insulinBtns = [['0.05','Standard (BSPED 2021)'],['0.1','Severe DKA only']].map(function(pair){
-    const d=pair[0], lbl=pair[1], isActive=dkaInsulinDose===d;
-    return '<button onclick="dkaInsulinDose=\''+d+'\';renderDKATab()"'
-      +' style="padding:8px 12px;border-radius:8px;border:2px solid '+(isActive?'#e65100':'var(--bdr)')+';'
-      +'background:'+(isActive?'#fff3e0':'var(--bg3)')+';cursor:pointer;font-size:11px;font-weight:700;color:'+(isActive?'#e65100':'var(--dim)')+';">'
-      +d+' u/kg/hr<br><span style="font-size:10px;font-weight:400">'+lbl+'</span></button>';
+  const fluidSection = wt ? (
+    '<div class="section">'
+    +'<div class="section-title">Step 2 &mdash; Fluid Calculation (48hr replacement)</div>'
+    +'<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+fluidBoxes+'</div>'
+    +'<div style="background:#b71c1c;color:#fff;border-radius:10px;padding:12px;text-align:center">'
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.1em;margin-bottom:4px">HOURLY IV RATE</div>'
+    +'<div style="font-size:42px;font-weight:900;font-family:var(--mono);line-height:1">'+hourlyRate+'</div>'
+    +'<div style="font-size:13px;margin-top:2px">mL/hr for 48 hours</div>'
+    +'<div style="font-size:11px;opacity:0.8;margin-top:4px">0.9% NaCl + 40 mmol/L KCl (if K+ &le;5.5 and urinating)</div>'
+    +'</div></div>'
+    +'<div style="background:#e8f4fd;border-radius:9px;padding:10px 13px;font-size:12px;color:#0d3c6e;line-height:1.7">'
+    +'Add 5% glucose when BG &lt;252 mg/dL &mdash; do NOT reduce insulin. Max fluid first 4hr (incl. bolus): 40&ndash;50 mL/kg. Replace deficit over 48hr.'
+    +'</div></div>'
+  ) : '';
+
+  const insulinBtns = [['0.05','Standard (BSPED 2021)'],['0.1','Severe DKA only']].map(function(p){
+    const d=p[0],lbl=p[1],active=dkaInsulinDose===d;
+    return '<button onclick="dkaInsulinDose=\''+d+'\';renderDKATab()" style="padding:8px 12px;border-radius:8px;border:2px solid '+(active?'#e65100':'var(--bdr)')+';background:'+(active?'#fff3e0':'var(--bg3)')+';cursor:pointer;font-size:11px;font-weight:700;color:'+(active?'#e65100':'var(--dim)')+'">'+d+' u/kg/hr<br><span style="font-size:10px;font-weight:400">'+lbl+'</span></button>';
   }).join('');
 
-  // Electrolyte inputs
-  const elecInputs = [['K+ (mEq/L)',dkaK,'dkaK'],['BG (mg/dL)',dkaBG,'dkaBG'],['Na (mEq/L)',dkaNa,'dkaNa']].map(function(arr){
-    const lbl=arr[0], val=arr[1], key=arr[2];
+  const insulinRateBox = (wt&&insulinRate)?(
+    '<div style="background:#fff;border:2px solid #e65100;border-radius:10px;padding:10px 16px;text-align:center">'
+    +'<div style="font-size:10px;font-weight:700;color:#e65100;letter-spacing:.1em">INSULIN RATE</div>'
+    +'<div style="font-size:32px;font-weight:900;color:#e65100;font-family:var(--mono)">'+insulinRate+'</div>'
+    +'<div style="font-size:12px;color:#e65100">units/hr = mL/hr</div></div>'
+  ):'';
+
+  const elecInputs = [['K+ (mEq/L)',dkaK,'dkaK'],['BG (mg/dL)',dkaBG,'dkaBG'],['Na (mEq/L)',dkaNa,'dkaNa']].map(function(a){
     return '<div style="display:flex;flex-direction:column;gap:3px">'
-      +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.07em">'+lbl+'</label>'
-      +'<input type="number" value="'+esc(val)+'" inputmode="decimal" onchange="'+key+'=this.value;renderDKATab()"'
-      +' style="width:100px;padding:8px;background:var(--bg3);border:2px solid '+(val?'#1565c0':'var(--bdr)')+';border-radius:8px;font-size:16px;font-family:var(--mono);font-weight:700;outline:none"></div>';
+      +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.07em">'+a[0]+'</label>'
+      +'<input type="number" value="'+esc(a[1])+'" inputmode="decimal" onchange="'+a[2]+'=this.value;renderDKATab()" style="width:100px;padding:8px;background:var(--bg3);border:2px solid '+(a[1]?'#1565c0':'var(--bdr)')+';border-radius:8px;font-size:16px;font-family:var(--mono);font-weight:700;outline:none"></div>';
   }).join('');
 
-  // K table
   const kRows = [
-    ['<3.0 mEq/L','Withhold insulin. Aggressive K+ replacement first.','Do not start until K+ >3.0'],
-    ['3.0–3.5','Add KCl urgently. Check q1hr. Review insulin.','40 mmol/L + additional KCl bolus'],
-    ['3.5–5.5','Normal — add KCl routinely to all fluids.','40 mmol/L KCl in all fluids'],
-    ['>5.5','No K+ in fluids. Recheck in 2hr.','No potassium — recheck in 2hr'],
+    ['&lt;3.0','Withhold insulin. Aggressive K+ replacement.','Do not start until K+ >3.0'],
+    ['3.0-3.5','Hypokalaemia — Add KCl urgently. Check q1hr.','40 mmol/L + extra KCl bolus'],
+    ['3.5-5.5','Normal — Add KCl routinely to all fluids.','40 mmol/L KCl in all fluids'],
+    ['&gt;5.5','Hyperkalaemia — No K+ in fluids. Recheck 2hr.','No potassium — recheck in 2hr'],
   ].map(function(r,i){
     return '<tr style="background:'+(i%2===0?'#fafbff':'#fff')+'">'
       +'<td style="padding:8px 10px;font-size:13px;font-weight:700;font-family:var(--mono);color:#1565c0">'+r[0]+'</td>'
       +'<td style="padding:8px 10px;font-size:12px">'+r[1]+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td>'
-      +'</tr>';
+      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td></tr>';
   }).join('');
 
-  // Monitoring rows
   const monRows = [
-    ['Blood glucose','Every 1 hour','BG fall <90 mg/dL/hr; add glucose <252 mg/dL (14 mmol/L)'],
-    ['Potassium','q1–2hr initially, then q2hr','Target 3.5–5.5 mEq/L; adjust KCl in fluids'],
-    ['pH / HCO₃','q2–4hr','Target pH >7.3, HCO₃ >15 mEq/L for resolution'],
-    ['Corrected Na','Every 4 hours','If falls >5 mmol/L in 4hr — reduce fluid rate 50%'],
-    ['ECG / T waves','Continuous (significant K changes)','T wave changes = K+ problem; correlate with labs'],
-    ['Urine output','Hourly','Confirm before adding K+; replace only if massive diuresis'],
-    ['GCS / Neuro','Every hour','Any deterioration — cerebral oedema until proved otherwise'],
-    ['Phosphate','q4–6hr (severe DKA)','Supplement if <1 mg/dL (0.32 mmol/L)'],
+    ['Blood glucose','Every 1 hour','BG fall &lt;90 mg/dL/hr; add glucose if &lt;252 mg/dL'],
+    ['Potassium','q1-2hr, then q2hr','Target 3.5-5.5 mEq/L; adjust KCl in fluids'],
+    ['pH / HCO&#8323;','q2-4hr','Target pH &gt;7.3, HCO&#8323; &gt;15 for resolution'],
+    ['Corrected Na','Every 4 hours','If falls &gt;5 mmol/L in 4hr reduce fluid rate 50%'],
+    ['ECG','Continuous if K+ abnormal','T wave changes = K+ problem'],
+    ['Urine output','Hourly','Confirm before adding K+'],
+    ['GCS / Neuro','Every hour','Any deterioration = cerebral oedema until proved otherwise'],
+    ['Phosphate','q4-6hr (severe DKA)','Supplement if &lt;1 mg/dL (0.32 mmol/L)'],
   ].map(function(r,i){
     return '<tr style="background:'+(i%2===0?'#f8fff8':'#fff')+'">'
       +'<td style="padding:8px 10px;font-size:12px;font-weight:700;color:#2e7d32">'+r[0]+'</td>'
       +'<td style="padding:8px 10px;font-size:12px">'+r[1]+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td>'
-      +'</tr>';
+      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td></tr>';
   }).join('');
 
-  // Cerebral oedema treatment
   const coBtns = [
-    ['3% HTS (first line)','2.5–5 mL/kg over 10–15 min'+(wt?' = '+(2.5*wt).toFixed(0)+'–'+Math.min(5*wt,100).toFixed(0)+' mL (max 100 mL)':'')+'','#c62828'],
-    ['OR Mannitol 20%','0.5–1 g/kg over 20 min'+(wt?' = '+(0.5*wt).toFixed(0)+'–'+Math.min(wt,100).toFixed(0)+' g':''),'#1565c0'],
-    ['Reduce fluid rate','Reduce by 50% immediately; reassess fluid plan','#e65100'],
-    ['Position','Head-up 30°; avoid neck compression','#2e7d32'],
-    ['CT head','AFTER initial treatment — do not delay treatment for scan','#6a1b9a'],
-    ['Neurosurgery','Immediate referral; tertiary centre if needed','#b71c1c'],
+    ['3% HTS (first line)','2.5-5 mL/kg over 10-15 min'+(wt?' = '+(2.5*wt).toFixed(0)+'-'+Math.min(5*wt,100).toFixed(0)+' mL (max 100 mL)':''),'#c62828'],
+    ['OR Mannitol 20%','0.5-1 g/kg over 20 min'+(wt?' = '+(0.5*wt).toFixed(0)+'-'+Math.min(wt,100).toFixed(0)+' g':''),'#1565c0'],
+    ['Reduce fluid rate','Reduce by 50% immediately','#e65100'],
+    ['Position','Head-up 30 degrees','#2e7d32'],
+    ['CT head','AFTER initial treatment','#6a1b9a'],
+    ['Neurosurgery','Immediate referral','#b71c1c'],
   ].map(function(b){
     return '<div style="background:#fff;border-radius:8px;padding:9px 10px;border-left:3px solid '+b[2]+'">'
       +'<div style="font-size:11px;font-weight:700;color:'+b[2]+'">'+b[0]+'</div>'
-      +'<div style="font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4">'+b[1]+'</div>'
-      +'</div>';
+      +'<div style="font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4">'+b[1]+'</div></div>';
   }).join('');
 
-  el.innerHTML = `
-  <div class="drug-panel" style="--drug-color:#b71c1c">
-    <div class="drug-panel-header">
-      <div class="drug-color-bar" style="background:#b71c1c"></div>
-      <div class="drug-header-info">
-        <div class="drug-name">🩸 DKA Management Calculator</div>
-        <div class="drug-badges">
-          <span class="badge badge-type" style="background:#fff0f0;color:#b71c1c">ISPAD 2022 · BSPED 2021</span>
-          <span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">PECARN DKA Fluid Trial 2018</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Step 1 — Severity & Patient Details</div>
-      <div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#5a3e00;line-height:1.7">
-        <b>DKA:</b> BG >200 mg/dL + pH <7.3 or HCO₃ <15 + ketonaemia/ketonuria. Exclude HHS (BG >600, minimal ketones, altered consciousness).
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">${sevButtons}</div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        ${inputField('Weight (kg)',dkaWt,'dkaWt','0.5','100')}
-        ${inputField('Bolus given (mL)',dkaBolus,'dkaBolus','0','500')}
-      </div>
-    </div>
-
-    ${wt ? `
-    <div class="section">
-      <div class="section-title">Step 2 — Fluid Calculation (48hr replacement)</div>
-      <div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">${fluidBoxes}</div>
-        <div style="background:#b71c1c;color:#fff;border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;margin-bottom:4px">HOURLY IV RATE</div>
-          <div style="font-size:42px;font-weight:900;font-family:var(--mono);line-height:1">${hourlyRate}</div>
-          <div style="font-size:13px;margin-top:2px">mL/hr for 48 hours</div>
-          <div style="font-size:11px;opacity:0.8;margin-top:4px">0.9% NaCl + 40 mmol/L KCl (if K+ ≤5.5 and urinating)</div>
-        </div>
-      </div>
-      <div style="background:#e8f4fd;border-radius:9px;padding:10px 13px;font-size:12px;color:#0d3c6e;line-height:1.7">
-        Add 5% glucose when BG <252 mg/dL (14 mmol/L) — do NOT reduce insulin. Max fluid first 4hr (incl. bolus): 40–50 mL/kg. Replace deficit over 48hr. Do not routinely replace urine losses.
-      </div>
-    </div>` : ''}
-
-    <div class="section">
-      <div class="section-title">Step 3 — Insulin Infusion (start 1hr AFTER fluids)</div>
-      <div style="background:#fff3e0;border:1.5px solid #e65100;border-radius:9px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#5a2a00;line-height:1.6">
-        ⚠ Start insulin at least 1hr after IV fluids. Do NOT give bolus insulin. Only start when K+ >3.0 mEq/L. Never stop insulin to treat hypoglycaemia — add glucose instead.
-      </div>
-      <div style="background:var(--bg3);border-radius:10px;padding:12px">
-        <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px">PREP: Actrapid/Humulin R — 1 unit/mL (50 units in 50 mL NS)</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-          <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:10px;font-weight:700;color:var(--dim)">DOSE (units/kg/hr)</label>
-            <div style="display:flex;gap:6px">${insulinBtns}</div>
-          </div>
-          ${wt && insulinRate ? '<div style="background:#fff;border:2px solid #e65100;border-radius:10px;padding:10px 16px;text-align:center"><div style="font-size:10px;font-weight:700;color:#e65100;letter-spacing:.1em">INSULIN RATE</div><div style="font-size:32px;font-weight:900;color:#e65100;font-family:var(--mono)">'+insulinRate+'</div><div style="font-size:12px;color:#e65100">units/hr = mL/hr</div></div>' : ''}
-        </div>
-        <div style="background:#e8f5e9;border-radius:8px;padding:9px 12px;font-size:12px;color:#1b4d20;line-height:1.7">
-          Minimum rate: 0.05 units/kg/hr. If BG <252 mg/dL: add 5% glucose. If BG <126 mg/dL: add 10% glucose. If BG falling >90 mg/dL/hr: add glucose.
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Step 4 — Electrolytes</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">${elecInputs}</div>
-      ${kGuide ? '<div style="background:'+kColor+'15;border:1.5px solid '+kColor+';border-radius:9px;padding:9px 12px;font-size:12px;color:'+kColor+';font-weight:600;margin-bottom:8px;line-height:1.6">K+ '+esc(dkaK)+' mEq/L: '+kGuide+'</div>' : ''}
-      ${bgGuide ? '<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:9px;padding:9px 12px;font-size:12px;color:#5a3e00;font-weight:600;margin-bottom:8px;line-height:1.6">BG '+esc(dkaBG)+' mg/dL ('+bgM+' mmol/L): '+bgGuide+'</div>' : ''}
-      ${corrNa!==null ? '<div style="background:#e8f4fd;border:1.5px solid #1565c0;border-radius:9px;padding:9px 12px;font-size:12px;color:#0d3c6e;margin-bottom:8px;line-height:1.6">Corrected Na = '+esc(dkaNa)+' + 0.3 x ('+bgM+' – 5.6) = <b>'+corrNa+' mEq/L</b><br>'+naGuide+'</div>' : ''}
-      <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr);margin-bottom:10px">
-        <table style="width:100%;border-collapse:collapse;min-width:380px">
-          <thead><tr style="background:#1565c0;color:#fff">
-            <th style="padding:8px 10px;text-align:left;font-size:11px">K+ LEVEL</th>
-            <th style="padding:8px 10px;text-align:left;font-size:11px">ACTION</th>
-            <th style="padding:8px 10px;text-align:left;font-size:11px">KCl IN FLUIDS</th>
-          </tr></thead>
-          <tbody>${kRows}</tbody>
-        </table>
-      </div>
-      <div style="background:#f3f0ff;border-radius:9px;padding:10px 13px;font-size:12px;color:#3d1a78;line-height:1.7">
-        <b>Potassium Phosphate (ISPAD 2022):</b> Routine phosphate replacement advisable in severe DKA. Severe hypophosphataemia (<1 mg/dL / <0.32 mmol/L): treat promptly.
-        ${wt ? 'KPhos 0.1–0.2 mmol/kg/hr phosphate: for '+wt+' kg = '+(0.1*wt).toFixed(1)+'–'+(0.2*wt).toFixed(1)+' mmol/hr.' : 'Enter weight for KPhos dose.'}
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Monitoring Schedule</div>
-      <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">
-        <table style="width:100%;border-collapse:collapse;min-width:380px">
-          <thead><tr style="background:#2e7d32;color:#fff">
-            <th style="padding:8px 10px;text-align:left;font-size:11px">PARAMETER</th>
-            <th style="padding:8px 10px;text-align:left;font-size:11px">FREQUENCY</th>
-            <th style="padding:8px 10px;text-align:left;font-size:11px">TARGET / ACTION</th>
-          </tr></thead>
-          <tbody>${monRows}</tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">⚠️ Cerebral Oedema — Recognition & Treatment</div>
-      <div style="background:#fff0f0;border:2px solid #b71c1c;border-radius:11px;padding:12px 14px">
-        <div style="font-size:12px;font-weight:800;color:#b71c1c;margin-bottom:6px">SIGNS (treat immediately — do NOT wait for imaging)</div>
-        <div style="font-size:12px;color:#5a0000;margin-bottom:10px;line-height:1.7">GCS fall · New headache · Confusion · Unequal pupils · Focal neurology · Cushing triad · Seizures</div>
-        <div style="font-size:12px;font-weight:700;color:#b71c1c;margin-bottom:4px">RISK FACTORS: Age <5yr · pH <7.1 · pCO₂ <21 mmHg · BUN >20 mg/dL · New diagnosis DKA</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">${coBtns}</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Resolution & Switch to Subcutaneous Insulin</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:#e8f5e9;border-radius:10px;padding:11px 13px;border:1.5px solid #2e7d32">
-          <div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:6px">RESOLUTION (all 3 needed)</div>
-          <div style="font-size:12px;color:#1b4d20;line-height:1.8">pH >7.3 AND HCO₃ >15 mEq/L AND BG near normal AND tolerating oral fluids</div>
-        </div>
-        <div style="background:#e8f4fd;border-radius:10px;padding:11px 13px;border:1.5px solid #1565c0">
-          <div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:6px">SC SWITCH</div>
-          <div style="font-size:12px;color:#0d3c6e;line-height:1.8">1. Give SC insulin (meal dose)<br>2. Wait 30 min<br>3. THEN stop IV insulin</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div style="background:var(--bg3);border-radius:9px;padding:10px 13px;font-size:11px;color:var(--dim);line-height:1.8">
-        <b>References:</b> ISPAD DKA Guidelines 2022 (Glaser N et al. Pediatr Diabetes. 2022;23:835) · BSPED DKA Guideline 2021 v3 (bsped.org.uk) · PECARN DKA Fluid Trial (Kuppermann N et al. NEJM. 2018;378:2275) · CPS Paediatric DKA 2023 (Paediatr Child Health 2023;28:128)
-      </div>
-    </div>
-  </div>`;
+  el.innerHTML =
+    '<div class="drug-panel" style="--drug-color:#b71c1c">'
+    +'<div class="drug-panel-header"><div class="drug-color-bar" style="background:#b71c1c"></div>'
+    +'<div class="drug-header-info"><div class="drug-name">&#x1FA78; DKA Management Calculator</div>'
+    +'<div class="drug-badges"><span class="badge badge-type" style="background:#fff0f0;color:#b71c1c">ISPAD 2022 &middot; BSPED 2021</span>'
+    +'<span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">PECARN DKA Fluid Trial 2018</span></div></div></div>'
+    +'<div class="section"><div class="section-title">Step 1 &mdash; Severity &amp; Patient Details</div>'
+    +'<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#5a3e00;line-height:1.7">'
+    +'<b>DKA:</b> BG &gt;200 mg/dL + pH &lt;7.3 or HCO&#8323; &lt;15 + ketonaemia. Exclude HHS (BG &gt;600, minimal ketones, altered consciousness).</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">'+sevBtns+'</div>'
+    +'<div style="display:flex;gap:12px;flex-wrap:wrap">'+numInput('Weight (kg)',dkaWt,'dkaWt','0.5','100')+numInput('Bolus given (mL)',dkaBolus,'dkaBolus','0','500')+'</div></div>'
+    +fluidSection
+    +'<div class="section"><div class="section-title">Step 3 &mdash; Insulin (start 1hr AFTER fluids)</div>'
+    +'<div style="background:#fff3e0;border:1.5px solid #e65100;border-radius:9px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#5a2a00;line-height:1.6">'
+    +'Start insulin at least 1hr after IV fluids. No bolus insulin. Only start when K+ &gt;3.0. Never stop insulin for hypoglycaemia &mdash; add glucose instead.</div>'
+    +'<div style="background:var(--bg3);border-radius:10px;padding:12px">'
+    +'<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px">PREP: 1 unit/mL &mdash; 50 units Actrapid in 50 mL NS</div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
+    +'<div><label style="font-size:10px;font-weight:700;color:var(--dim);display:block;margin-bottom:4px">DOSE (units/kg/hr)</label>'
+    +'<div style="display:flex;gap:6px">'+insulinBtns+'</div></div>'+insulinRateBox+'</div>'
+    +'<div style="background:#e8f5e9;border-radius:8px;padding:9px 12px;font-size:12px;color:#1b4d20;line-height:1.7">'
+    +'Minimum 0.05 u/kg/hr. BG &lt;252 mg/dL: add 5% glucose. BG &lt;126 mg/dL: add 10% glucose.</div></div></div>'
+    +'<div class="section"><div class="section-title">Step 4 &mdash; Electrolytes</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+elecInputs+'</div>'
+    +(kGuide?'<div style="background:'+kColor+'15;border:1.5px solid '+kColor+';border-radius:9px;padding:9px 12px;font-size:12px;color:'+kColor+';font-weight:600;margin-bottom:8px;line-height:1.6">K+ '+esc(dkaK)+' mEq/L: '+kGuide+'</div>':'')
+    +(bgGuide?'<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:9px;padding:9px 12px;font-size:12px;color:#5a3e00;font-weight:600;margin-bottom:8px;line-height:1.6">BG '+esc(dkaBG)+' mg/dL ('+bgM+' mmol/L): '+bgGuide+'</div>':'')
+    +(corrNa!==null?'<div style="background:#e8f4fd;border:1.5px solid #1565c0;border-radius:9px;padding:9px 12px;font-size:12px;color:#0d3c6e;margin-bottom:8px;line-height:1.6">Corrected Na = '+esc(dkaNa)+' + 0.3 x ('+bgM+' - 5.6) = <b>'+corrNa+' mEq/L</b><br>'+naGuide+'</div>':'')
+    +'<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr);margin-bottom:10px">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:360px"><thead><tr style="background:#1565c0;color:#fff">'
+    +'<th style="padding:8px 10px;text-align:left;font-size:11px">K+ LEVEL</th><th style="padding:8px 10px;text-align:left;font-size:11px">ACTION</th><th style="padding:8px 10px;text-align:left;font-size:11px">KCl IN FLUIDS</th>'
+    +'</tr></thead><tbody>'+kRows+'</tbody></table></div>'
+    +'<div style="background:#f3f0ff;border-radius:9px;padding:10px 13px;font-size:12px;color:#3d1a78;line-height:1.7">'
+    +'<b>KPhos (ISPAD 2022):</b> Routine phosphate replacement in severe DKA. &lt;1 mg/dL: treat promptly.'
+    +(wt?' For '+wt+' kg: '+(0.1*wt).toFixed(1)+'-'+(0.2*wt).toFixed(1)+' mmol/hr KPhos (0.1-0.2 mmol/kg/hr).':' Enter weight for KPhos dose.')
+    +'</div></div>'
+    +'<div class="section"><div class="section-title">Monitoring Schedule</div>'
+    +'<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:360px"><thead><tr style="background:#2e7d32;color:#fff">'
+    +'<th style="padding:8px 10px;text-align:left;font-size:11px">PARAMETER</th><th style="padding:8px 10px;text-align:left;font-size:11px">FREQUENCY</th><th style="padding:8px 10px;text-align:left;font-size:11px">TARGET</th>'
+    +'</tr></thead><tbody>'+monRows+'</tbody></table></div></div>'
+    +'<div class="section"><div class="section-title">&#9888;&#65039; Cerebral Oedema</div>'
+    +'<div style="background:#fff0f0;border:2px solid #b71c1c;border-radius:11px;padding:12px 14px">'
+    +'<div style="font-size:12px;font-weight:800;color:#b71c1c;margin-bottom:6px">SIGNS (treat immediately)</div>'
+    +'<div style="font-size:12px;color:#5a0000;margin-bottom:8px;line-height:1.7">GCS fall &middot; New headache &middot; Confusion &middot; Unequal pupils &middot; Focal neurology &middot; Cushing triad</div>'
+    +'<div style="font-size:12px;font-weight:700;color:#b71c1c;margin-bottom:6px">RISK: Age &lt;5yr &middot; pH &lt;7.1 &middot; pCO&#8322; &lt;21 &middot; BUN &gt;20 mg/dL &middot; New DKA</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+coBtns+'</div></div></div>'
+    +'<div class="section"><div class="section-title">Resolution &amp; SC Switch</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +'<div style="background:#e8f5e9;border-radius:10px;padding:11px 13px;border:1.5px solid #2e7d32">'
+    +'<div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:6px">RESOLUTION (all needed)</div>'
+    +'<div style="font-size:12px;color:#1b4d20;line-height:1.8">pH &gt;7.3 AND HCO&#8323; &gt;15 AND BG normal AND tolerating oral fluids</div></div>'
+    +'<div style="background:#e8f4fd;border-radius:10px;padding:11px 13px;border:1.5px solid #1565c0">'
+    +'<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:6px">SC SWITCH</div>'
+    +'<div style="font-size:12px;color:#0d3c6e;line-height:1.8">1. Give SC insulin<br>2. Wait 30 min<br>3. THEN stop IV insulin</div></div></div></div>'
+    +'<div class="section"><div style="background:var(--bg3);border-radius:9px;padding:10px 13px;font-size:11px;color:var(--dim);line-height:1.8">'
+    +'<b>Refs:</b> ISPAD 2022 (Glaser N et al. Pediatr Diabetes 2022;23:835) &middot; BSPED DKA Guideline 2021 v3 &middot; PECARN DKA Fluid Trial (NEJM 2018;378:2275) &middot; CPS Paediatric DKA 2023'
+    +'</div></div></div>';
 }
-
 
 function selectAbx(i){
   selectedAbx=i;
@@ -3980,7 +3905,18 @@ function renderAll(){
   renderGIR();
   renderWeightBanner();
   renderUnitToggleBar();
-  renderDrugDisplay();
+  // Direct routing for special tabs
+  if(activeCategory==='dka'){
+    renderDKATab();
+  } else if(activeCategory==='intubation'){
+    renderIntubationTab();
+  } else if(activeCategory==='references'){
+    renderReferencesTab();
+  } else if(activeCategory==='antibiotics'){
+    renderAbxTab();
+  } else {
+    renderDrugDisplay();
+  }
 }
 
 // ── Actions ───────────────────────────────────────────────────
