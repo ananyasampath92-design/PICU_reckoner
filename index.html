@@ -3,315 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="description" content="KMCT PICU ICU Infusion Ready Reckoner. Developed by Dr. Ananya, KMCT Medical College. Built with AI assistance.">
-<meta name="theme-color" content="#c1121f">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PICU Reckoner">
+<meta name="application-name" content="PICU Reckoner">
+<meta name="theme-color" content="#c1121f">
+<meta name="description" content="KMCT PICU ICU Infusion Ready Reckoner — Developed by Dr. Ananya, KMCT Medical College. Built with AI assistance.">
+<meta name="mobile-web-app-capable" content="yes">
+<title>PICU Reckoner</title>
 <link rel="manifest" href="manifest.json">
-<title>KMCT PICU Reckoner</title>
+<!-- iOS icon -->
+<link rel="apple-touch-icon" href="icon.png">
+<!-- Inline SVG icon as data URI for iOS -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23c1121f'/%3E%3Ctext x='90' y='80' font-family='Arial' font-size='52' font-weight='900' fill='white' text-anchor='middle'%3EPICU%3C/text%3E%3Ctext x='90' y='130' font-family='Arial' font-size='26' font-weight='700' fill='rgba(255,255,255,0.85)' text-anchor='middle'%3EReckon%3C/text%3E%3C/svg%3E">
+<style>
+/* PWA splash / install prompt */
+#install-banner{display:none;position:fixed;bottom:70px;left:12px;right:12px;background:#1a1d2e;color:#fff;border-radius:14px;padding:14px 16px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.25);align-items:center;gap:12px}
+#install-banner .ib-icon{width:44px;height:44px;border-radius:10px;background:#c1121f;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+#install-banner .ib-text{flex:1}
+#install-banner .ib-title{font-weight:800;font-size:14px}
+#install-banner .ib-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
+#install-banner .ib-btn{background:#c1121f;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
+#install-banner .ib-close{background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
+</style>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+:root{
+  --red:#c1121f;--red2:#e63946;--bg:#f0f2f8;--card:#ffffff;
+  --text:#1a1d2e;--text2:#3d4166;--dim:#6b6f8a;--dim2:#9da0b8;
+  --bdr:#dde0f0;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;padding-bottom:70px;min-height:100vh}
+
+/* ── HEADER ── */
+#hdr{background:linear-gradient(135deg,#c1121f 0%,#e63946 100%);padding:14px 16px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(193,18,31,0.3)}
+.hdr-row1{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hdr-logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.4)}
+.hdr-info{flex:1}
+.hdr-info h1{font-size:14px;font-weight:800;color:#fff;letter-spacing:.03em;line-height:1.2}
+.hdr-info p{font-size:10px;color:rgba(255,255,255,0.75);margin-top:1px;letter-spacing:.05em}
+.hdr-wt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hdr-wt label{font-size:9px;color:rgba(255,255,255,0.8);font-weight:700;letter-spacing:.1em}
+.wt-row{display:flex;align-items:center;gap:4px}
+#wt-input{width:72px;padding:6px 8px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:8px;color:#fff;font-size:20px;font-family:var(--mono);font-weight:700;text-align:center;outline:none;-webkit-appearance:none}
+#wt-input::placeholder{color:rgba(255,255,255,0.45);font-size:14px}
+#wt-input.filled{background:rgba(255,255,255,0.3);border-color:#fff}
+.wt-kg{font-size:13px;color:#fff;font-weight:700}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 36px;background:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font);color:var(--text);outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+
+/* ── CATEGORY TABS ── */
+#tabs{background:#fff;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bdr);position:sticky;top:116px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+#tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;border:none;background:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--dim);white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab .t-icon{font-size:16px;line-height:1}
+.tab.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* ── DRUG PILL SELECTOR ── */
+#pill-bar{background:#fff;border-bottom:1px solid var(--bdr);padding:10px 14px;overflow-x:auto;display:flex;gap:7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#pill-bar::-webkit-scrollbar{display:none}
+.drug-pill{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bdr);background:#fff;font-size:12px;font-family:var(--font);font-weight:600;color:var(--dim);white-space:nowrap;cursor:pointer;transition:all .18s;flex-shrink:0}
+.drug-pill.active{color:#fff;border-color:transparent}
+
+/* ── MAIN CONTENT ── */
+#content{padding:14px 14px 0}
+
+/* ── WEIGHT BANNER ── */
+#wt-banner{background:#fff7ed;border:1.5px dashed #f4a261;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#a05020}
+
+/* ── DRUG PANEL ── */
+.drug-panel{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden;margin-bottom:12px}
+.drug-panel-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.drug-color-bar{width:5px;border-radius:3px;align-self:stretch;flex-shrink:0;min-height:40px}
+.drug-header-info{flex:1}
+.drug-name{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.drug-badges{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.badge{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.03em}
+.badge-warn{background:#fff0f0;color:#c1121f;border:1px solid #ffb3b3}
+.badge-type{background:#eef0fa;color:var(--dim)}
+.badge-rule{background:#f0f8ff;color:#2a70b8;font-family:var(--mono);font-size:10px}
+
+/* ── SECTIONS ── */
+.section{padding:12px 16px;border-top:1px solid var(--bdr)}
+.section-title{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+
+/* PREP BOX */
+.prep-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--drug-color,#888);font-size:13px;color:var(--text);line-height:1.7;font-family:var(--mono)}
+
+/* RANGES */
+.range-table{border-radius:10px;overflow:hidden;border:1px solid var(--bdr)}
+.range-row{display:flex;flex-direction:column;padding:9px 11px;font-size:13px;gap:3px}
+.range-row:not(:last-child){border-bottom:1px solid var(--bdr)}
+.range-row:nth-child(odd){background:#fafbff}
+.range-row:nth-child(even){background:#fff}
+.range-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rd{font-weight:700;font-family:var(--mono);font-size:14px}
+.rl{color:var(--dim);font-size:12px;background:var(--bg3);padding:2px 8px;border-radius:10px}
+.re{color:var(--text2);font-size:12px;line-height:1.5;padding-left:2px}
+
+/* CALCULATOR */
+.calc-card{background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;border:1.5px solid var(--bdr)}
+.calc-inputs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.calc-field{display:flex;flex-direction:column;gap:3px}
+.calc-field label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em}
+.calc-field input{width:130px;padding:10px 12px;background:#fff;border:2px solid var(--bdr);border-radius:9px;font-size:17px;font-family:var(--mono);font-weight:700;color:var(--text);outline:none;transition:border-color .15s}
+.calc-field input:focus{border-color:var(--drug-color,var(--red))}
+.calc-unit-lbl{font-size:13px;color:var(--dim);font-weight:600;padding-top:20px}
+.result-box{background:#fff;border-radius:12px;padding:12px 16px;border:2px solid var(--drug-color,#888);margin-top:4px;display:none}
+.result-box.show{display:flex;align-items:baseline;gap:6px}
+.result-label{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.1em;margin-bottom:2px}
+.result-val{font-size:34px;font-weight:900;font-family:var(--mono);line-height:1}
+.result-unit{font-size:15px;font-weight:600;color:var(--dim)}
+
+/* DOSE LADDER */
+.ladder-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.l-pill{background:#f0f2f8;border:1.5px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.l-pill:active{transform:scale(.96)}
+.l-dose{font-weight:700}
+.l-arrow{color:var(--dim2);margin:0 3px}
+.l-rate{font-weight:800}
+
+/* BOLUS / NOTES */
+.bolus-box{background:#f5f0fa;border-radius:10px;padding:11px 13px;border-left:4px solid #7c5c9a}
+.bolus-box p{font-size:13px;color:#4a3560;line-height:1.65}
+.notes-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--bdr)}
+.notes-box p{font-size:13px;color:var(--dim);line-height:1.7}
+.notes-box.warn{background:#fff5f5;border-left-color:#e63946}
+.notes-box.warn p{color:#8a2020}
+
+/* ── GIR WIDGET ── */
+#gir-section{margin-bottom:12px}
+.gir-card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden}
+.gir-head{background:linear-gradient(135deg,#166c38,#2d9e55);padding:13px 16px;display:flex;align-items:center;gap:8px}
+.gir-head h2{color:#fff;font-size:14px;font-weight:800;letter-spacing:.03em}
+.gir-panels{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--bdr)}
+.gir-panel{padding:13px}
+.gir-panel:first-child{border-right:1px solid var(--bdr)}
+.gir-panel h3{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em;margin-bottom:10px}
+.gir-field{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.gir-field label{font-size:11px;color:var(--dim);width:74px;flex-shrink:0}
+.gir-field input{flex:1;max-width:75px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:7px;font-size:13px;font-family:var(--mono);color:var(--text);outline:none}
+.gir-result{background:#e8f5ee;border:2px solid #4caf70;border-radius:9px;padding:8px;text-align:center;margin-top:8px;display:none}
+.gir-result.show{display:block}
+.gir-result .gr-lbl{font-size:10px;font-weight:700;color:#2d7a50;letter-spacing:.08em}
+.gir-result .gr-val{font-size:24px;font-weight:900;color:#166c38;font-family:var(--mono)}
+.gir-result .gr-unit{font-size:12px;color:#2d7a50}
+.gir-note{padding:10px 14px;background:#f0faf4;font-size:11px;color:#3a6b4a;border-top:1px solid #c8e6d0;line-height:1.6}
+
+/* ── FOOTER ── */
+#footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bdr);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -2px 10px rgba(0,0,0,0.06)}
+.footer-credit{font-size:11px;color:var(--red);font-weight:700}
+.footer-credit span{color:var(--dim2);font-weight:400}
+.footer-disc{font-size:10px;color:var(--dim2)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:50px 20px;color:var(--dim)}
+.empty .e-icon{font-size:40px;margin-bottom:10px}
+.empty p{font-size:15px}
+</style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-N87B31RF4V"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
+  function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-N87B31RF4V');
 </script>
-<style>
-/* PWA splash / install prompt */
-#install-banner{display:none;position:fixed;bottom:70px;left:12px;right:12px;background:#1a1d2e;color:#fff;border-radius:14px;padding:14px 16px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.25);align-items:center;gap:12px}
-#install-banner .ib-icon{width:44px;height:44px;border-radius:10px;background:#c1121f;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-#install-banner .ib-text{flex:1}
-#install-banner .ib-title{font-weight:800;font-size:14px}
-#install-banner .ib-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
-#install-banner .ib-btn{background:#c1121f;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
-#install-banner .ib-close{background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
-</style>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-:root{
-  --red:#c1121f;--red2:#e63946;--bg:#f0f2f8;--card:#ffffff;
-  --text:#1a1d2e;--text2:#3d4166;--dim:#6b6f8a;--dim2:#9da0b8;
-  --bdr:#dde0f0;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --mono:'IBM Plex Mono','Courier New',monospace;
-}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;padding-bottom:70px;min-height:100vh}
-
-/* ── HEADER ── */
-#hdr{background:linear-gradient(135deg,#c1121f 0%,#e63946 100%);padding:14px 16px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(193,18,31,0.3)}
-.hdr-row1{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.hdr-logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.4)}
-.hdr-info{flex:1}
-.hdr-info h1{font-size:14px;font-weight:800;color:#fff;letter-spacing:.03em;line-height:1.2}
-.hdr-info p{font-size:10px;color:rgba(255,255,255,0.75);margin-top:1px;letter-spacing:.05em}
-.hdr-wt{display:flex;flex-direction:column;align-items:center;gap:2px}
-.hdr-wt label{font-size:9px;color:rgba(255,255,255,0.8);font-weight:700;letter-spacing:.1em}
-.wt-row{display:flex;align-items:center;gap:4px}
-#wt-input{width:72px;padding:6px 8px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:8px;color:#fff;font-size:20px;font-family:var(--mono);font-weight:700;text-align:center;outline:none;-webkit-appearance:none}
-#wt-input::placeholder{color:rgba(255,255,255,0.45);font-size:14px}
-#wt-input.filled{background:rgba(255,255,255,0.3);border-color:#fff}
-.wt-kg{font-size:13px;color:#fff;font-weight:700}
-.search-wrap{position:relative}
-.search-wrap input{width:100%;padding:9px 14px 9px 36px;background:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font);color:var(--text);outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
-
-/* ── CATEGORY TABS ── */
-#tabs{background:#fff;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bdr);position:sticky;top:116px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
-#tabs::-webkit-scrollbar{display:none}
-.tab{padding:10px 14px;border:none;background:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--dim);white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:2px}
-.tab .t-icon{font-size:16px;line-height:1}
-.tab.active{color:var(--red);border-bottom-color:var(--red)}
-
-/* ── DRUG PILL SELECTOR ── */
-#pill-bar{background:#fff;border-bottom:1px solid var(--bdr);padding:10px 14px;overflow-x:auto;display:flex;gap:7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-#pill-bar::-webkit-scrollbar{display:none}
-.drug-pill{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bdr);background:#fff;font-size:12px;font-family:var(--font);font-weight:600;color:var(--dim);white-space:nowrap;cursor:pointer;transition:all .18s;flex-shrink:0}
-.drug-pill.active{color:#fff;border-color:transparent}
-
-/* ── MAIN CONTENT ── */
-#content{padding:14px 14px 0}
-
-/* ── WEIGHT BANNER ── */
-#wt-banner{background:#fff7ed;border:1.5px dashed #f4a261;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#a05020}
-
-/* ── DRUG PANEL ── */
-.drug-panel{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden;margin-bottom:12px}
-.drug-panel-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
-.drug-color-bar{width:5px;border-radius:3px;align-self:stretch;flex-shrink:0;min-height:40px}
-.drug-header-info{flex:1}
-.drug-name{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
-.drug-badges{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
-.badge{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.03em}
-.badge-warn{background:#fff0f0;color:#c1121f;border:1px solid #ffb3b3}
-.badge-type{background:#eef0fa;color:var(--dim)}
-.badge-rule{background:#f0f8ff;color:#2a70b8;font-family:var(--mono);font-size:10px}
-
-/* ── SECTIONS ── */
-.section{padding:12px 16px;border-top:1px solid var(--bdr)}
-.section-title{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
-
-/* PREP BOX */
-.prep-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--drug-color,#888);font-size:13px;color:var(--text);line-height:1.7;font-family:var(--mono)}
-
-/* RANGES */
-.range-table{border-radius:10px;overflow:hidden;border:1px solid var(--bdr)}
-.range-row{display:flex;flex-direction:column;padding:9px 11px;font-size:13px;gap:3px}
-.range-row:not(:last-child){border-bottom:1px solid var(--bdr)}
-.range-row:nth-child(odd){background:#fafbff}
-.range-row:nth-child(even){background:#fff}
-.range-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.rd{font-weight:700;font-family:var(--mono);font-size:14px}
-.rl{color:var(--dim);font-size:12px;background:var(--bg3);padding:2px 8px;border-radius:10px}
-.re{color:var(--text2);font-size:12px;line-height:1.5;padding-left:2px}
-
-/* CALCULATOR */
-.calc-card{background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;border:1.5px solid var(--bdr)}
-.calc-inputs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-.calc-field{display:flex;flex-direction:column;gap:3px}
-.calc-field label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em}
-.calc-field input{width:130px;padding:10px 12px;background:#fff;border:2px solid var(--bdr);border-radius:9px;font-size:17px;font-family:var(--mono);font-weight:700;color:var(--text);outline:none;transition:border-color .15s}
-.calc-field input:focus{border-color:var(--drug-color,var(--red))}
-.calc-unit-lbl{font-size:13px;color:var(--dim);font-weight:600;padding-top:20px}
-.result-box{background:#fff;border-radius:12px;padding:12px 16px;border:2px solid var(--drug-color,#888);margin-top:4px;display:none}
-.result-box.show{display:flex;align-items:baseline;gap:6px}
-.result-label{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.1em;margin-bottom:2px}
-.result-val{font-size:34px;font-weight:900;font-family:var(--mono);line-height:1}
-.result-unit{font-size:15px;font-weight:600;color:var(--dim)}
-
-/* DOSE LADDER */
-.ladder-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.l-pill{background:#f0f2f8;border:1.5px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s}
-.l-pill:active{transform:scale(.96)}
-.l-dose{font-weight:700}
-.l-arrow{color:var(--dim2);margin:0 3px}
-.l-rate{font-weight:800}
-
-/* BOLUS / NOTES */
-.bolus-box{background:#f5f0fa;border-radius:10px;padding:11px 13px;border-left:4px solid #7c5c9a}
-.bolus-box p{font-size:13px;color:#4a3560;line-height:1.65}
-.notes-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--bdr)}
-.notes-box p{font-size:13px;color:var(--dim);line-height:1.7}
-.notes-box.warn{background:#fff5f5;border-left-color:#e63946}
-.notes-box.warn p{color:#8a2020}
-
-/* ── GIR WIDGET ── */
-#gir-section{margin-bottom:12px}
-.gir-card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden}
-.gir-head{background:linear-gradient(135deg,#166c38,#2d9e55);padding:13px 16px;display:flex;align-items:center;gap:8px}
-.gir-head h2{color:#fff;font-size:14px;font-weight:800;letter-spacing:.03em}
-.gir-panels{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--bdr)}
-.gir-panel{padding:13px}
-.gir-panel:first-child{border-right:1px solid var(--bdr)}
-.gir-panel h3{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em;margin-bottom:10px}
-.gir-field{display:flex;align-items:center;gap:6px;margin-bottom:7px}
-.gir-field label{font-size:11px;color:var(--dim);width:74px;flex-shrink:0}
-.gir-field input{flex:1;max-width:75px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:7px;font-size:13px;font-family:var(--mono);color:var(--text);outline:none}
-.gir-result{background:#e8f5ee;border:2px solid #4caf70;border-radius:9px;padding:8px;text-align:center;margin-top:8px;display:none}
-.gir-result.show{display:block}
-.gir-result .gr-lbl{font-size:10px;font-weight:700;color:#2d7a50;letter-spacing:.08em}
-.gir-result .gr-val{font-size:24px;font-weight:900;color:#166c38;font-family:var(--mono)}
-.gir-result .gr-unit{font-size:12px;color:#2d7a50}
-.gir-note{padding:10px 14px;background:#f0faf4;font-size:11px;color:#3a6b4a;border-top:1px solid #c8e6d0;line-height:1.6}
-
-/* ── FOOTER ── */
-#footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bdr);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -2px 10px rgba(0,0,0,0.06)}
-.footer-credit{font-size:11px;color:var(--red);font-weight:700}
-.footer-credit span{color:var(--dim2);font-weight:400}
-.footer-disc{font-size:10px;color:var(--dim2)}
-
-/* ── EMPTY STATE ── */
-.empty{text-align:center;padding:50px 20px;color:var(--dim)}
-.empty .e-icon{font-size:40px;margin-bottom:10px}
-.empty p{font-size:15px}
-</style>
-<style>
-/* PWA splash / install prompt */
-#install-banner{display:none;position:fixed;bottom:70px;left:12px;right:12px;background:#1a1d2e;color:#fff;border-radius:14px;padding:14px 16px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.25);align-items:center;gap:12px}
-#install-banner .ib-icon{width:44px;height:44px;border-radius:10px;background:#c1121f;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-#install-banner .ib-text{flex:1}
-#install-banner .ib-title{font-weight:800;font-size:14px}
-#install-banner .ib-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
-#install-banner .ib-btn{background:#c1121f;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
-#install-banner .ib-close{background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
-</style>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-:root{
-  --red:#c1121f;--red2:#e63946;--bg:#f0f2f8;--card:#ffffff;
-  --text:#1a1d2e;--text2:#3d4166;--dim:#6b6f8a;--dim2:#9da0b8;
-  --bdr:#dde0f0;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --mono:'IBM Plex Mono','Courier New',monospace;
-}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;padding-bottom:70px;min-height:100vh}
-
-/* ── HEADER ── */
-#hdr{background:linear-gradient(135deg,#c1121f 0%,#e63946 100%);padding:14px 16px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(193,18,31,0.3)}
-.hdr-row1{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.hdr-logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.4)}
-.hdr-info{flex:1}
-.hdr-info h1{font-size:14px;font-weight:800;color:#fff;letter-spacing:.03em;line-height:1.2}
-.hdr-info p{font-size:10px;color:rgba(255,255,255,0.75);margin-top:1px;letter-spacing:.05em}
-.hdr-wt{display:flex;flex-direction:column;align-items:center;gap:2px}
-.hdr-wt label{font-size:9px;color:rgba(255,255,255,0.8);font-weight:700;letter-spacing:.1em}
-.wt-row{display:flex;align-items:center;gap:4px}
-#wt-input{width:72px;padding:6px 8px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:8px;color:#fff;font-size:20px;font-family:var(--mono);font-weight:700;text-align:center;outline:none;-webkit-appearance:none}
-#wt-input::placeholder{color:rgba(255,255,255,0.45);font-size:14px}
-#wt-input.filled{background:rgba(255,255,255,0.3);border-color:#fff}
-.wt-kg{font-size:13px;color:#fff;font-weight:700}
-.search-wrap{position:relative}
-.search-wrap input{width:100%;padding:9px 14px 9px 36px;background:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font);color:var(--text);outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
-
-/* ── CATEGORY TABS ── */
-#tabs{background:#fff;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bdr);position:sticky;top:116px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
-#tabs::-webkit-scrollbar{display:none}
-.tab{padding:10px 14px;border:none;background:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--dim);white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:2px}
-.tab .t-icon{font-size:16px;line-height:1}
-.tab.active{color:var(--red);border-bottom-color:var(--red)}
-
-/* ── DRUG PILL SELECTOR ── */
-#pill-bar{background:#fff;border-bottom:1px solid var(--bdr);padding:10px 14px;overflow-x:auto;display:flex;gap:7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-#pill-bar::-webkit-scrollbar{display:none}
-.drug-pill{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bdr);background:#fff;font-size:12px;font-family:var(--font);font-weight:600;color:var(--dim);white-space:nowrap;cursor:pointer;transition:all .18s;flex-shrink:0}
-.drug-pill.active{color:#fff;border-color:transparent}
-
-/* ── MAIN CONTENT ── */
-#content{padding:14px 14px 0}
-
-/* ── WEIGHT BANNER ── */
-#wt-banner{background:#fff7ed;border:1.5px dashed #f4a261;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#a05020}
-
-/* ── DRUG PANEL ── */
-.drug-panel{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden;margin-bottom:12px}
-.drug-panel-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
-.drug-color-bar{width:5px;border-radius:3px;align-self:stretch;flex-shrink:0;min-height:40px}
-.drug-header-info{flex:1}
-.drug-name{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
-.drug-badges{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
-.badge{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.03em}
-.badge-warn{background:#fff0f0;color:#c1121f;border:1px solid #ffb3b3}
-.badge-type{background:#eef0fa;color:var(--dim)}
-.badge-rule{background:#f0f8ff;color:#2a70b8;font-family:var(--mono);font-size:10px}
-
-/* ── SECTIONS ── */
-.section{padding:12px 16px;border-top:1px solid var(--bdr)}
-.section-title{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
-
-/* PREP BOX */
-.prep-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--drug-color,#888);font-size:13px;color:var(--text);line-height:1.7;font-family:var(--mono)}
-
-/* RANGES */
-.range-table{border-radius:10px;overflow:hidden;border:1px solid var(--bdr)}
-.range-row{display:flex;flex-direction:column;padding:9px 11px;font-size:13px;gap:3px}
-.range-row:not(:last-child){border-bottom:1px solid var(--bdr)}
-.range-row:nth-child(odd){background:#fafbff}
-.range-row:nth-child(even){background:#fff}
-.range-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.rd{font-weight:700;font-family:var(--mono);font-size:14px}
-.rl{color:var(--dim);font-size:12px;background:var(--bg3);padding:2px 8px;border-radius:10px}
-.re{color:var(--text2);font-size:12px;line-height:1.5;padding-left:2px}
-
-/* CALCULATOR */
-.calc-card{background:linear-gradient(135deg,#f8f9ff,#eef0fa);border-radius:12px;padding:14px;border:1.5px solid var(--bdr)}
-.calc-inputs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-.calc-field{display:flex;flex-direction:column;gap:3px}
-.calc-field label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em}
-.calc-field input{width:130px;padding:10px 12px;background:#fff;border:2px solid var(--bdr);border-radius:9px;font-size:17px;font-family:var(--mono);font-weight:700;color:var(--text);outline:none;transition:border-color .15s}
-.calc-field input:focus{border-color:var(--drug-color,var(--red))}
-.calc-unit-lbl{font-size:13px;color:var(--dim);font-weight:600;padding-top:20px}
-.result-box{background:#fff;border-radius:12px;padding:12px 16px;border:2px solid var(--drug-color,#888);margin-top:4px;display:none}
-.result-box.show{display:flex;align-items:baseline;gap:6px}
-.result-label{font-size:10px;font-weight:800;color:var(--dim2);letter-spacing:.1em;margin-bottom:2px}
-.result-val{font-size:34px;font-weight:900;font-family:var(--mono);line-height:1}
-.result-unit{font-size:15px;font-weight:600;color:var(--dim)}
-
-/* DOSE LADDER */
-.ladder-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.l-pill{background:#f0f2f8;border:1.5px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s}
-.l-pill:active{transform:scale(.96)}
-.l-dose{font-weight:700}
-.l-arrow{color:var(--dim2);margin:0 3px}
-.l-rate{font-weight:800}
-
-/* BOLUS / NOTES */
-.bolus-box{background:#f5f0fa;border-radius:10px;padding:11px 13px;border-left:4px solid #7c5c9a}
-.bolus-box p{font-size:13px;color:#4a3560;line-height:1.65}
-.notes-box{background:#f8f9ff;border-radius:10px;padding:11px 13px;border-left:4px solid var(--bdr)}
-.notes-box p{font-size:13px;color:var(--dim);line-height:1.7}
-.notes-box.warn{background:#fff5f5;border-left-color:#e63946}
-.notes-box.warn p{color:#8a2020}
-
-/* ── GIR WIDGET ── */
-#gir-section{margin-bottom:12px}
-.gir-card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08);overflow:hidden}
-.gir-head{background:linear-gradient(135deg,#166c38,#2d9e55);padding:13px 16px;display:flex;align-items:center;gap:8px}
-.gir-head h2{color:#fff;font-size:14px;font-weight:800;letter-spacing:.03em}
-.gir-panels{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--bdr)}
-.gir-panel{padding:13px}
-.gir-panel:first-child{border-right:1px solid var(--bdr)}
-.gir-panel h3{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em;margin-bottom:10px}
-.gir-field{display:flex;align-items:center;gap:6px;margin-bottom:7px}
-.gir-field label{font-size:11px;color:var(--dim);width:74px;flex-shrink:0}
-.gir-field input{flex:1;max-width:75px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:7px;font-size:13px;font-family:var(--mono);color:var(--text);outline:none}
-.gir-result{background:#e8f5ee;border:2px solid #4caf70;border-radius:9px;padding:8px;text-align:center;margin-top:8px;display:none}
-.gir-result.show{display:block}
-.gir-result .gr-lbl{font-size:10px;font-weight:700;color:#2d7a50;letter-spacing:.08em}
-.gir-result .gr-val{font-size:24px;font-weight:900;color:#166c38;font-family:var(--mono)}
-.gir-result .gr-unit{font-size:12px;color:#2d7a50}
-.gir-note{padding:10px 14px;background:#f0faf4;font-size:11px;color:#3a6b4a;border-top:1px solid #c8e6d0;line-height:1.6}
-
-/* ── FOOTER ── */
-#footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bdr);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -2px 10px rgba(0,0,0,0.06)}
-.footer-credit{font-size:11px;color:var(--red);font-weight:700}
-.footer-credit span{color:var(--dim2);font-weight:400}
-.footer-disc{font-size:10px;color:var(--dim2)}
-
-/* ── EMPTY STATE ── */
-.empty{text-align:center;padding:50px 20px;color:var(--dim)}
-.empty .e-icon{font-size:40px;margin-bottom:10px}
-.empty p{font-size:15px}
-</style>
 </head>
 <body>
 
@@ -406,11 +265,6 @@ const CATEGORIES = [
   {id:"calcium",      label:"Calcium & Magnesium",      icon:"◇"},
   {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
   {id:"antibiotics",  label:"Antibiotics",              icon:"🦠"},
-  {id:"diuretics",    label:"Diuretics",                icon:"💧"},
-  {id:"hepatic",        label:"Hepatic",                  icon:"🫐"},
-  {id:"dka",           label:"DKA Management",           icon:"🩸"},
-  {id:"neuroprotection", label:"Neuroprotection & ICP",   icon:"🧠"},
-  {id:"antidotes",    label:"Antidotes",                icon:"⚕️"},
   {id:"intubation",   label:"Intubation",               icon:"🫁"},
   {id:"references",   label:"References & Verify",       icon:"📚"},
 ];
@@ -565,7 +419,7 @@ sedation:[
 
  {name:"Dexmedetomidine",color:"#2a9d8f",warn:false,
   prep:"4 mcg/kg in 50 mL NS",
-  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/100).toFixed(2)} mL of 200 mcg/2mL (100 mcg/mL) vial → make up to 50 mL NS`,
+  prepFn:w=>`Draw ${(4*w).toFixed(0)} mcg = ${(4*w/200).toFixed(2)} mL of 200 mcg/2mL vial → make up to 50 mL NS`,
   rule:"1 mL/hr = 0.08 mcg/kg/hr  [wt-independent]",
   doseUnit:"mcg/kg/hr",isBolus:false,
   rateFn:(w,d)=>+(d*12.5).toFixed(2),  // dose / (0.004 × 20) = dose × 12.5
@@ -637,6 +491,24 @@ antihtn:[
   bolus:null,
   notes:"⚠ WRAP SYRINGE (light → cyanide). Cyanide toxicity: ↑ lactate, high MvO2, metabolic acidosis. Na-thiosulphate if >3 mcg/kg/min. Max 72hr. Avoid hepatic/renal failure."},
 
+ {name:"Nitroglycerin (GTN) ⚠",color:"#e76f51",warn:true,
+  prep:"Dilute in D5W or NS — NON-PVC tubing and glass/polyethylene syringe MANDATORY. GTN adsorbs to PVC. Protect from light.",
+  prepFn:w=>`Standard 100 mcg/mL: add 5 mg GTN to 50 mL D5W = 100 mcg/mL.
+Starting rate @ 0.5 mcg/kg/min: ${(0.5*w*60/100).toFixed(2)} mL/hr.
+NON-PVC tubing mandatory — adsorption reduces effective dose by up to 80%.`,
+  rule:"Rate = dose(mcg/kg/min) × wt × 60 / 100  mL/hr  [100 mcg/mL, wt-dependent]",
+  doseUnit:"mcg/kg/min",isBolus:false,
+  rateFn:(w,d)=>+(d*w*60/100).toFixed(2),
+  commonDoses:[0.5,1,2,3,5],
+  ranges:[
+   {dose:"0.5–1",lbl:"Venodilation / preload reduction",eff:"Venous > arterial; pulmonary oedema, angina"},
+   {dose:"1–3",lbl:"Arterial vasodilation",eff:"↓ SVR, ↓ afterload; hypertensive urgency; mixed effect"},
+   {dose:"3–5",lbl:"Antihypertensive / PH adjunct",eff:"↓ PVR; bridge to inhaled NO; post-cardiac surgery"},
+   {dose:"0.5–5",lbl:"Pulmonary hypertension (adjunct)",eff:"↓ PVR; lower doses effective; titrate slowly"},
+  ],
+  bolus:null,
+  notes:"⚠ NON-PVC TUBING MANDATORY — PVC adsorbs GTN, reducing dose by up to 80%. Use glass syringes or polyethylene-lined tubing. Nitrate tolerance develops within 24–48hr of continuous infusion — consider drug-free interval or switch. Methaemoglobinaemia risk at high prolonged doses — check MetHb if unexplained persistent hypoxia. Headache common (vasodilatory — may need paracetamol). Avoid in severe aortic/mitral stenosis, raised ICP, hypertrophic obstructive cardiomyopathy. Ref: Tobias JD. Paediatr Drugs 2015;17(4):291; BNFc 2024; Taketomo CK. Pediatric & Neonatal Dosage Handbook 30th Ed."},
+
  {name:"Hydralazine (IV bolus)",color:"#457b9d",warn:false,
   prep:"Dilute to 1 mg/mL in NS for IV use",
   prepFn:w=>`Dose: ${(0.2*w).toFixed(1)}–${Math.min(0.5*w,20).toFixed(0)} mg IV (0.2–0.5 mg/kg, max 20 mg) over 5 min`,
@@ -666,23 +538,6 @@ antihtn:[
 ],
 
 antiepi:[
- {name:"Status Epilepticus — Protocol",color:"#6d6875",warn:true,
-  prep:"CSE: seizure >5 min OR 2 seizures without recovery. Time-critical. Check glucose at every phase.",
-  prepFn:w=>`PHASE 1 BZD: Midazolam buccal/IM/IN ${(0.2*w).toFixed(2)} mg (0.2 mg/kg, max 10 mg) | Lorazepam IV ${(0.1*w).toFixed(2)} mg (0.1 mg/kg, max 4 mg)
-PHASE 2 ASM: Levetiracetam ${(60*w).toFixed(0)} mg IV over 5-10 min (60 mg/kg, max 4500 mg) | Valproate ${(40*w).toFixed(0)} mg IV over 5 min (40 mg/kg, max 3g; avoid <3yr) | Phenytoin ${(20*w).toFixed(0)} mg IV over 20 min (20 mg/kg, max 1.5g; ECG mandatory)
-PHASE 3 RSE: Midazolam load ${(0.15*w).toFixed(2)} mg then infusion ${(0.1*w).toFixed(2)}-${(0.3*w).toFixed(2)} mg/hr`,
-  rule:"TIME-CRITICAL. Escalate every 5-10 min if seizing. Check glucose at every phase.",
-  doseUnit:"Protocol",isBolus:true,
-  rateFn:(w,d)=>+(60*w).toFixed(0),
-  commonDoses:[],bolus:null,
-  ranges:[
-   {dose:"0-5 min",lbl:"PHASE 1A - First BZD",eff:"No IV: Midazolam buccal/IM/IN 0.2 mg/kg (max 10 mg). IV: Lorazepam 0.1 mg/kg (max 4 mg) OR Diazepam 0.3 mg/kg (max 10 mg). Give O2."},
-   {dose:"5-10 min",lbl:"PHASE 1B - Second BZD (if seizing)",eff:"Repeat BZD. Secure IV. Alert PICU. Glucose <72 mg/dL: treat hypoglycaemia now."},
-   {dose:"10-30 min",lbl:"PHASE 2 - Second-line ASM",eff:"Levetiracetam 60 mg/kg IV over 5-10 min (max 4500 mg) FIRST CHOICE. OR Valproate 40 mg/kg IV over 5 min (max 3g; avoid <3yr). OR Phenytoin 20 mg/kg IV over 20 min (max 1.5g; ECG mandatory)."},
-   {dose:"30-60 min",lbl:"PHASE 3 - Refractory SE (PICU + EEG)",eff:"Midazolam: load 0.15 mg/kg then 0.1-0.3 mg/kg/hr. OR Propofol 1-2 mg/kg then 4-10 mg/kg/hr (>5yr, <48hr). OR Thiopentone 2-4 mg/kg then 2-6 mg/kg/hr. Target burst suppression."},
-   {dose:">24 hr",lbl:"SUPER-REFRACTORY SE",eff:"Ketamine 1-3 mg/kg then 10-50 mcg/kg/min. Phenobarbitone 15-20 mg/kg IV. Lacosamide 5 mg/kg IV. Immunotherapy (IVIG/methylprednisolone) if autoimmune. Specialist input mandatory."},
-  ],
-  notes:"ILAE/APLS 2023: Levetiracetam, valproate and phenytoin equally effective for established SE (ECLIPSE trial Lancet 2019). Levetiracetam and valproate preferred over phenytoin (easier, no cardiac arrhythmia). Valproate: avoid <3yr, suspected mitochondrial disorder. Phenytoin: MANDATORY ECG. Midazolam buccal preferred over rectal diazepam. Always treat underlying cause (hypoglycaemia, electrolytes, fever, meningitis). Neonatal SE: phenobarbitone first-line (ILAE 2023). Refs: ILAE SE Guidelines; APLS 6th Ed; ECLIPSE Trial Lancet 2019.",},
  {name:"Phenobarbitone",color:"#6d6875",warn:false,
   prep:"Dilute 100 mg/mL ampoule to 10 mg/mL in NS for infusion",
   prepFn:w=>`Loading: ${(20*w).toFixed(0)} mg total. In 10 mg/mL solution = ${(20*w/10).toFixed(0)} mL. Rate at max 1 mg/kg/min = ${w.toFixed(0)} mg/min → infuse over ${(20).toFixed(0)} min`,
@@ -784,38 +639,6 @@ PHASE 3 RSE: Midazolam load ${(0.15*w).toFixed(2)} mg then infusion ${(0.1*w).to
 ],
 
 broncho:[
- {name:"Status Asthmaticus — Protocol",color:"#2d6a4f",warn:false,
-  prep:"PRAM Score: Suprasternal indrawing (0-2) + Scalene use (0-2) + Air entry (0-3) + Wheeze (0-2) + SpO2 (0-3) = Total 0-12. GINA 2026: SpO2 target 92-95% only.",
-  prepFn:w=>`KEY DOSES for ${w} kg: Levosalbutamol/Salbutamol neb q20min x 3 | Ipratropium: ${w<20?0.25:0.5} mg q20min x 3 | MgSO4 IV: ${(50*w).toFixed(0)} mg (50 mg/kg, max 2g) over 20 min | IV Salbutamol: ${(5*w).toFixed(0)} mcg loading then ${(1*w).toFixed(1)}-${(5*w).toFixed(1)} mcg/min`,
-  rule:"PROTOCOL: PRAM 0-3 Mild, 4-7 Moderate, 8-12 Severe. SpO2 target 92-95% (GINA 2026, NOT >95%)",
-  doseUnit:"Protocol",isBolus:true,
-  rateFn:(w,d)=>+(50*w).toFixed(0),
-  commonDoses:[],bolus:null,
-  ranges:[
-   {dose:"PRAM 0-3",lbl:"MILD",eff:"SpO2 >=95% on air. Levosalbutamol 4-6 puffs MDI+spacer or 0.63 mg neb q20min x 3. Oral prednisolone 1-2 mg/kg (max 40 mg). Reassess at 1hr."},
-   {dose:"PRAM 4-7",lbl:"MODERATE",eff:"SpO2 92-95%. O2 to target. Levosalbutamol 1.25 mg neb + ipratropium q20min x 3. IV dexamethasone 0.3 mg/kg (max 10 mg). Consider PICU if no improvement after 3 doses."},
-   {dose:"PRAM 8-12",lbl:"SEVERE",eff:"SpO2 <92%. High-flow O2. Continuous levosalbutamol neb + ipratropium q20min x 3. IV dexamethasone. MgSO4 IV 50 mg/kg over 20 min (max 2g). PICU admission."},
-   {dose:"LIFE-THREATENING",lbl:"Silent chest, cyanosis, GCS fall",eff:"As severe + IV salbutamol infusion 1-5 mcg/kg/min (loading 5 mcg/kg). IV aminophylline 5 mg/kg if refractory. Ketamine if intubating. PICU. ECMO if refractory."},
-   {dose:"SpO2 92-95%",lbl:"GINA 2026 O2 target",eff:"Do NOT target >95%. Give O2 only if SpO2 <92%. PRAM score mandatory for children 2-17yr (strong recommendation GINA 2026)."},
-  ],
-  notes:"GINA 2026 key updates: SpO2 target 92-95% (NOT >95%). PRAM score for all children 2-17yr. Shake inhaler before each actuation. If anaphylaxis + asthma: IM adrenaline FIRST then bronchodilators. Dexamethasone 0.3 mg/kg single dose equals 5-day prednisolone. MgSO4 for severe/life-threatening only. Ketamine for intubation (bronchodilator). Permissive hypercapnia post-intubation. High I:E ratio 1:3-4. Refs: GINA 2026; BTS/SIGN 2023.",},
- {name:"Levosalbutamol (Levalbuterol)",color:"#2d6a4f",warn:false,
-  prep:"MDI: 50 mcg/puff (Levolin MDI). Respules: 0.31 mg/2.5 mL, 0.63 mg/2.5 mL, 1.25 mg/2.5 mL. R-enantiomer — 2x more potent, less tachycardia/tremor than racemic salbutamol.",
-  prepFn:w=>`Neb dose: ${Math.min((0.075*w).toFixed(3),1.25)} mg (0.075 mg/kg, max 1.25 mg). Use ${(0.075*w)<0.32?'0.31':'0.63-1.25'} mg respule. MDI acute: ${w<20?'4':'6-8'} puffs via spacer q20min x 3`,
-  rule:"NEB: 0.075 mg/kg/dose (max 1.25 mg). MDI: 1-2 puffs maintenance; 4-8 puffs acute",
-  doseUnit:"mg/dose",isBolus:true,
-  rateFn:(w,d)=>+Math.min((0.075*w),1.25).toFixed(3),
-  commonDoses:[0.31,0.63,1.25],
-  bolus:"MDI maintenance: 1-2 puffs (50-100 mcg) q4-6h via spacer. Never use without spacer in children.",
-  ranges:[
-   {dose:"0.075 mg/kg",lbl:"Acute neb (q20min x 3)",eff:"Max 1.25 mg/dose. Continuous neb for severe asthma. Add to 2.5 mL NS if needed."},
-   {dose:"4-8 puffs MDI",lbl:"Acute via spacer",eff:"200-400 mcg (50 mcg/puff) q20min x 3. Shake before each actuation (GINA 2026)."},
-   {dose:"0.31 mg respule",lbl:"Small child / mild",eff:"Neb q6-8h maintenance or q20min x 3 acute"},
-   {dose:"0.63 mg respule",lbl:"Moderate / 5-15 kg",eff:"Neb q6-8h maintenance or q20min x 3 acute"},
-   {dose:"1.25 mg respule",lbl:"Severe / >15 kg",eff:"Neb q20min x 3 acute; continuous neb in severe status asthmaticus"},
-   {dose:"1-2 puffs MDI",lbl:"Maintenance",eff:"50-100 mcg q4-6h. Max 4 puffs/dose."},
-  ],
-  notes:"Levosalbutamol is the active R-enantiomer of racemic salbutamol. Equivalent clinical efficacy at half the dose — less tachycardia, tremor, hypokalaemia. Standard in Indian PICU practice. Respules: 0.31 mg, 0.63 mg, 1.25 mg in 2.5 mL (Levolin). MDI: 50 mcg/puff (vs salbutamol 100 mcg/puff). Combine with ipratropium for all 3 doses in first hour for acute asthma (GINA 2026). Ref: GINA 2026; BNFc 2024.",},
  {name:"Salbutamol IV (Status Asthmaticus)",color:"#2d6a4f",warn:false,
   prep:"0.5 mg/kg in 50 mL NS",
   prepFn:w=>`Draw ${(0.5*w).toFixed(1)} mg → make up to 50 mL NS`,
@@ -1338,6 +1161,133 @@ const ANTIBIOTICS = [
     "Warfarin: may enhance anticoagulant effect — monitor INR",
   ],
   cautions:"⚠ NEVER co-administer with calcium-containing solutions (including Ringer's lactate) — fatal precipitation risk in neonates. Biliary sludge/gallstones with prolonged use. Avoid in hyperbilirubinaemic neonates (displaces bilirubin).",
+},
+
+{
+  name:"Ceftazidime-Avibactam (Zavicefta)",
+  color:"#1b5e20",
+  class:"3rd Gen Cephalosporin + β-lactamase inhibitor (non-β-lactam)",
+  pkpd:"Time-dependent (ceftazidime component). Target: %T>MIC ≥50–100%. Avibactam restores ceftazidime activity against KPC, OXA-48, AmpC — NOT MBL (NDM, VIM, IMP). Prolonged infusion over 2–3hr strongly recommended for resistant organisms.",
+  spectrum:"Gram-negative: Enterobacteriaceae (ESBL, KPC-CRE, OXA-48-CRE), Pseudomonas aeruginosa, Acinetobacter (variable). NOT: MBL-producing CRO (NDM, VIM, IMP — use aztreonam-avibactam), MRSA, anaerobes.",
+  doses:[
+    {indication:"Standard Gram-negative infections (≥3 months)",dose:"62.5 mg/kg/dose (combined)",freq:"q8h",max:"2500 mg/dose (2g CAZ + 0.5g AVI)",notes:"IV over 2hr. Vial: 2g ceftazidime + 0.5g avibactam per vial."},
+    {indication:"CRE (KPC/OXA-48) — severe",dose:"62.5 mg/kg/dose",freq:"q8h",max:"2500 mg/dose",notes:"IV over 2–3hr (prolonged infusion preferred). Duration guided by clinical response."},
+    {indication:"MDR Pseudomonas aeruginosa",dose:"62.5 mg/kg/dose",freq:"q8h",max:"2500 mg/dose",notes:"Prolonged infusion preferred. Combination therapy for severe/resistant cases."},
+  ],
+  renal:[
+    {egfr:">50",dose:"62.5 mg/kg (max 2500 mg)",freq:"q8h",notes:"Normal dosing"},
+    {egfr:"31–50",dose:"31.25 mg/kg (max 1250 mg)",freq:"q8h",notes:""},
+    {egfr:"16–30",dose:"23.4 mg/kg (max 937.5 mg)",freq:"q12h",notes:""},
+    {egfr:"6–15",dose:"23.4 mg/kg (max 937.5 mg)",freq:"q24h",notes:""},
+    {egfr:"<6 / anuric",dose:"11.7 mg/kg (max 468.75 mg)",freq:"q48h",notes:"Specialist guidance"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"31.25 mg/kg (max 1250 mg)",freq:"q8h",notes:"Both components removed — monitor clinically"},
+    {mode:"Intermittent HD",dose:"23.4 mg/kg (max 937.5 mg)",freq:"q24h post-HD",notes:"Supplement after HD"},
+    {mode:"CAPD",dose:"11.7 mg/kg (max 468.75 mg)",freq:"q48h",notes:"Limited data"},
+  ],
+  tdm:{required:false,notes:"TDM not routinely available. Prolonged infusion over 2–3hr is the primary PK/PD optimisation strategy. Vial: 2g ceftazidime + 0.5g avibactam (Zavicefta). Ref: Torres A et al. Lancet Infect Dis. 2018;18(3):285–295; EUCAST 2024."},
+  interactions:[
+    "Chloramphenicol: antagonism against Gram-negatives — avoid combination",
+    "Loop diuretics: additive nephrotoxicity potential",
+    "Probenecid: increases ceftazidime levels",
+  ],
+  cautions:"⚠ Avibactam covers KPC and OXA-48 CRE — does NOT cover MBL (NDM, VIM, IMP). For MBL cover, use aztreonam-avibactam. Resistance emergence on therapy documented — use combination for high-burden infections. Approved from 3 months of age. Ref: Torres A et al. Lancet Infect Dis. 2018;18(3):285; BNFc 2024.",
+},
+
+{
+  name:"Aztreonam",
+  color:"#004d40",
+  class:"Monobactam",
+  pkpd:"Time-dependent. Target: %T>MIC ≥60–70%. Active against Gram-negative aerobes ONLY. Structurally unique — no cross-reactivity with penicillins/cephalosporins (except ceftazidime — shared side chain). Key use: penicillin/cephalosporin allergy with Gram-negative infection.",
+  spectrum:"Gram-negative ONLY: Enterobacteriaceae, Pseudomonas aeruginosa, H. influenzae, Moraxella. NOT: Gram-positives (any), anaerobes, Stenotrophomonas. COMBINE with avibactam (aztreonam-avibactam) for MBL-CRO coverage.",
+  doses:[
+    {indication:"Mild–moderate Gram-negative infections",dose:"30 mg/kg/dose",freq:"q6–8h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Severe infections / Pseudomonas",dose:"50 mg/kg/dose",freq:"q6–8h",max:"2 g/dose",notes:"IV over 30 min; prolonged infusion for MDR Pseudomonas"},
+    {indication:"Meningitis",dose:"30 mg/kg/dose",freq:"q6h",max:"2 g/dose",notes:"IV over 30 min"},
+    {indication:"Neonates <7 days",dose:"30 mg/kg/dose",freq:"q12h",max:"",notes:"IV over 30 min"},
+    {indication:"Neonates >7 days / Infants",dose:"30 mg/kg/dose",freq:"q8h",max:"",notes:""},
+    {indication:"Penicillin allergy — Gram-negative infection",dose:"30–50 mg/kg/dose",freq:"q6–8h",max:"2 g/dose",notes:"Drug of choice in confirmed penicillin/cephalosporin allergy with Gram-negative sepsis"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:""},
+    {egfr:"10–30",dose:"50% of usual dose",freq:"Normal interval",notes:""},
+    {egfr:"<10",dose:"25% of usual dose",freq:"Normal interval",notes:""},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"30 mg/kg/dose",freq:"q8–12h",notes:"Moderately removed — dose as mild renal impairment"},
+    {mode:"Intermittent HD",dose:"30 mg/kg post-HD",freq:"q12–24h",notes:"Highly dialysable — supplement after HD"},
+    {mode:"CAPD",dose:"15 mg/kg/dose",freq:"q12h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not routinely required. Combine with metronidazole for mixed aerobic/anaerobic cover. Safe alternative in documented penicillin allergy (no β-lactam ring cross-reactivity except with ceftazidime). Ref: BNFc 2024; Patel N et al. Pharmacotherapy 2010."},
+  interactions:[
+    "Cefoxitin: antagonism against Enterobacteriaceae — avoid combination",
+    "Probenecid: increases aztreonam levels",
+    "Avibactam: synergistic (aztreonam-avibactam) for MBL-CRO — see separate entry",
+  ],
+  cautions:"Gram-negative organisms ONLY — add Gram-positive cover (vancomycin/teicoplanin) and anaerobic cover (metronidazole) as needed. Safe in penicillin allergy. Cross-reactivity with ceftazidime reported (shared side chain) — avoid if prior ceftazidime anaphylaxis. Ref: BNFc 2024.",
+},
+
+{
+  name:"Aztreonam-Avibactam (Emblaveo)",
+  color:"#1a237e",
+  class:"Monobactam + β-lactamase inhibitor (non-β-lactam)",
+  pkpd:"Time-dependent (aztreonam component). Target: %T>MIC ≥50%. Avibactam protects aztreonam from serine AND metallo-β-lactamases — the ONLY combination active against MBL-producing CRO (NDM, VIM, IMP). Prolonged infusion over 3hr strongly recommended.",
+  spectrum:"Gram-negative: MBL-CRE (NDM, VIM, IMP — the critical advantage over CAZ-AVI), KPC-CRE, OXA-48-CRE, ESBL, MDR Pseudomonas (variable). NOT: Gram-positives, anaerobes, Acinetobacter (poor activity).",
+  doses:[
+    {indication:"MBL-CRE (NDM/VIM/IMP) — standard",dose:"Loading: 500 mg AZT/167 mg AVI, then 1500/500 mg",freq:"Loading over 30 min; then each dose over 3hr q6h",max:"1500 mg aztreonam / 500 mg avibactam per dose",notes:"Vial: Emblaveo 1.5g/0.5g. Paediatric dosing extrapolated — specialist guidance essential."},
+    {indication:"Paediatric weight-based (≥3 months, extrapolated)",dose:"40 mg/kg (aztreonam component)",freq:"q6h, each dose over 3hr infusion",max:"1500 mg aztreonam per dose",notes:"Avibactam dosed proportionally. Very limited paediatric PK data — consult ID and pharmacist."},
+    {indication:"Combination with CAZ-AVI (pan-CRO cover)",dose:"Per individual drug doses",freq:"As above",notes:"For organisms where KPC + MBL co-exist; specialist use"},
+  ],
+  renal:[
+    {egfr:">50",dose:"No change",freq:"q6h",notes:""},
+    {egfr:"30–50",dose:"75% dose",freq:"q6h",notes:""},
+    {egfr:"15–30",dose:"50% dose",freq:"q6h",notes:"Pharmacist involvement essential"},
+    {egfr:"<15",dose:"25% dose",freq:"q6h",notes:"Limited data — specialist mandatory"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"Specialist guidance mandatory",freq:"q6–8h adjusted",notes:"Both components removed — ID + pharmacist essential"},
+    {mode:"Intermittent HD",dose:"Supplement post-HD",freq:"As above",notes:"Highly dialysable"},
+    {mode:"CAPD",dose:"Reduced dose",freq:"Specialist guidance",notes:"Limited data"},
+  ],
+  tdm:{required:false,notes:"TDM not widely available. Prolonged 3hr infusion is the primary optimisation strategy. Very limited paediatric pharmacokinetic data — involve paediatric ID specialist and clinical pharmacist for every case. Ref: Wenzler E et al. Pharmacotherapy 2017; EUCAST/CLSI 2024."},
+  interactions:[
+    "Nephrotoxic agents: monitor renal function (aztreonam is renally cleared)",
+    "Probenecid: increases aztreonam levels",
+    "Ceftazidime-avibactam: can be combined for broadest CRO spectrum — specialist use only",
+  ],
+  cautions:"⚠ LAST-LINE for MBL-CRO (NDM, VIM, IMP) — organisms where ceftazidime-avibactam FAILS. Only avibactam-containing combination with aztreonam that covers MBL. Very limited paediatric data. Mandatory specialist infectious disease and pharmacist involvement. Vial: Emblaveo 1.5g/0.5g per vial. Ref: Wenzler E et al. Pharmacotherapy. 2017;37(10):1259.",
+},
+
+{
+  name:"Ceftriaxone-Sulbactam",
+  color:"#33691e",
+  class:"3rd Gen Cephalosporin + β-lactamase inhibitor",
+  pkpd:"Time-dependent (ceftriaxone component). Target: %T>MIC ≥70%. Sulbactam has intrinsic Acinetobacter baumannii activity (PBP2 binding), independent of its BLI effect. Long ceftriaxone half-life (6–9hr) allows once or twice daily dosing.",
+  spectrum:"Gram-positive (not MRSA/Enterococcus), Gram-negative including ESBL producers and Acinetobacter baumannii (sulbactam PBP2), anaerobes (moderate). NOT: MRSA, CRE (KPC/MBL/OXA-48), Pseudomonas aeruginosa.",
+  doses:[
+    {indication:"Standard infections (1:0.5 vial)",dose:"50–75 mg/kg/day combined",freq:"q12–24h",max:"2 g/1 g per day",notes:"IV over 30 min. Vials: 1g/0.5g or 2g/1g (Sulbacin, Ristogen)."},
+    {indication:"Severe infections / Acinetobacter",dose:"100 mg/kg/day combined",freq:"q8–12h",max:"4 g/2 g per day",notes:"Higher sulbactam dose (up to 6 g/day adult) for Acinetobacter PBP2 effect"},
+    {indication:"Meningitis",dose:"100 mg/kg/day combined",freq:"q12h",max:"4 g/2 g per day",notes:"IV only; CSF penetration via ceftriaxone component"},
+    {indication:"Neonates",dose:"50 mg/kg/day combined",freq:"q24h (<7d) or q12h (>7d)",max:"",notes:"Avoid in hyperbilirubinaemic neonates — ceftriaxone displaces bilirubin"},
+  ],
+  renal:[
+    {egfr:">30",dose:"No change",freq:"Normal",notes:"Primarily biliary (ceftriaxone); sulbactam is renal"},
+    {egfr:"<30",dose:"No change for ceftriaxone; reduce sulbactam",freq:"q12h",notes:"Max sulbactam 2 g/day if eGFR <30"},
+  ],
+  rrt:[
+    {mode:"CRRT (CVVHDF)",dose:"50 mg/kg/day combined",freq:"q12h",notes:"Sulbactam removed more than ceftriaxone"},
+    {mode:"Intermittent HD",dose:"Normal dose post-HD",freq:"q24h",notes:"Sulbactam supplement after HD"},
+    {mode:"CAPD",dose:"Normal dose",freq:"q24h",notes:""},
+  ],
+  tdm:{required:false,notes:"TDM not required. No disulfiram reaction (unlike cefoperazone-sulbactam — no MTT side chain in ceftriaxone). Ref: BNFc 2024; Penwell WF et al. Antimicrob Agents Chemother. 2015;59(2):1218."},
+  interactions:[
+    "Calcium-containing IV fluids: NEVER co-administer — fatal precipitation (ceftriaxone component), especially in neonates",
+    "Warfarin: may enhance anticoagulation — monitor INR",
+    "Aminoglycosides: administer separately — precipitation if mixed",
+    "Rifampicin: ceftriaxone levels reduced — avoid combination",
+  ],
+  cautions:"⚠ Same calcium precipitate warning as ceftriaxone — NEVER co-administer with Ringer's lactate or any calcium-containing solution. Fatal in neonates. Avoid in hyperbilirubinaemic neonates. NO disulfiram reaction with alcohol (unlike cefoperazone-sulbactam). Sulbactam gives direct Acinetobacter baumannii coverage via PBP2 binding. Available as Sulbacin, Ristogen (India). Ref: Penwell WF et al. Antimicrob Agents Chemother. 2015;59(2):1218; BNFc 2024.",
 },
 {
   name:"Colistin (Polymyxin E)",
@@ -2014,534 +1964,6 @@ function renderAbxTab() {
     </div>`;
 }
 
-
-// ══════════════════════════════════════════════════════════════
-// DIURETICS DATA
-// Ref: BNFc 2024; Harriet Lane Handbook 23rd Ed 2024;
-//      Furosemide infusion: Kesavan et al. Crit Care Med 1997
-//      Continuous vs intermittent: Frontiers Pediatrics 2023
-// ══════════════════════════════════════════════════════════════
-
-DRUGS.diuretics = [
- {name:"Furosemide — IV Infusion",color:"#0277bd",warn:false,
-  prep:"Continuous infusion: dilute to 1 mg/mL in NS/D5W (fixed concentration)",
-  prepFn:w=>`Loading dose: ${(0.1*w).toFixed(1)} mg (0.1 mg/kg) IV over 5–10 min.\nInfusion prep: dilute furosemide 10 mg/mL to 1 mg/mL in NS.\nStarting rate: ${(0.1*w).toFixed(1)} mL/hr (0.1 mg/kg/hr)`,
-  rule:"Rate = dose × wt  mL/hr  [1 mg/mL fixed conc — wt-dependent]",
-  doseUnit:"mg/kg/hr",isBolus:false,
-  rateFn:(w,d)=>+(d*w).toFixed(2),
-  commonDoses:[0.05,0.1,0.2,0.3,0.4],
-  bolus:"IV bolus (intermittent): 0.5–2 mg/kg/dose q6–12h. Max 40 mg/dose (child); 80 mg (adolescent). Rate: max 0.5 mg/kg/min IV push. Oral: 1–4 mg/kg/day divided q6–12h (max 6 mg/kg/day).",
-  ranges:[
-   {dose:"Loading: 0.1 mg/kg",lbl:"Before starting infusion",eff:"IV bolus over 5–10 min; minimum 1 mg"},
-   {dose:"Starting: 0.1",lbl:"mg/kg/hr",eff:"Initial infusion rate; titrate every 2 hr"},
-   {dose:"Titrate: 0.2",lbl:"mg/kg/hr",eff:"Double if UO <1 mL/kg/hr after 2 hr"},
-   {dose:"Maximum: 0.4",lbl:"mg/kg/hr",eff:"Max infusion rate; reassess if no response"},
-  ],
-  maxDose:0.4,
-  notes:"Continuous infusion preferred over intermittent bolus in PICU — more controlled UO, less electrolyte loss, better haemodynamic stability (Frontiers Pediatrics 2023). Target UO ≥1–2 mL/kg/hr. Monitor electrolytes (K+, Na+, Mg2+) at least 12-hourly. ECMO: administer outside circuit (substantially adsorbed by ECMO components). Neonates <32 wks: use with caution — nephrocalcinosis risk with prolonged use.",
- },
- {name:"Furosemide — IV Bolus / Oral",color:"#0277bd",warn:false,
-  prep:"IV: 10 mg/mL ampoule — give undiluted or dilute 1:1 with NS. Oral: 10 mg/mL solution or 40 mg tablets",
-  prepFn:w=>`IV dose: ${(0.5*w).toFixed(1)}–${Math.min(2*w,80).toFixed(0)} mg (0.5–2 mg/kg, max 80 mg).\nVolume of 10 mg/mL ampoule: ${(0.5*w/10).toFixed(2)}–${Math.min(2*w/10,8).toFixed(1)} mL`,
-  rule:"BOLUS. Total mg = dose × wt  (max 40 mg child; 80 mg adolescent)",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,80)).toFixed(1),
-  commonDoses:[0.5,1,1.5,2],
-  bolus:"Rate of IV administration: max 0.5 mg/kg/min (ototoxicity risk with rapid injection). Oral bioavailability ~60% — oral dose usually 2× IV dose.",
-  ranges:[
-   {dose:"0.5–1 mg/kg/dose",lbl:"Standard IV/oral",eff:"q6–12h; max 40 mg/dose (child)"},
-   {dose:"1–2 mg/kg/dose",lbl:"Resistant oedema",eff:"q6–8h; max 80 mg/dose (adolescent)"},
-   {dose:"1–4 mg/kg/day",lbl:"Oral maintenance",eff:"Divided q6–12h; max 6 mg/kg/day"},
-   {dose:"0.5–1 mg/kg/dose",lbl:"Neonates (>32 wks)",eff:"q12–24h IV; limit duration (nephrocalcinosis)"},
-   {dose:"1 mg/kg/dose",lbl:"Neonates (<32 wks)",eff:"q24h only; monitor renal function"},
-  ],
-  maxDose:2,
-  notes:"Max rate IV push: 0.5 mg/kg/min (faster → ototoxicity). Oral bioavailability ~60% — oral dose typically 2× IV dose. Neonates <32 wks: limit duration (nephrocalcinosis, hypercalciuria). Monitor U&E, glucose, uric acid. Loop diuretic — acts on thick ascending limb of loop of Henle.",
- },
- {name:"Spironolactone",color:"#2e7d32",warn:false,
-  prep:"Oral: 25 mg tablets (crush and disperse) or 5 mg/mL oral suspension (compounded)",
-  prepFn:w=>`Dose: ${(1*w).toFixed(0)}–${(3*w).toFixed(0)} mg/day (1–3 mg/kg/day). Give in 1–2 divided doses with food.`,
-  rule:"ORAL only. Total mg/day = dose × wt  (max 100–200 mg/day)",
-  doseUnit:"mg/kg/day",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,200)).toFixed(1),
-  commonDoses:[1,1.5,2,3,3.3],
-  bolus:"Give with food — improves absorption. Onset of action: 2–3 days; maximum effect: 3–5 days. No IV formulation available.",
-  ranges:[
-   {dose:"1–3.3 mg/kg/day",lbl:"Oedema / heart failure",eff:"Once daily or divided q12h; max 100 mg/day"},
-   {dose:"1–2 mg/kg/day",lbl:"Hypertension",eff:"Once daily; max 100 mg/day"},
-   {dose:"1–3 mg/kg/day",lbl:"Neonates",eff:"Divided q12h; limited data — use with caution"},
-   {dose:"Up to 9 mg/kg/day",lbl:"Primary hyperaldosteronism",eff:"Divided q6–12h; specialist use only; max 400 mg/day"},
-  ],
-  maxDose:3.3,
-  notes:"Potassium-sparing — risk of HYPERKALAEMIA (especially with ACE inhibitors, ARBs, K+ supplements). Monitor K+ and renal function. Avoid in renal impairment (GFR<30). Gynaecomastia with prolonged use. Aldosterone antagonist — useful adjunct with furosemide to prevent K+ loss. Onset slow (2–3 days) — not for acute diuresis.",
- },
- {name:"Metolazone",color:"#6a1b9a",warn:false,
-  prep:"Oral: 2.5 mg or 5 mg tablets (no paediatric suspension commercially available — crush tablet)",
-  prepFn:w=>`Dose: ${(0.1*w).toFixed(2)}–${(0.2*w).toFixed(2)} mg (0.1–0.2 mg/kg). Crush tablet; give 30 min BEFORE furosemide for maximum synergy.`,
-  rule:"ORAL only. Total mg = dose × wt  (max 10 mg/day)",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
-  commonDoses:[0.1,0.15,0.2],
-  bolus:"Give 30–60 min before furosemide for synergistic sequential nephron blockade. Can be given daily or on alternate days. Start low and titrate.",
-  ranges:[
-   {dose:"0.1–0.2 mg/kg/dose",lbl:"Once daily (standard)",eff:"Max 10 mg/day; give 30 min before furosemide"},
-   {dose:"0.2–0.4 mg/kg/day",lbl:"Resistant oedema",eff:"May divide q12h; specialist use"},
-  ],
-  maxDose:0.2,
-  notes:"Thiazide-like diuretic — acts on distal convoluted tubule. Potent synergy with furosemide (sequential nephron blockade) — can dramatically increase urine output in furosemide-resistant oedema. Start with low intermittent dosing (alternate days) — profound diuresis and electrolyte losses possible. Monitor U&E closely (q12h when starting). HYPOKALAEMIA and HYPONATRAEMIA risk — aggressive replacement needed. Ref: Harriet Lane Handbook 23rd Ed, 2024.",
- },
- {name:"Hydrochlorothiazide (HCTZ)",color:"#6a1b9a",warn:false,
-  prep:"Oral: 12.5 mg, 25 mg, 50 mg tablets. No IV form available. May be compounded as 5 mg/mL suspension.",
-  prepFn:w=>`Dose: ${(1*w).toFixed(0)}–${(2*w).toFixed(0)} mg/day (1–2 mg/kg/day). Divide q12h.`,
-  rule:"ORAL only. Total mg/day = dose × wt  (max 37.5–50 mg/day)",
-  doseUnit:"mg/kg/day",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,50)).toFixed(1),
-  commonDoses:[1,1.5,2,3],
-  bolus:"Give in morning (or split morning/afternoon) to avoid nocturia. Take with food.",
-  ranges:[
-   {dose:"1–2 mg/kg/day",lbl:"Oedema (infants/children)",eff:"Divided q12h; max 37.5 mg/day (<2yr); 50 mg/day (>2yr)"},
-   {dose:"1–3 mg/kg/day",lbl:"Hypertension",eff:"Divided q12h; max 50 mg/day"},
-   {dose:"2–4 mg/kg/day",lbl:"Neonates",eff:"Divided q12h; max 3 mg/kg/day in neonates"},
-  ],
-  maxDose:3,
-  notes:"Thiazide diuretic — acts on distal convoluted tubule. Less potent than furosemide as sole agent. Useful in combination for diuretic resistance. Monitor K+, Na+, glucose (hyperglycaemia), uric acid (hyperuricaemia). Avoid in severe renal impairment (GFR <30 — ineffective). Paradoxical antidiuretic effect in neonatal diabetes insipidus (nephrogenic). Ref: BNFc 2024; Harriet Lane 23rd Ed.",
- },
- {name:"Acetazolamide",color:"#795548",warn:false,
-  prep:"Oral: 125 mg, 250 mg tablets. IV: 500 mg/vial — dilute to 50–100 mg/mL in sterile water.",
-  prepFn:w=>`Dose: ${(5*w).toFixed(0)} mg (5 mg/kg/dose). IV or oral.`,
-  rule:"BOLUS. Total mg = dose × wt  (max 500 mg/dose)",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,500)).toFixed(1),
-  commonDoses:[5,10],
-  bolus:"IV: give slowly over 5–10 min. Useful as adjunct in metabolic alkalosis from diuresis (corrects Cl-depletion alkalosis). Also used for altitude sickness, ICP, CSF production.",
-  ranges:[
-   {dose:"5 mg/kg/dose",lbl:"Diuresis / metabolic alkalosis",eff:"q6–8h oral/IV; max 500 mg/dose"},
-   {dose:"5–10 mg/kg/dose",lbl:"Raised ICP",eff:"q6–8h; max 100 mg/kg/day"},
-   {dose:"2.5 mg/kg/dose",lbl:"Altitude sickness prophylaxis",eff:"q12h; start 24hr before ascent"},
-  ],
-  maxDose:10,
-  notes:"Carbonic anhydrase inhibitor — acts on proximal tubule. Useful to correct metabolic alkalosis caused by loop/thiazide diuretics (loss of Cl-). Causes metabolic acidosis — monitor blood gas. Avoid in sulfonamide allergy. Avoid in severe hepatic impairment (hyperammonaemia). Ref: BNFc 2024.",
- },
-];
-
-
-
-// ══════════════════════════════════════════════════════════════
-// NEUROPROTECTION & ICP MANAGEMENT
-// Ref: Brain Trauma Foundation Paediatric TBI Guidelines 3rd Ed (Kochanek 2019)
-//      Texas Children's Hospital Severe TBI Protocol 2023
-//      CREVICE Protocol — Curr Neurol Neurosci Rep 2024
-//      Tiered ICP management: EMCrit IBCC 2024
-// ══════════════════════════════════════════════════════════════
-
-DRUGS.neuroprotection = [
- {name:"ICP Management Bundle — Reference",color:"#1a237e",warn:false,
-  prep:"General neuroprotective measures — apply BEFORE and ALONGSIDE osmotherapy",
-  prepFn:w=>`Patient weight: ${w} kg. Apply full ICP bundle. See tier-based approach below.`,
-  rule:"Reference card — no weight-based calculation. See tiered approach.",
-  doseUnit:"Reference",isBolus:true,
-  rateFn:(w,d)=>0,
-  commonDoses:[],
-  bolus:null,
-  ranges:[
-   {dose:"HEAD POSITION",lbl:"30° elevation",eff:"Head midline, bed 30° HOB elevation; avoids jugular compression"},
-   {dose:"MAP TARGET",lbl:"Age-based (without ICP monitor)",eff:"Neonates: ≥45 mmHg | Infants: ≥55 mmHg | 1–5yr: ≥65 mmHg | 6–12yr: ≥70 mmHg | >12yr: ≥80 mmHg"},
-   {dose:"pCO₂",lbl:"Normoventilation",eff:"Target PaCO₂ 35–40 mmHg (tier 1); mild hyperventilation 32–35 only tier 2"},
-   {dose:"Na TARGET",lbl:"Osmotherapy",eff:"Serum Na 145–160 mEq/L (HTS); osmolality <320 mOsm/kg (mannitol)"},
-   {dose:"TEMP",lbl:"Normothermia",eff:"Target 36–37.5°C; avoid hyperthermia (worsens secondary injury)"},
-   {dose:"GLUCOSE",lbl:"Euglycaemia",eff:"Target 4–10 mmol/L (72–180 mg/dL); avoid hypo- and hyperglycaemia"},
-   {dose:"SEIZURE",lbl:"Prophylaxis",eff:"Levetiracetam 60 mg/kg loading (TBI); treat subclinical seizures with EEG"},
-   {dose:"MAP CHALLENGE",lbl:"Bedside ICP surrogate",eff:"Briefly ↑ MAP by 10 mmHg (vasopressor or fluid) → if pupils improve / sensorium improves → pressure-passive → increase MAP target"},
-  ],
-  maxDose:0,
-  notes:"TIERED ICP MANAGEMENT (CREVICE Protocol 2024):\n• TIER 1: HOB 30°, normoCO₂, normothermia, adequate sedoanalgesia (RASS –2 to –3), HTS/mannitol, euglycaemia, seizure prophylaxis. MAP ≥60–65 mmHg (age-based — MAP easier to measure than CPP without ICP monitor).\n• TIER 2: Deep sedation (RASS –4 to –5), neuromuscular blockade, mild hyperventilation PaCO₂ 32–35 mmHg (temporary only), osmotherapy, MAP challenge (↑ MAP 10 mmHg → assess neurological response).\n• TIER 3: Barbiturate coma (thiopentone/pentobarbital), decompressive craniectomy, therapeutic hypothermia (specialist centres only).\nICP MONITOR: Consider if GCS ≤8 with TBI; monitor to guide therapy. Target ICP <20 mmHg.",
- },
- {name:"Mannitol 20%",color:"#1565c0",warn:true,
-  prep:"20% solution = 200 mg/mL. Give via in-line filter (5 micron). May crystallise — warm before use.",
-  prepFn:w=>`Dose: ${(0.5*w).toFixed(0)}–${Math.min(1*w,100).toFixed(0)} g (0.5–1 g/kg). Volume of 20%: ${(0.5*w/0.2).toFixed(0)}–${Math.min(1*w/0.2,500).toFixed(0)} mL. Infuse over 15–30 min.`,
-  rule:"BOLUS. Total dose (g) = dose × wt  (max 100g). Volume mL = dose × wt × 5",
-  doseUnit:"g/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,100)).toFixed(1),
-  commonDoses:[0.25,0.5,0.75,1.0],
-  bolus:"Emergency ICP crisis: 1 g/kg IV over 15 min via filter. STOP if serum osmolality ≥320 mOsm/kg or osmolar gap ≥20 mOsm/kg or serum Na >155 mEq/L.",
-  ranges:[
-   {dose:"0.25–0.5 g/kg",lbl:"Standard ICP elevation",eff:"Over 15–30 min; q4–6h PRN; monitor osmolality"},
-   {dose:"0.5–1 g/kg",lbl:"Acute ICP crisis / herniation",eff:"Over 15 min; single rescue dose; reassess after 30 min"},
-   {dose:"1 g/kg",lbl:"Emergency bridge to neurosurgery",eff:"Maximum dose; use once; avoid ongoing therapy"},
-  ],
-  maxDose:1,
-  notes:"⚠ STOP if: serum osmolality ≥320 mOsm/kg | osmolar gap ≥20 | serum Na >155 mEq/L. Mannitol causes intravascular volume depletion — avoid in haemodynamic instability. Rebound ICP elevation with repeated dosing. May cause AKI (>200g/day). Monitor Na, osmolality, renal function q4–6h. Use IN-LINE FILTER (5 micron). Current evidence favours HTS over mannitol in paediatric TBI (meta-analyses 2023–2024). Hypertonic saline preferred if patient is hypovolaemic or at risk of renal injury.",
- },
- {name:"3% Hypertonic Saline — Bolus",color:"#c62828",warn:true,
-  prep:"3% NaCl = 513 mmol/L. Prepared from 0.9% NaCl + 30% NaCl or pre-made 3% bags.",
-  prepFn:w=>`Dose: ${(2*w).toFixed(0)}–${Math.min(5*w,100).toFixed(0)} mL (2–5 mL/kg, max 100 mL). Infuse over 10–20 min via central or large peripheral IV.`,
-  rule:"BOLUS. Total volume (mL) = dose × wt  (max 250 mL). Central line preferred.",
-  doseUnit:"mL/kg (of 3% NaCl)",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,100)).toFixed(1),
-  commonDoses:[2,3,4,5],
-  bolus:"Repeat doses PRN for refractory ICP q4–6h or as needed. Monitor Na q2–4h. Target Na 145–155 mEq/L (may go to 160 in refractory cases). Stop if Na >160 mEq/L.",
-  ranges:[
-   {dose:"2–3 mL/kg",lbl:"ICP elevation (standard)",eff:"Over 10–20 min; repeat PRN q4–6h"},
-   {dose:"3–5 mL/kg",lbl:"Acute ICP crisis / herniation",eff:"Over 10 min; may repeat once; reassess Na"},
-   {dose:"5 mL/kg",lbl:"Emergency — impending herniation",eff:"Rapid infusion over 5–10 min; central access; MAX 100 mL"},
-  ],
-  maxDose:5,
-  notes:"⚠ Central line strongly preferred (phlebitis with peripheral IV). STOP if serum Na >160 mEq/L. 3% HTS expands intravascular volume (unlike mannitol) — preferred in hypotensive patients. Brain Trauma Foundation 2019 + Texas Children's TBI Protocol 2023 recommend HTS as first-line osmotherapy in paediatric TBI. Monitor Na q2h when starting, then q4h when stable. Avoid rapid Na correction on withdrawal (max ↓ 10 mEq/L per 24h).",
- },
- {name:"3% Hypertonic Saline — Continuous Infusion",color:"#c62828",warn:true,
-  prep:"3% NaCl = 513 mmol/L. Central line MANDATORY for continuous infusion.",
-  prepFn:w=>`Starting rate: ${(0.1*w).toFixed(1)} mL/hr (0.1 mL/kg/hr). Titrate by 0.1 mL/kg/hr every 2–4 hr based on ICP and Na. Max: ${Math.min(1*w,60).toFixed(0)} mL/hr (1 mL/kg/hr).`,
-  rule:"Rate = dose × wt  mL/hr  [wt-dependent]. CENTRAL LINE MANDATORY.",
-  doseUnit:"mL/kg/hr",isBolus:false,
-  rateFn:(w,d)=>+(d*w).toFixed(2),
-  commonDoses:[0.1,0.3,0.5,0.7,1.0],
-  bolus:"Give 3–5 mL/kg bolus FIRST, then start infusion. Titrate infusion based on ICP response and serum Na. Target Na 145–155 mEq/L.",
-  ranges:[
-   {dose:"0.1",lbl:"Starting rate (mL/kg/hr)",eff:"Adjust q2–4h based on ICP and Na"},
-   {dose:"0.3–0.5",lbl:"Moderate ICP elevation",eff:"Monitor Na q2h; target 145–155 mEq/L"},
-   {dose:"0.5–1.0",lbl:"Refractory ICP elevation",eff:"Maximum range; Na may be allowed to 160 mEq/L"},
-  ],
-  maxDose:1.0,
-  notes:"⚠ CENTRAL LINE MANDATORY. Texas Children's TBI Protocol 2023 sliding scale: start 0.1 mL/kg/hr → titrate up 0.1 mL/kg/hr q2–4h if ICP >20 mmHg. Stop/wean when ICP controlled <20 mmHg for >24hr. Monitor Na q2h (when titrating) then q4h (stable). NEVER stop abruptly — taper over 24–48hr to prevent rebound cerebral oedema.",
- },
- {name:"Dexamethasone (Vasogenic Oedema)",color:"#1a237e",warn:false,
-  prep:"IV: 4 mg/mL ampoule. Oral: 2 mg/5mL elixir or 0.5 mg tablets.",
-  prepFn:w=>`Loading: ${(0.25*w).toFixed(2)} mg (0.25 mg/kg IV). Maintenance: ${(0.1*w).toFixed(2)} mg/kg/dose q6h.`,
-  rule:"BOLUS. Total mg = dose × wt  (max 10 mg loading; 4 mg/dose maintenance)",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
-  commonDoses:[0.1,0.15,0.25],
-  bolus:"Loading: 0.25–0.5 mg/kg IV (max 10 mg). Maintenance: 0.1 mg/kg/dose q6h (max 4 mg/dose). Duration: 5–7 days then taper.",
-  ranges:[
-   {dose:"0.25–0.5 mg/kg",lbl:"Loading dose",eff:"IV over 5 min; max 10 mg; for CNS tumour/abscess"},
-   {dose:"0.1 mg/kg/dose q6h",lbl:"Maintenance",eff:"IV or oral; max 4 mg/dose; for vasogenic oedema"},
-   {dose:"NOT indicated",lbl:"Traumatic brain injury",eff:"⚠ CONTRAINDICATED in TBI — worsens outcome (CRASH trial)"},
-   {dose:"NOT indicated",lbl:"Cytotoxic/ischaemic oedema",eff:"Not effective for stroke, hypoxic injury, or metabolic oedema"},
-  ],
-  maxDose:0.5,
-  notes:"⚠ ONLY for VASOGENIC OEDEMA (CNS tumour, brain abscess, post-surgical). CONTRAINDICATED in traumatic brain injury (CRASH trial — increases mortality). NOT effective for cytotoxic oedema (stroke, hypoxia). Monitor glucose (hyperglycaemia), BP, GI (gastroprotection with ranitidine/PPI). Avoid abrupt withdrawal after >7 days. Ref: Harriet Lane 23rd Ed 2024.",
- },
-];
-
-// ══════════════════════════════════════════════════════════════
-// ANTIDOTES
-// ══════════════════════════════════════════════════════════════
-
-DRUGS.antidotes = [
- {name:"N-Acetylcysteine (NAC) — Paracetamol Overdose",color:"#e65100",warn:true,
-  prep:"IV: 200 mg/mL ampoule. Dilute each bag in D5W. 3-bag 21-hour IV protocol (standard).",
-  prepFn:w=>`
-BAG 1: ${(150*w).toFixed(0)} mg NAC in ${(3*w).toFixed(0)} mL D5W → infuse over 1 HOUR
-BAG 2: ${(50*w).toFixed(0)} mg NAC in ${(7*w).toFixed(0)} mL D5W → infuse over 4 HOURS
-BAG 3: ${(100*w).toFixed(0)} mg NAC in ${(14*w).toFixed(0)} mL D5W → infuse over 16 HOURS
-TOTAL: ${(300*w).toFixed(0)} mg NAC over 21 hours`,
-  rule:"3-BAG PROTOCOL: 150 + 50 + 100 mg/kg = 300 mg/kg total over 21 hours",
-  doseUnit:"See 3-bag protocol",isBolus:true,
-  rateFn:(w,d)=>+(300*w).toFixed(0),
-  commonDoses:[],
-  bolus:"Oral protocol (if IV unavailable): Loading 140 mg/kg, then 70 mg/kg q4h × 17 doses = 1330 mg/kg total over 72 hr. Dilute in juice/cola (bitter taste). Risk of vomiting — antiemetic pretreatment.",
-  ranges:[
-   {dose:"150 mg/kg",lbl:"BAG 1 — over 1 hour",eff:`Rate = ${150}×wt mg in ${3}×wt mL D5W`},
-   {dose:"50 mg/kg",lbl:"BAG 2 — over 4 hours",eff:`Rate = ${50}×wt mg in ${7}×wt mL D5W`},
-   {dose:"100 mg/kg",lbl:"BAG 3 — over 16 hours",eff:`Rate = ${100}×wt mg in ${14}×wt mL D5W`},
-   {dose:"300 mg/kg total",lbl:"21-hour IV total",eff:"Rumack-Matthew nomogram guides whether to treat"},
-   {dose:"1330 mg/kg total",lbl:"72-hour ORAL total",eff:"140 mg/kg load then 70 mg/kg q4h × 17 doses"},
-  ],
-  maxDose:300,
-  notes:"⚠ Use Rumack-Matthew nomogram to decide treatment (plot paracetamol level vs time since ingestion). Treat if on or above treatment line. Start NAC within 8–10 hr of ingestion for maximum efficacy (still beneficial up to 24hr). Anaphylactoid reactions during Bag 1 (flushing, urticaria, bronchospasm) — slow infusion rate, give chlorphenamine 0.2 mg/kg IV, salbutamol if bronchospasm. Extend treatment if: jaundice, encephalopathy, coagulopathy, renal failure, ALT >1000 IU/L. Refer to liver unit if: INR >2 at 24hr, rising creatinine, encephalopathy. Ref: BNFc 2024; Rumack BH. Clin Toxicol 1981.",
- },
- 
-  {name:"Atropine — Bradycardia / Organophosphate",color:"#2e7d32",warn:false,
-  prep:"600 mcg/mL (0.6 mg/mL) ampoule. Draw up undiluted for emergency.",
-  prepFn:w=>`Bradycardia: ${Math.max(0.1,Math.min(0.02*w,0.5)).toFixed(2)} mg (0.02 mg/kg, min 0.1mg, max 0.5mg).\nOrganophosphate: ${(0.05*w).toFixed(2)} mg (0.05 mg/kg) → titrate to secretion control.`,
-  rule:"BOLUS. Dose = 0.02 mg/kg (bradycardia) | 0.05 mg/kg repeated (OP poisoning). Min 0.1 mg.",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.max(0.1,Math.min(d*w,3))).toFixed(2),
-  commonDoses:[0.02,0.05],
-  bolus:"Bradycardia: 0.02 mg/kg IV (min 0.1 mg, max 0.5 mg). OP poisoning: 0.05 mg/kg q5-10min until secretions dry; may need massive doses (no ceiling in OP poisoning).",
-  ranges:[
-   {dose:"0.02 mg/kg",lbl:"Symptomatic bradycardia",eff:"Min 0.1 mg; max 0.5 mg; IV rapid; may repeat once"},
-   {dose:"0.05 mg/kg",lbl:"Organophosphate — initial",eff:"IV/IO; repeat q5–10 min; endpoint = secretion drying"},
-   {dose:"No ceiling",lbl:"Organophosphate — titration",eff:"Titrate to: dry secretions, clear chest, HR normalised"},
-   {dose:"0.02 mg/kg",lbl:"Pre-intubation (rescue)",eff:"Draw up before intubation; give only if bradycardia"},
-  ],
-  maxDose:0.05,
-  notes:"No minimum dose ceiling in organophosphate poisoning — may require hundreds of mg. Endpoint is drying of secretions, not HR. Avoid in tachyarrhythmias. IM route equally effective if IV unavailable. Glycopyrrolate 0.01 mg/kg is alternative (no CNS penetration — useful if CNS atropinisation not needed). Ref: BNFc 2024; WHO organophosphate poisoning guidelines.",
- },
- {name:"Naloxone — Opioid Reversal",color:"#2e7d32",warn:false,
-  prep:"400 mcg/mL (0.4 mg/mL) or 1 mg/mL ampoule. Dilute for accurate paediatric dosing.",
-  prepFn:w=>`Dose: ${Math.min(0.01*w,2).toFixed(3)} mg (0.01 mg/kg, max 2 mg) IV/IM/IN.\nFor respiratory depression: ${(0.01*w).toFixed(3)} mg IV, titrate slowly.\nFor complete reversal: ${(0.1*w).toFixed(3)} mg IV (0.1 mg/kg, max 2 mg).`,
-  rule:"BOLUS. Total mg = dose × wt  (max 2 mg). Titrate for opioid-dependent patients.",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,2)).toFixed(3),
-  commonDoses:[0.01,0.1],
-  bolus:"Duration 45–90 min — shorter than most opioids. May need repeat doses or infusion (2/3 of effective reversal dose per hour). Infusion: 0.004–0.16 mg/kg/hr IV.",
-  ranges:[
-   {dose:"0.01 mg/kg",lbl:"Respiratory depression (slow reversal)",eff:"Titrate slowly — avoid acute withdrawal in opioid-dependent"},
-   {dose:"0.1 mg/kg",lbl:"Complete reversal / cardiac arrest",eff:"Max 2 mg; may precipitate acute withdrawal / pain"},
-   {dose:"0.4–2 mg",lbl:"Fixed dose (unknown weight)",eff:"IM or intranasal; repeat q2–3 min if no response"},
-  ],
-  maxDose:0.1,
-  notes:"Duration shorter than most opioids — monitor for re-narcotisation; repeat doses or infusion may be needed. Avoid aggressive reversal in opioid-dependent patients (acute withdrawal, hypertension, pulmonary oedema). Intranasal: 0.1 mg/kg (max 2 mg) — use concentrated 1 mg/mL formulation. Ref: BNFc 2024.",
- },
- {name:"Flumazenil — Benzodiazepine Reversal",color:"#2e7d32",warn:true,
-  prep:"100 mcg/mL (0.1 mg/mL) ampoule. Give IV slowly.",
-  prepFn:w=>`Dose: ${Math.min(0.01*w,0.2).toFixed(3)} mg (0.01 mg/kg, max 0.2 mg) IV over 15 sec.\nRepeat q1 min if no response; max total: ${Math.min(0.05*w,1).toFixed(3)} mg (0.05 mg/kg or 1 mg).`,
-  rule:"BOLUS. Total mg = dose × wt  (max 0.2 mg per dose; 1 mg total).",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,0.2)).toFixed(3),
-  commonDoses:[0.01,0.02],
-  bolus:"Repeat 0.01 mg/kg q1 min until response. Max total 0.05 mg/kg (or 1 mg). Duration 30–60 min — re-sedation likely with long-acting BZDs.",
-  ranges:[
-   {dose:"0.01 mg/kg",lbl:"Initial dose",eff:"Over 15 sec; repeat q1 min; max 0.2 mg/dose"},
-   {dose:"Max total 0.05 mg/kg",lbl:"Total dose",eff:"Or 1 mg total; monitor for re-sedation"},
-  ],
-  maxDose:0.02,
-  notes:"⚠ CONTRAINDICATED if BZD given for seizure control — reversal may precipitate status epilepticus. Avoid in chronic BZD dependence. Short duration (30–60 min) — re-sedation common with long-acting BZDs; may need repeat doses or infusion 0.005–0.01 mg/kg/hr. Ref: BNFc 2024.",
- },
-];
-
-
-
-// ══════════════════════════════════════════════════════════════
-// HEPATIC TAB
-// Refs: BNFc 2024; Harriet Lane 23rd Ed 2024;
-//       PALF Study Group; Lee et al Pediatr Blood Cancer 2019;
-//       ANZTCT VOD/SOS Guidelines; EBMT Defibrotide Guidelines 2026;
-//       Butterworth LOLA meta-analysis; ILBS PALF-LOLA trial 2024;
-//       Jerome et al Transl Gastroenterol Hepatol 2024
-// ══════════════════════════════════════════════════════════════
-
-DRUGS.hepatic = [
- // ── NAC ──────────────────────────────────────────────────────
- {name:"N-Acetylcysteine (NAC) — Paracetamol Overdose",color:"#e65100",warn:true,
-  prep:"IV 200 mg/mL ampoule. Dilute each stage in D5W. 3-stage 21-hour protocol.",
-  prepFn:w=>`
-STAGE 1 — Loading: ${(150*w).toFixed(0)} mg/kg IV over 1 HR
-  Dilute in D5W; infuse at ${(150*w).toFixed(0)} mg/hr
-
-STAGE 2: ${(50*w).toFixed(0)} mg/kg IV over 4 HR
-  Infuse at ${(50*w/4).toFixed(0)} mg/hr
-
-STAGE 3: ${(100*w).toFixed(0)} mg/kg IV over 16 HR
-  Infuse at ${(100*w/16).toFixed(0)} mg/hr
-
-TOTAL: ${(300*w).toFixed(0)} mg/kg over 21 hours`,
-  rule:"LOADING 150 mg/kg → 50 mg/kg → 100 mg/kg = 300 mg/kg total over 21 hr",
-  doseUnit:"mg/kg (see stages)",isBolus:true,
-  rateFn:(w,d)=>+(300*w).toFixed(0),
-  commonDoses:[],
-  bolus:"Oral alternative: 140 mg/kg loading, then 70 mg/kg q4h × 17 doses (72hr total = 1330 mg/kg). Use Rumack-Matthew nomogram to decide treatment. Start within 8–10 hr for maximum efficacy.",
-  ranges:[
-   {dose:"150 mg/kg",lbl:"Stage 1 — 1 hour",eff:"Loading; highest anaphylactoid risk in first 15 min — slow if reaction"},
-   {dose:"50 mg/kg",lbl:"Stage 2 — 4 hours",eff:"Continuing hepatoprotection"},
-   {dose:"100 mg/kg",lbl:"Stage 3 — 16 hours",eff:"Maintenance; extend if INR rising, encephalopathy, or ALT >1000"},
-   {dose:"300 mg/kg",lbl:"21-hr total",eff:"Extend beyond 21hr if: INR >2, encephalopathy, ALT still rising"},
-  ],
-  maxDose:300,
-  notes:"Anaphylactoid reaction (not allergy): flushing, urticaria, bronchospasm — slow/pause infusion, chlorphenamine 0.2 mg/kg IV, salbutamol if wheeze. Restart at slower rate once settled. EXTEND treatment if: INR >2 at 24hr, rising creatinine, encephalopathy grade III–IV → refer liver transplant centre. Ref: Rumack BH. Clin Toxicol 1981; BNFc 2024.",
- },
- {name:"N-Acetylcysteine (NAC) — Hepatic VOD/SOS",color:"#e65100",warn:true,
-  prep:"IV 200 mg/mL ampoule. Dilute to 20–40 mg/mL in D5W or NS. Protect from light.",
-  prepFn:w=>`
-LOADING: ${(150*w).toFixed(0)} mg/kg IV over 1 HOUR
-MAINTENANCE: ${(70*w).toFixed(0)} mg/kg IV q6h × 12 DOSES (3 days total)
-
-Ref: Lee AC et al. Pediatr Blood Cancer 2019 — all 9 children recovered`,
-  rule:"VOD PROTOCOL: 150 mg/kg load → 70 mg/kg q6h × 12 doses",
-  doseUnit:"mg/kg (see protocol)",isBolus:true,
-  rateFn:(w,d)=>+(150*w).toFixed(0),
-  commonDoses:[],
-  bolus:"Continue beyond 12 doses based on clinical response (bilirubin normalising, weight loss, pain resolution). Use alongside defibrotide if available.",
-  ranges:[
-   {dose:"150 mg/kg",lbl:"Loading — over 1 hour",eff:"Single dose; dilute in D5W/NS"},
-   {dose:"70 mg/kg q6h",lbl:"Maintenance × 12 doses",eff:"3 days; all 9 paediatric patients recovered (Lee 2019)"},
-   {dose:"⚠ Case series only",lbl:"Evidence level",eff:"No RCT — extrapolated from APAP dosing; use clinical judgement"},
-  ],
-  maxDose:150,
-  notes:"Mechanism: glutathione precursor — hepatoprotective, antioxidant, improves hepatic microcirculation. No significant side effects in Lee et al. series. Use alongside defibrotide where available (defibrotide is standard of care). Ref: Lee AC et al. Pediatr Blood Cancer. 2019;66(2):e27518.",
- },
- {name:"N-Acetylcysteine (NAC) — Non-APAP ALF / Transaminitis",color:"#e65100",warn:true,
-  prep:"IV 200 mg/mL ampoule. Two protocol options — no consensus for isolated transaminitis.",
-  prepFn:w=>`
-OPTION 1 — Empiric (21-hr APAP protocol off-label):
-  Loading: ${(150*w).toFixed(0)} mg/kg over 1hr
-  Then: ${(50*w).toFixed(0)} mg/kg over 4hr
-  Then: ${(100*w).toFixed(0)} mg/kg over 16hr
-
-OPTION 2 — PALF Study Group (for ALF + grade I–II encephalopathy):
-  ${(150*w).toFixed(0)} mg/kg/day continuous IV × up to 7 days
-  Rate: ${(150*w/24).toFixed(1)} mg/hr continuous infusion`,
-  rule:"NO CONSENSUS for transaminitis. Two protocol options based on clinical context.",
-  doseUnit:"mg/kg (see protocol options)",isBolus:true,
-  rateFn:(w,d)=>+(150*w).toFixed(0),
-  commonDoses:[],
-  bolus:"Oral NAC: 140 mg/kg load then 70 mg/kg q4h × 17 doses (72hr). Less preferred in ALF (encephalopathy, vomiting). Oral bioavailability only 4–9%.",
-  ranges:[
-   {dose:"300 mg/kg over 21hr",lbl:"Empiric — APAP protocol off-label",eff:"DILI, ischaemic hepatitis, drug-induced transaminitis"},
-   {dose:"150 mg/kg/day × 7d",lbl:"PALF protocol continuous IV",eff:"Non-APAP ALF with encephalopathy grade I–II"},
-   {dose:"⚠ No RCT for transaminitis",lbl:"Evidence",eff:"AASLD suggests benefit in non-APAP DILI — clinical judgement required"},
-  ],
-  maxDose:300,
-  notes:"EVIDENCE: Non-APAP ALF grade I–II encephalopathy — PALF RCT (Squires 2013) found no overall survival benefit but possible benefit in metabolic ALF. Jerome et al. Transl Gastroenterol Hepatol 2024 — emerging evidence, inconclusive. Isolated transaminitis — no controlled evidence; use empirically when ALT >5× ULN with rising trend or suspected DILI before frank ALF. REFER to liver transplant centre if: INR >2 at 24hr, encephalopathy grade III–IV, rising creatinine. Refs: Squires RH et al. Gastroenterology. 2013;143:1507; Jerome RN et al. Transl Gastroenterol Hepatol. 2024;9:2.",
- },
-
- // ── COAGULOPATHY ─────────────────────────────────────────────
- {name:"Vitamin K (Phytomenadione)",color:"#2e7d32",warn:false,
-  prep:"IV: 1 mg/mL or 10 mg/mL ampoule — dilute in glucose/saline; give SLOWLY IV. Oral: 2 mg/0.2 mL drops or 10 mg tablets.",
-  prepFn:w=>`IV dose: ${Math.min(0.3*w,10).toFixed(1)} mg (0.3 mg/kg, max 10 mg). Dilute in 20 mL D5W. Infuse over 20–30 min.`,
-  rule:"BOLUS. Total mg = 0.3 × wt  (max 10 mg). Oral or IV.",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
-  commonDoses:[0.1,0.3,0.5,1.0],
-  bolus:"IV: give SLOWLY over 20–30 min (anaphylaxis risk with rapid infusion). IM route if oral not possible and IV risk concerns. SC route has erratic absorption — avoid in liver disease.",
-  ranges:[
-   {dose:"0.3 mg/kg IV/oral",lbl:"Liver disease coagulopathy",eff:"Max 10 mg; repeat in 24–48hr if INR not improving"},
-   {dose:"0.1 mg/kg/day",lbl:"Chronic cholestasis / malabsorption",eff:"Oral; daily or alternate days; max 5 mg/day"},
-   {dose:"0.3 mg/kg",lbl:"Neonates (> haemorrhagic disease dose)",eff:"IV over 20–30 min; max 1 mg in neonates"},
-   {dose:"2 mg (fixed)",lbl:"Neonatal Haemorrhagic Disease prophylaxis",eff:"IM at birth; or 3× 2 mg oral at birth, day 4, day 28"},
-  ],
-  maxDose:1.0,
-  notes:"⚠ Anaphylaxis risk with rapid IV injection — always dilute and give over 20–30 min. Response in 6–12hr (IV), 12–24hr (oral). Limited response if severe synthetic liver dysfunction (factor deficiency not just vitamin K deficiency). Monitor INR 6–12hr post-dose. Does NOT replace FFP for acute bleeding — use FFP concurrently. Ref: BNFc 2024.",
- },
- {name:"FFP (Fresh Frozen Plasma)",color:"#1565c0",warn:true,
-  prep:"ABO-compatible FFP. 1 unit ≈ 200–250 mL. Thaw at 37°C (20–30 min). Give within 4hr of thawing.",
-  prepFn:w=>`Dose: ${(10*w).toFixed(0)}–${(20*w).toFixed(0)} mL (10–20 mL/kg). Give over 30–60 min through blood set.`,
-  rule:"VOLUME-BASED. Total mL = dose × wt  (max 20 mL/kg per dose). Blood set mandatory.",
-  doseUnit:"mL/kg",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,500)).toFixed(0),
-  commonDoses:[10,15,20],
-  bolus:"Raises all clotting factors by ~20% (10 mL/kg) to ~30% (15 mL/kg). Not indicated for INR elevation without active bleeding. Monitor INR 1–4hr post-infusion.",
-  ranges:[
-   {dose:"10–15 mL/kg",lbl:"Active bleeding with coagulopathy",eff:"Over 30–60 min; INR target <1.5 for procedures"},
-   {dose:"15–20 mL/kg",lbl:"Severe coagulopathy + haemorrhage",eff:"Large volume — monitor for fluid overload"},
-   {dose:"NOT indicated",lbl:"INR elevation without bleeding",eff:"⚠ Prophylactic FFP not recommended (EASL/AASLD guidelines)"},
-   {dose:"NOT indicated",lbl:"Volume expansion",eff:"⚠ Albumin or crystalloid preferred for volume"},
-  ],
-  maxDose:20,
-  notes:"⚠ ONLY for ACTIVE BLEEDING or high-risk procedures (lumbar puncture, liver biopsy) with INR >1.5. Prophylactic FFP for elevated INR is NOT evidence-based and may worsen outcomes (portal hypertension, fluid overload). Contains all clotting factors. Risks: TRALI, TACO, infection, alloimmunisation. ABO compatibility required. Ref: EASL Guidelines on Coagulopathy in Liver Disease 2022; BNFc 2024.",
- },
- {name:"Cryoprecipitate",color:"#1565c0",warn:false,
-  prep:"1 unit ≈ 15–20 mL containing fibrinogen, Factor VIII, vWF, Factor XIII, fibronectin. ABO compatibility preferred.",
-  prepFn:w=>`Dose: 1 unit per 5 kg body weight (or 5–10 mL/kg). For ${w} kg: ${(w/5).toFixed(0)}–${(w/4).toFixed(0)} units. Infuse via blood set over 15–30 min.`,
-  rule:"UNIT-BASED: 1 unit per 5 kg body weight. Raises fibrinogen by ~1 g/L per unit/5kg.",
-  doseUnit:"units (1 unit per 5 kg)",isBolus:true,
-  rateFn:(w,d)=>+(w/5).toFixed(0),
-  commonDoses:[],
-  bolus:"Raises fibrinogen approximately 1 g/L per unit/5kg. Target fibrinogen >1–1.5 g/L for active bleeding. Check fibrinogen 30–60 min post-infusion.",
-  ranges:[
-   {dose:"1 unit per 5 kg",lbl:"Hypofibrinogenaemia (<1 g/L)",eff:"With active bleeding or DIC; target fibrinogen >1.5 g/L"},
-   {dose:"1 unit per 5 kg",lbl:"DIC — fibrinogen replacement",eff:"Often combined with FFP in DIC management"},
-   {dose:"Consider if fibrinogen <1.5 g/L",lbl:"High-risk procedures",eff:"Liver biopsy, LP, central line insertion"},
-  ],
-  maxDose:0,
-  notes:"Primary indication: hypofibrinogenaemia (<1 g/L) with bleeding or before high-risk procedures. More fibrinogen-rich than FFP in smaller volume. DIC in liver disease: combine with FFP and platelets as needed. Monitor fibrinogen and PT/APTT post-infusion. ABO compatibility preferred. Ref: BNFc 2024; BSH Transfusion Guidelines.",
- },
-
- // ── HEPATIC ENCEPHALOPATHY ────────────────────────────────────
- {name:"Lactulose",color:"#795548",warn:false,
-  prep:"Oral/NG: 3.3 g/5 mL solution (667 mg/mL). Rectal: 300 mL lactulose + 700 mL water as enema.",
-  prepFn:w=>`Oral/NG: ${(0.5*w).toFixed(1)}–${(1*w).toFixed(1)} mL/dose (0.5–1 mL/kg, max 30 mL/dose). Give 2–4× daily.\nAim for 2–3 soft stools per day.`,
-  rule:"ORAL/NG. Volume = 0.5–1 mL/kg/dose (max 30 mL). Titrate to 2–3 stools/day.",
-  doseUnit:"mL/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(Math.min(d*w,30)).toFixed(1),
-  commonDoses:[0.5,0.75,1.0],
-  bolus:"Enema (if NG not possible / comatose): 300 mL lactulose + 700 mL water per rectum, retain 30–60 min, q4–6h.",
-  ranges:[
-   {dose:"0.5–1 mL/kg/dose",lbl:"Hepatic encephalopathy (oral/NG)",eff:"q6–8h; titrate to 2–3 soft stools/day (not diarrhoea)"},
-   {dose:"1–3 mL/kg/day",lbl:"Prophylaxis / maintenance",eff:"Divided q8–12h for chronic HE prevention"},
-   {dose:"300 mL retention enema",lbl:"Comatose / cannot take oral",eff:"Lactulose 300 mL + water 700 mL; q4–6h PR"},
-   {dose:"Not standard",lbl:"Neonates",eff:"Limited evidence; consult neonatology/gastroenterology"},
-  ],
-  maxDose:1.0,
-  notes:"First-line for hepatic encephalopathy. Target 2–3 soft stools/day — excessive laxation (diarrhoea) causes dehydration and hyponatraemia, worsening HE. Acidifies colonic contents → reduces NH3 absorption. Palatability poor — mix with juice. Ref: EASL HE Guidelines 2022; BNFc 2024.",
- },
- {name:"Rifaximin",color:"#795548",warn:false,
-  prep:"Oral: 200 mg or 550 mg tablets. Not absorbed systemically. No IV formulation.",
-  prepFn:w=>`
->12 yr / adult: 550 mg BD (fixed dose — weight-independent)
-2–12 yr: 200–400 mg BD (limited paediatric data)
-<2 yr: 100–200 mg BD (very limited evidence)`,
-  rule:"FIXED DOSE by age. NOT weight-based. Adjunct to lactulose.",
-  doseUnit:"Fixed dose (mg)",isBolus:true,
-  rateFn:(w,d)=>w>12?550:w>2?400:200,
-  commonDoses:[],
-  bolus:null,
-  ranges:[
-   {dose:"550 mg BD",lbl:">12 yr / adolescent",eff:"Fixed dose; adjunct to lactulose for recurrent/persistent HE"},
-   {dose:"200–400 mg BD",lbl:"2–12 yr",eff:"Limited paediatric data; use with lactulose"},
-   {dose:"100–200 mg BD",lbl:"<2 yr",eff:"Very limited evidence; specialist use only"},
-  ],
-  maxDose:550,
-  notes:"Non-absorbable antibiotic — reduces ammonia-producing gut bacteria. ADJUNCT to lactulose, not replacement. Evidence strongest for preventing recurrence of overt HE in adults. Minimal systemic absorption — safe in liver failure. C. difficile risk low (not absorbed). Ref: EASL HE Guidelines 2022; BNFc 2024.",
- },
- {name:"LOLA (L-Ornithine L-Aspartate)",color:"#6a1b9a",warn:false,
-  prep:"IV: 5 g/10 mL ampoule — dilute in NS or D5W (max 40 g/500 mL). Oral: 3 g sachets.",
-  prepFn:w=>`
-IV CONTINUOUS (PALF protocol — max 30 g/day):
-  ${Math.min(0.75*w,30).toFixed(1)} g/day = ${(Math.min(0.75*w,30)/24).toFixed(2)} g/hr
-  Rate: ${(Math.min(0.75*w,30)*2).toFixed(1)} mL/hr (if diluted to 0.5 g/mL)
-
-IV BOLUS (adult/adolescent):
-  20 g in 250 mL NS over 4 hours (adults)`,
-  rule:"IV: 0.75 g/kg/day continuous (max 30 g/day). Oral: 3–6 g TDS (adults).",
-  doseUnit:"g/kg/day",isBolus:false,
-  rateFn:(w,d)=>+(Math.min(d*w,30)/24).toFixed(2),
-  commonDoses:[0.5,0.75,1.0],
-  bolus:"Oral: 3–6 g TDS (sachets dissolved in water). Oral effective for minimal/mild HE. IV preferred for acute/overt HE in ICU. Duration: continue until HE resolved and ammonia normalised.",
-  ranges:[
-   {dose:"0.75 g/kg/day",lbl:"Paediatric ALF — IV continuous",eff:"Max 30 g/day; ILBS trial NCT05778461; duration 72hr–7 days"},
-   {dose:"20 g over 4hr",lbl:"Adult/adolescent — IV bolus",eff:"Repeat q12–24h; for overt HE"},
-   {dose:"3–6 g TDS",lbl:"Oral maintenance",eff:"Sachets; for mild/minimal HE; adjunct to lactulose"},
-  ],
-  maxDose:1.0,
-  notes:"Mechanism: ornithine stimulates urea cycle enzymes; aspartate is substrate for glutamine synthesis — both lower ammonia. Meta-analyses (Butterworth 2019; multiple RCTs) show benefit in adult overt and minimal HE. Paediatric RCT ongoing (ILBS India, NCT05778461 — 0.75 g/kg/day, max 30 g/day). Comparable or superior to lactulose in network meta-analyses. Well tolerated — nausea/vomiting at high doses. Ref: Butterworth RF et al. Drugs. 2019;79(suppl 1):31–37; ILBS Trial NCT05778461.",
- },
-
- // ── VOD/SOS ───────────────────────────────────────────────────
- {name:"Defibrotide",color:"#c62828",warn:true,
-  prep:"80 mg/mL ampoule (200 mg/2.5 mL or 400 mg/5 mL). Dilute in NS or D5W to max 4 mg/mL. Give as 2-HOUR IV infusion q6h.",
-  prepFn:w=>`
-Dose: ${(6.25*w).toFixed(0)} mg (6.25 mg/kg) IV q6h = ${(25*w).toFixed(0)} mg/day total
-Dilute ${(6.25*w).toFixed(0)} mg in ${Math.max((6.25*w/4).toFixed(0),50)} mL NS (max 4 mg/mL)
-Infuse over 2 HOURS, 4× daily. Duration: minimum 21 days.`,
-  rule:"6.25 mg/kg IV q6h (25 mg/kg/day total). 2-hour infusion. Duration ≥21 days.",
-  doseUnit:"mg/kg/dose",isBolus:true,
-  rateFn:(w,d)=>+(6.25*w).toFixed(0),
-  commonDoses:[],
-  bolus:"Treatment: start immediately on VOD/SOS diagnosis. Prophylaxis (high-risk SCT): start day –1, continue to day +14 or engraftment (EBMT 2026 guidelines). Duration: 21 days standard; shorter courses (if complete response) increasingly accepted (Children's Hospital Colorado 2024 data).",
-  ranges:[
-   {dose:"6.25 mg/kg q6h",lbl:"Treatment of VOD/SOS",eff:"25 mg/kg/day total; 2-hr infusion; min 21 days"},
-   {dose:"6.25 mg/kg q6h",lbl:"Prophylaxis (high-risk SCT)",eff:"Day –1 to day +14 or engraftment; EBMT 2026"},
-   {dose:"Shortened course",lbl:"Early complete response",eff:"Discontinue once CR confirmed; 29% achieve CR <21 days"},
-  ],
-  maxDose:0,
-  notes:"⚠ Only FDA/EMA approved drug for VOD/SOS treatment. EBMT Consensus Guidelines 2026 for prophylaxis in high-risk paediatric SCT patients. Mechanism: stabilises endothelium, reduces thrombosis, restores fibrinolytic balance. NOT significantly associated with increased bleeding despite anticoagulant properties. Exclude clinically significant bleeding before starting. Stop if: severe haemorrhage, need for >1 vasopressor. Max concentration 4 mg/mL. Refs: Richardson PG et al. Blood. 2016;127(13):1656; EBMT Consensus Bone Marrow Transpl. 2026; ANZTCT VOD Guidelines.",
- },
-];
-
-// Nebulised NAC — add to broncho tab
-DRUGS.broncho.push(
- {name:"N-Acetylcysteine (NAC) — Nebulised",color:"#2d6a4f",warn:false,
-  prep:"20% solution (200 mg/mL) — dilute 1:1 with NS to make 10% for nebulisation. Or use 10% solution directly.",
-  prepFn:w=>`Nebulised: 3–5 mL of 20% NAC (600 mg–1g) OR 5–10 mL of 10% NAC. Drive with O2 6–8 L/min.`,
-  rule:"FIXED DOSE (not weight-based). 3–5 mL of 20% solution OR 5–10 mL of 10% solution per dose.",
-  doseUnit:"mL/dose (fixed)",isBolus:true,
-  rateFn:(w,d)=>3,
-  commonDoses:[],
-  bolus:"Can be mixed with salbutamol nebule (check local pharmacy for compatibility). Bronchospasm may occur — pretreat with salbutamol 15 min before NAC in reactive airways.",
-  ranges:[
-   {dose:"3–5 mL of 20% solution",lbl:"Mucous plugging / thick secretions",eff:"q6–8h; via jet nebuliser; drive with O2"},
-   {dose:"5–10 mL of 10% solution",lbl:"Cystic fibrosis / bronchiectasis",eff:"q6–8h; less irritating than 20%"},
-   {dose:"3–5 mL of 20% solution",lbl:"Post-intubation secretion clearance",eff:"q6h via HME/nebuliser; combine with chest physio"},
-   {dose:"1–2 mL intratracheal",lbl:"Endotracheal instillation (mucous plugs)",eff:"Via suction catheter; rare use; immediate suction after"},
-  ],
-  maxDose:0,
-  notes:"Mucolytic — breaks disulfide bonds in mucoproteins, reducing sputum viscosity. Bronchospasm risk (especially in reactive airways) — pretreat with bronchodilator. Unpleasant smell (sulphur) — warn patient/family. Used in: CF, bronchiectasis, post-intubation secretion clearance, mucous plugging in PICU, lobar collapse. NOT evidence-based for routine use in ventilated patients — use selectively. Ref: BNFc 2024.",
- }
-);
-
-
 // ── Build flat index ──────────────────────────────────────────
 const ALL_DRUGS = [];
 Object.entries(DRUGS).forEach(([cat, arr]) => {
@@ -2779,11 +2201,6 @@ function renderPillBar(){
       `<button class="drug-pill active" style="background:#c1121f;border-color:#c1121f;color:#fff">🫁 Intubation Drug Calculator</button>`;
     return;
   }
-  if(activeCategory==='dka'){
-    document.getElementById('pill-bar').innerHTML =
-      `<button class="drug-pill active" style="background:#b71c1c;border-color:#b71c1c;color:#fff">🩸 DKA Management Calculator</button>`;
-    return;
-  }
   if(activeCategory==='references'){
     document.getElementById('pill-bar').innerHTML =
       `<button class="drug-pill active" style="background:#1565c0;border-color:#1565c0;color:#fff">📚 References & Verification</button>`;
@@ -2807,10 +2224,6 @@ function renderDrugDisplay(){
   const el = document.getElementById('drug-display');
   if(activeCategory==='intubation'){
     renderIntubationTab();
-    return;
-  }
-  if(activeCategory==='dka'){
-    renderDKATab();
     return;
   }
   if(activeCategory==='references'){
@@ -2840,7 +2253,7 @@ function renderGIR(){
 }
 
 function renderWeightBanner(){
-  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references'||activeCategory==='dka')?'none':'flex';
+  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references')?'none':'flex';
 }
 
 
@@ -3379,6 +2792,10 @@ const REFERENCES = {
         {title:"PCCSI Antibiotic Stewardship Guidelines 2023", url:"https://www.pccsi.org"},
         {title:"Phoenix Sepsis Criteria 2024 — Schlapbach LJ et al. JAMA 2024;331(8):665–674", url:"https://doi.org/10.1001/jama.2024.0695"},
         {title:"WHO AWaRe Antibiotic Book 2022", url:"https://www.who.int/publications/i/item/9789240047495"},
+        {title:"Ceftazidime-Avibactam (Zavicefta) in children — Torres A et al. Lancet Infect Dis. 2018;18(3):285", url:"https://doi.org/10.1016/S1473-3099(17)30529-0"},
+        {title:"Aztreonam-Avibactam (Emblaveo) for MBL-CRO — Wenzler E et al. Pharmacotherapy. 2017;37(10):1259", url:"https://doi.org/10.1002/phar.1968"},
+        {title:"Ceftriaxone-Sulbactam for Acinetobacter — Penwell WF et al. Antimicrob Agents Chemother. 2015;59(2):1218", url:"https://doi.org/10.1128/AAC.04524-14"},
+        {title:"Nitroglycerin in paediatric ICU — Tobias JD. Paediatr Drugs. 2015;17(4):291", url:"https://doi.org/10.1007/s40272-015-0130-5"},
         {title:"Amoxicillin-clavulanate — BNFc / Medscape", url:"https://reference.medscape.com/drug/augmentin-amoxicillin-clavulanate-342376"},
       ]
     },
@@ -3395,90 +2812,12 @@ const REFERENCES = {
         {title:"Rapid Sequence Intubation in PICU — Kerrey BT et al. Ann Emerg Med. 2012", url:"https://doi.org/10.1016/j.annemergmed.2011.09.010"},
       ]
     },
-    {
-      section: "Diuretics",
-      icon: "💧",
-      color: "#0277bd",
-      refs: [
-        {title:"Furosemide continuous infusion in PICU — Frontiers Pediatrics 2023", url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC10824983/"},
-        {title:"Continuous vs intermittent furosemide paediatric cardiac PICU — Crit Care Med 1997;25(12):1949–54", url:"https://pubmed.ncbi.nlm.nih.gov/1729038/"},
-        {title:"Harriet Lane Handbook 23rd Ed 2024 — Furosemide, Spironolactone, Metolazone, HCTZ", url:"https://www.unboundmedicine.com/harrietlane"},
-        {title:"BNFc 2024 — Diuretics chapter", url:"https://bnfc.nice.org.uk"},
-      ]
-    },
-    {
-      section: "Hepatic",
-      icon: "🫀",
-      color: "#e65100",
-      refs: [
-        {title:"NAC for paracetamol OD — Rumack-Matthew nomogram. Clin Toxicol 1981", url:"https://reference.medscape.com/drugs#query=acetylcysteine"},
-        {title:"NAC for hepatic VOD/SOS in children — Lee AC et al. Pediatr Blood Cancer. 2019;66(2):e27518", url:"https://doi.org/10.1002/pbc.27518"},
-        {title:"NAC in non-APAP ALF — Jerome RN et al. Transl Gastroenterol Hepatol. 2024;9:2", url:"https://tgh.amegroups.org/article/view/8506/html"},
-        {title:"PALF RCT — Squires RH et al. Gastroenterology. 2013;143(6):1507–14", url:"https://doi.org/10.1053/j.gastro.2013.07.030"},
-        {title:"Defibrotide for VOD/SOS — Richardson PG et al. Blood. 2016;127(13):1656", url:"https://doi.org/10.1182/blood-2015-10-676924"},
-        {title:"EBMT Defibrotide Prophylaxis Consensus Guidelines. Bone Marrow Transpl. 2026", url:"https://www.nature.com/articles/s41409-025-02793-x"},
-        {title:"LOLA for HE — Butterworth RF et al. Drugs. 2019;79(suppl 1):31–37", url:"https://doi.org/10.1007/s40265-018-1023-2"},
-        {title:"LOLA + LOLA meta-analysis 2024. Arab J Gastroenterol. 2024", url:"https://pubmed.ncbi.nlm.nih.gov/38403493/"},
-        {title:"EASL Guidelines on HE 2022", url:"https://www.journal-of-hepatology.eu/article/S0168-8278(22)00123-1/fulltext"},
-        {title:"BNFc 2024 — Hepatic drugs, coagulation", url:"https://bnfc.nice.org.uk"},
-      ]
-    },
-    {
-      section: "Neuroprotection & ICP",
-      icon: "🧠",
-      color: "#1a237e",
-      refs: [
-        {title:"Brain Trauma Foundation: Paediatric Severe TBI Guidelines 3rd Ed — Kochanek PM et al. Pediatr Crit Care Med. 2019;20(3S):S1–S82", url:"https://doi.org/10.1097/PCC.0000000000001735"},
-        {title:"Texas Children's Hospital Severe Paediatric TBI Protocol 2023", url:"https://www.texaschildrens.org/sites/default/files/uploads/documents/outcomes/standards/Severe%20TBI%20Guideline%202023%20FINAL.pdf"},
-        {title:"Managing Intracranial Pressure Crisis — CREVICE Protocol. Curr Neurol Neurosci Rep. 2024", url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC11659353/"},
-        {title:"Hypertonic Saline vs Mannitol in Paediatric TBI — systematic review. J Pediatr Neonatal Indiv Med. 2023", url:"https://jpnim.com/index.php/jpnim/article/download/e120206/"},
-        {title:"CRASH Trial — Dexamethasone contraindicated in TBI. Lancet 2004", url:"https://doi.org/10.1016/S0140-6736(04)16592-X"},
-      ]
-    },
-    {
-      section: "Antidotes",
-      icon: "⚕️",
-      color: "#e65100",
-      refs: [
-        {title:"NAC for paracetamol overdose — Rumack BH. Clin Toxicol 1981 (Rumack-Matthew nomogram)", url:"https://reference.medscape.com/drugs#query=acetylcysteine"},
-        {title:"NAC for hepatic VOD/SOS in children — Lee AC et al. Pediatr Blood Cancer. 2019;66(2):e27518", url:"https://doi.org/10.1002/pbc.27518"},
-        {title:"BNFc 2024 — Antidotes chapter (Naloxone, Flumazenil, Atropine, Acetylcysteine)", url:"https://bnfc.nice.org.uk"},
-        {title:"WHO Organophosphate Poisoning Treatment Guidelines", url:"https://www.who.int/publications/i/item/9789240005921"},
-      ]
-    },
   ],
 
   // Per-drug verify links (shown as button on each drug card)
   drugLinks: {
     "Amoxicillin": "https://reference.medscape.com/drugs#query=amoxicillin",
     "Amoxicillin-Clavulanate (Co-amoxiclav)": "https://reference.medscape.com/drugs#query=amoxicillin+clavulanate",
-    "Furosemide — IV Infusion": "https://reference.medscape.com/drugs#query=furosemide",
-    "Furosemide — IV Bolus / Oral": "https://reference.medscape.com/drugs#query=furosemide",
-    "Spironolactone": "https://reference.medscape.com/drugs#query=spironolactone",
-    "Metolazone": "https://reference.medscape.com/drugs#query=metolazone",
-    "Hydrochlorothiazide (HCTZ)": "https://reference.medscape.com/drugs#query=hydrochlorothiazide",
-    "Acetazolamide": "https://reference.medscape.com/drugs#query=acetazolamide",
-    "N-Acetylcysteine (NAC) — Paracetamol Overdose": "https://reference.medscape.com/drugs#query=acetylcysteine",
-    "N-Acetylcysteine (NAC) — Hepatic VOD/SOS": "https://reference.medscape.com/drugs#query=acetylcysteine",
-    "N-Acetylcysteine (NAC) — Non-APAP ALF / Transaminitis": "https://reference.medscape.com/drugs#query=acetylcysteine",
-    "Vitamin K (Phytomenadione)": "https://reference.medscape.com/drugs#query=vitamin+k+phytonadione",
-    "FFP (Fresh Frozen Plasma)": "https://reference.medscape.com/drugs#query=fresh+frozen+plasma",
-    "Cryoprecipitate": "https://reference.medscape.com/drugs#query=cryoprecipitate",
-    "Lactulose": "https://reference.medscape.com/drugs#query=lactulose",
-    "Rifaximin": "https://reference.medscape.com/drugs#query=rifaximin",
-    "LOLA (L-Ornithine L-Aspartate)": "https://reference.medscape.com/drugs#query=ornithine+aspartate",
-    "Defibrotide": "https://reference.medscape.com/drugs#query=defibrotide",
-    "N-Acetylcysteine (NAC) — Nebulised": "https://reference.medscape.com/drugs#query=acetylcysteine",
-    "ICP Management Bundle — Reference": "",
-    "Mannitol 20%": "https://reference.medscape.com/drugs#query=mannitol",
-    "3% Hypertonic Saline — Bolus": "https://reference.medscape.com/drugs#query=hypertonic+saline",
-    "3% Hypertonic Saline — Continuous Infusion": "https://reference.medscape.com/drugs#query=hypertonic+saline",
-    "Dexamethasone (Vasogenic Oedema)": "https://reference.medscape.com/drugs#query=dexamethasone",
-    "N-Acetylcysteine (NAC) — Paracetamol Overdose": "https://reference.medscape.com/drugs#query=acetylcysteine",
-    "N-Acetylcysteine (NAC) — Hepatic VOD/SOS": "https://reference.medscape.com/drugs#query=acetylcysteine",
-    "Atropine — Bradycardia / Organophosphate": "https://reference.medscape.com/drugs#query=atropine",
-    "Naloxone — Opioid Reversal": "https://reference.medscape.com/drugs#query=naloxone",
-    "Flumazenil — Benzodiazepine Reversal": "https://reference.medscape.com/drugs#query=flumazenil",
     "Acyclovir": "https://reference.medscape.com/drugs#query=acyclovir",
     "Amikacin": "https://reference.medscape.com/drugs#query=amikacin",
     "Amphotericin B (Liposomal)": "https://reference.medscape.com/drugs#query=amphotericin+liposomal",
@@ -3487,6 +2826,11 @@ const REFERENCES = {
     "Cefotaxime": "https://reference.medscape.com/drugs#query=cefotaxime",
     "Ceftazidime": "https://reference.medscape.com/drugs#query=ceftazidime",
     "Ceftriaxone": "https://reference.medscape.com/drugs#query=ceftriaxone",
+    "Ceftazidime-Avibactam (Zavicefta)": "https://reference.medscape.com/drugs#query=ceftazidime+avibactam",
+    "Aztreonam": "https://reference.medscape.com/drugs#query=aztreonam",
+    "Aztreonam-Avibactam (Emblaveo)": "https://reference.medscape.com/drugs#query=aztreonam+avibactam",
+    "Ceftriaxone-Sulbactam": "https://reference.medscape.com/drugs#query=ceftriaxone+sulbactam",
+    "Nitroglycerin (GTN) \u26a0": "https://reference.medscape.com/drugs#query=nitroglycerin",
     "Colistin (Polymyxin E)": "https://reference.medscape.com/drugs#query=colistin",
     "Fluconazole": "https://reference.medscape.com/drugs#query=fluconazole",
     "Gentamicin": "https://reference.medscape.com/drugs#query=gentamicin",
@@ -3645,246 +2989,6 @@ function renderReferencesTab() {
 }
 
 
-
-// ══════════════════════════════════════════════════════════════
-// DKA MANAGEMENT CALCULATOR
-// Ref: ISPAD Clinical Practice Guidelines 2022 (Glaser et al. Pediatr Diabetes 2022;23:835)
-//      BSPED DKA Guideline 2021 (v3) — www.bsped.org.uk
-//      PECARN DKA Fluid Trial — NEJM 2018;378:2275
-//      BJA Education DKA in children 2023
-// ══════════════════════════════════════════════════════════════
-
-let dkaWt = '';
-let dkaSeverity = 'moderate'; // mild / moderate / severe
-let dkaBolus = '0';
-let dkaK = '';
-let dkaBG = '';
-let dkaNa = '';
-let dkaInsulinDose = '0.05';
-
-const DKA_SEVERITY = {
-  mild:     {label:'Mild',     ph:'7.20–7.30', hco3:'10–15', deficit:5,  color:'#f57f17', dehydration:'~5%'},
-  moderate: {label:'Moderate', ph:'7.10–7.20', hco3:'5–10',  deficit:7,  color:'#e65100', dehydration:'~7%'},
-  severe:   {label:'Severe',   ph:'<7.10',     hco3:'<5',    deficit:10, color:'#b71c1c', dehydration:'~10%'},
-};
-
-function hollidaySegar(w) {
-  if(w<=10) return w*100;
-  if(w<=20) return 1000+(w-10)*50;
-  return 1500+(w-20)*20;
-}
-
-function correctedNa(na, bg_mmol) {
-  return (parseFloat(na) + 0.3*(parseFloat(bg_mmol)-5.6)).toFixed(1);
-}
-
-function bgMmol(mgdl) { return (parseFloat(mgdl)/18).toFixed(1); }
-
-function renderDKATab() {
-  const el = document.getElementById('drug-display');
-  if(!el) return;
-
-  const wt = parseFloat(dkaWt)||0;
-  const sev = DKA_SEVERITY[dkaSeverity];
-  const bolusGiven = parseFloat(dkaBolus)||0;
-  const k = parseFloat(dkaK);
-  const bg = parseFloat(dkaBG);
-  const bgM = bg ? (bg/18).toFixed(1) : null;
-  const na = parseFloat(dkaNa);
-  const corrNa = (na && bgM) ? correctedNa(na, bgM) : null;
-  const insulinDose = parseFloat(dkaInsulinDose)||0.05;
-
-  const deficit = wt ? (sev.deficit/100)*wt*1000 : 0;
-  const maintenanceDay = wt ? hollidaySegar(wt) : 0;
-  const maintenance48 = maintenanceDay*2;
-  const replacementVol = Math.max(0, deficit - bolusGiven);
-  const totalVol = replacementVol + maintenance48;
-  const hourlyRate = wt ? (totalVol/48).toFixed(1) : null;
-  const insulinRate = wt ? (insulinDose * wt).toFixed(2) : null;
-
-  let kGuide = '', kColor = '#2e7d32';
-  if(!isNaN(k)){
-    if(k<3.0){kGuide='SEVERE HYPOKALAEMIA — Withhold insulin until K+ >3.0. Replace aggressively.';kColor='#b71c1c';}
-    else if(k<3.5){kGuide='Hypokalaemia — Add 40 mmol/L KCl to ALL fluids. Check K+ q1-2hr.';kColor='#e65100';}
-    else if(k<=5.5){kGuide='Normal — Add 40 mmol/L KCl to ALL fluids (except bolus).';kColor='#2e7d32';}
-    else{kGuide='Hyperkalaemia — DO NOT add K+ to fluids. Recheck in 2hr.';kColor='#f57f17';}
-  }
-  let naGuide = '';
-  if(corrNa!==null){
-    naGuide = parseFloat(corrNa)<130 ? 'LOW — risk of cerebral oedema. If falls >5 mmol/L in 4hr reduce fluid rate 50%.'
-      : parseFloat(corrNa)>150 ? 'HIGH — risk of hypernatraemia. Review fluid Na content.'
-      : 'Within expected range. Recheck every 4hr.';
-  }
-  let bgGuide = '';
-  if(!isNaN(bg)){
-    if(bg<72)bgGuide='HYPOGLYCAEMIA — Add 10% glucose NOW. Do NOT stop insulin.';
-    else if(bg<126)bgGuide='Add 5-10% glucose to fluid. Do NOT reduce insulin below 0.05 u/kg/hr.';
-    else if(bg<252)bgGuide='Add 5% glucose to fluid to prevent BG falling too fast.';
-    else bgGuide='Continue fluid and insulin. Target BG fall max 90 mg/dL/hr.';
-  }
-
-  const sevBtns = Object.entries(DKA_SEVERITY).map(function(e){
-    const key=e[0],s=e[1],active=dkaSeverity===key;
-    return '<button onclick="dkaSeverity=\''+key+'\';renderDKATab()" style="padding:10px 6px;border-radius:10px;border:2px solid '+(active?s.color:'var(--bdr)')+';background:'+(active?s.color+'18':'var(--bg3)')+';cursor:pointer;text-align:center">'
-      +'<div style="font-size:13px;font-weight:800;color:'+s.color+'">'+s.label+'</div>'
-      +'<div style="font-size:10px;color:var(--dim);margin-top:2px">pH '+s.ph+'</div>'
-      +'<div style="font-size:10px;color:var(--dim)">HCO&#8323; '+s.hco3+' mEq/L</div>'
-      +'<div style="font-size:10px;font-weight:700;color:'+s.color+'">Deficit '+s.dehydration+'</div></button>';
-  }).join('');
-
-  function numInput(lbl,val,key,mn,mx){
-    return '<div style="display:flex;flex-direction:column;gap:4px">'
-      +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em">'+lbl+'</label>'
-      +'<input type="number" value="'+esc(val)+'" min="'+mn+'" max="'+mx+'" step="any" inputmode="decimal" onchange="'+key+'=this.value;renderDKATab()"'
-      +' style="width:110px;padding:10px;background:var(--bg3);border:2px solid '+(val?'#b71c1c':'var(--bdr)')+';border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:'+(val?'#b71c1c':'var(--text)')+'"></div>';
-  }
-
-  const fluidBoxes = [
-    ['Deficit volume', deficit.toFixed(0)+' mL', sev.label+' = '+sev.deficit+'% x '+wt+' kg x 10', '#b71c1c'],
-    ['48hr maintenance', maintenance48.toFixed(0)+' mL', 'Holliday-Segar: '+maintenanceDay.toFixed(0)+' mL/day x 2', '#1565c0'],
-    ['Minus bolus given', '- '+bolusGiven.toFixed(0)+' mL', 'Subtract resuscitation fluid given', '#2e7d32'],
-    ['TOTAL over 48hr', totalVol.toFixed(0)+' mL', 'Replacement + maintenance', '#b71c1c'],
-  ].map(function(b){
-    return '<div style="background:#fff;border-radius:8px;padding:10px;border-left:3px solid '+b[3]+'">'
-      +'<div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.07em">'+b[0]+'</div>'
-      +'<div style="font-size:22px;font-weight:900;color:'+b[3]+';font-family:var(--mono)">'+b[1]+'</div>'
-      +'<div style="font-size:10px;color:var(--dim);margin-top:2px">'+b[2]+'</div></div>';
-  }).join('');
-
-  const fluidSection = wt ? (
-    '<div class="section">'
-    +'<div class="section-title">Step 2 &mdash; Fluid Calculation (48hr replacement)</div>'
-    +'<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px">'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+fluidBoxes+'</div>'
-    +'<div style="background:#b71c1c;color:#fff;border-radius:10px;padding:12px;text-align:center">'
-    +'<div style="font-size:11px;font-weight:700;letter-spacing:.1em;margin-bottom:4px">HOURLY IV RATE</div>'
-    +'<div style="font-size:42px;font-weight:900;font-family:var(--mono);line-height:1">'+hourlyRate+'</div>'
-    +'<div style="font-size:13px;margin-top:2px">mL/hr for 48 hours</div>'
-    +'<div style="font-size:11px;opacity:0.8;margin-top:4px">0.9% NaCl + 40 mmol/L KCl (if K+ &le;5.5 and urinating)</div>'
-    +'</div></div>'
-    +'<div style="background:#e8f4fd;border-radius:9px;padding:10px 13px;font-size:12px;color:#0d3c6e;line-height:1.7">'
-    +'Add 5% glucose when BG &lt;252 mg/dL &mdash; do NOT reduce insulin. Max fluid first 4hr (incl. bolus): 40&ndash;50 mL/kg. Replace deficit over 48hr.'
-    +'</div></div>'
-  ) : '';
-
-  const insulinBtns = [['0.05','Standard (BSPED 2021)'],['0.1','Severe DKA only']].map(function(p){
-    const d=p[0],lbl=p[1],active=dkaInsulinDose===d;
-    return '<button onclick="dkaInsulinDose=\''+d+'\';renderDKATab()" style="padding:8px 12px;border-radius:8px;border:2px solid '+(active?'#e65100':'var(--bdr)')+';background:'+(active?'#fff3e0':'var(--bg3)')+';cursor:pointer;font-size:11px;font-weight:700;color:'+(active?'#e65100':'var(--dim)')+'">'+d+' u/kg/hr<br><span style="font-size:10px;font-weight:400">'+lbl+'</span></button>';
-  }).join('');
-
-  const insulinRateBox = (wt&&insulinRate)?(
-    '<div style="background:#fff;border:2px solid #e65100;border-radius:10px;padding:10px 16px;text-align:center">'
-    +'<div style="font-size:10px;font-weight:700;color:#e65100;letter-spacing:.1em">INSULIN RATE</div>'
-    +'<div style="font-size:32px;font-weight:900;color:#e65100;font-family:var(--mono)">'+insulinRate+'</div>'
-    +'<div style="font-size:12px;color:#e65100">units/hr = mL/hr</div></div>'
-  ):'';
-
-  const elecInputs = [['K+ (mEq/L)',dkaK,'dkaK'],['BG (mg/dL)',dkaBG,'dkaBG'],['Na (mEq/L)',dkaNa,'dkaNa']].map(function(a){
-    return '<div style="display:flex;flex-direction:column;gap:3px">'
-      +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.07em">'+a[0]+'</label>'
-      +'<input type="number" value="'+esc(a[1])+'" inputmode="decimal" onchange="'+a[2]+'=this.value;renderDKATab()" style="width:100px;padding:8px;background:var(--bg3);border:2px solid '+(a[1]?'#1565c0':'var(--bdr)')+';border-radius:8px;font-size:16px;font-family:var(--mono);font-weight:700;outline:none"></div>';
-  }).join('');
-
-  const kRows = [
-    ['&lt;3.0','Withhold insulin. Aggressive K+ replacement.','Do not start until K+ >3.0'],
-    ['3.0-3.5','Hypokalaemia — Add KCl urgently. Check q1hr.','40 mmol/L + extra KCl bolus'],
-    ['3.5-5.5','Normal — Add KCl routinely to all fluids.','40 mmol/L KCl in all fluids'],
-    ['&gt;5.5','Hyperkalaemia — No K+ in fluids. Recheck 2hr.','No potassium — recheck in 2hr'],
-  ].map(function(r,i){
-    return '<tr style="background:'+(i%2===0?'#fafbff':'#fff')+'">'
-      +'<td style="padding:8px 10px;font-size:13px;font-weight:700;font-family:var(--mono);color:#1565c0">'+r[0]+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px">'+r[1]+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td></tr>';
-  }).join('');
-
-  const monRows = [
-    ['Blood glucose','Every 1 hour','BG fall &lt;90 mg/dL/hr; add glucose if &lt;252 mg/dL'],
-    ['Potassium','q1-2hr, then q2hr','Target 3.5-5.5 mEq/L; adjust KCl in fluids'],
-    ['pH / HCO&#8323;','q2-4hr','Target pH &gt;7.3, HCO&#8323; &gt;15 for resolution'],
-    ['Corrected Na','Every 4 hours','If falls &gt;5 mmol/L in 4hr reduce fluid rate 50%'],
-    ['ECG','Continuous if K+ abnormal','T wave changes = K+ problem'],
-    ['Urine output','Hourly','Confirm before adding K+'],
-    ['GCS / Neuro','Every hour','Any deterioration = cerebral oedema until proved otherwise'],
-    ['Phosphate','q4-6hr (severe DKA)','Supplement if &lt;1 mg/dL (0.32 mmol/L)'],
-  ].map(function(r,i){
-    return '<tr style="background:'+(i%2===0?'#f8fff8':'#fff')+'">'
-      +'<td style="padding:8px 10px;font-size:12px;font-weight:700;color:#2e7d32">'+r[0]+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px">'+r[1]+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td></tr>';
-  }).join('');
-
-  const coBtns = [
-    ['3% HTS (first line)','2.5-5 mL/kg over 10-15 min'+(wt?' = '+(2.5*wt).toFixed(0)+'-'+Math.min(5*wt,100).toFixed(0)+' mL (max 100 mL)':''),'#c62828'],
-    ['OR Mannitol 20%','0.5-1 g/kg over 20 min'+(wt?' = '+(0.5*wt).toFixed(0)+'-'+Math.min(wt,100).toFixed(0)+' g':''),'#1565c0'],
-    ['Reduce fluid rate','Reduce by 50% immediately','#e65100'],
-    ['Position','Head-up 30 degrees','#2e7d32'],
-    ['CT head','AFTER initial treatment','#6a1b9a'],
-    ['Neurosurgery','Immediate referral','#b71c1c'],
-  ].map(function(b){
-    return '<div style="background:#fff;border-radius:8px;padding:9px 10px;border-left:3px solid '+b[2]+'">'
-      +'<div style="font-size:11px;font-weight:700;color:'+b[2]+'">'+b[0]+'</div>'
-      +'<div style="font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4">'+b[1]+'</div></div>';
-  }).join('');
-
-  el.innerHTML =
-    '<div class="drug-panel" style="--drug-color:#b71c1c">'
-    +'<div class="drug-panel-header"><div class="drug-color-bar" style="background:#b71c1c"></div>'
-    +'<div class="drug-header-info"><div class="drug-name">&#x1FA78; DKA Management Calculator</div>'
-    +'<div class="drug-badges"><span class="badge badge-type" style="background:#fff0f0;color:#b71c1c">ISPAD 2022 &middot; BSPED 2021</span>'
-    +'<span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">PECARN DKA Fluid Trial 2018</span></div></div></div>'
-    +'<div class="section"><div class="section-title">Step 1 &mdash; Severity &amp; Patient Details</div>'
-    +'<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#5a3e00;line-height:1.7">'
-    +'<b>DKA:</b> BG &gt;200 mg/dL + pH &lt;7.3 or HCO&#8323; &lt;15 + ketonaemia. Exclude HHS (BG &gt;600, minimal ketones, altered consciousness).</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">'+sevBtns+'</div>'
-    +'<div style="display:flex;gap:12px;flex-wrap:wrap">'+numInput('Weight (kg)',dkaWt,'dkaWt','0.5','100')+numInput('Bolus given (mL)',dkaBolus,'dkaBolus','0','500')+'</div></div>'
-    +fluidSection
-    +'<div class="section"><div class="section-title">Step 3 &mdash; Insulin (start 1hr AFTER fluids)</div>'
-    +'<div style="background:#fff3e0;border:1.5px solid #e65100;border-radius:9px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#5a2a00;line-height:1.6">'
-    +'Start insulin at least 1hr after IV fluids. No bolus insulin. Only start when K+ &gt;3.0. Never stop insulin for hypoglycaemia &mdash; add glucose instead.</div>'
-    +'<div style="background:var(--bg3);border-radius:10px;padding:12px">'
-    +'<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px">PREP: 1 unit/mL &mdash; 50 units Actrapid in 50 mL NS</div>'
-    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
-    +'<div><label style="font-size:10px;font-weight:700;color:var(--dim);display:block;margin-bottom:4px">DOSE (units/kg/hr)</label>'
-    +'<div style="display:flex;gap:6px">'+insulinBtns+'</div></div>'+insulinRateBox+'</div>'
-    +'<div style="background:#e8f5e9;border-radius:8px;padding:9px 12px;font-size:12px;color:#1b4d20;line-height:1.7">'
-    +'Minimum 0.05 u/kg/hr. BG &lt;252 mg/dL: add 5% glucose. BG &lt;126 mg/dL: add 10% glucose.</div></div></div>'
-    +'<div class="section"><div class="section-title">Step 4 &mdash; Electrolytes</div>'
-    +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+elecInputs+'</div>'
-    +(kGuide?'<div style="background:'+kColor+'15;border:1.5px solid '+kColor+';border-radius:9px;padding:9px 12px;font-size:12px;color:'+kColor+';font-weight:600;margin-bottom:8px;line-height:1.6">K+ '+esc(dkaK)+' mEq/L: '+kGuide+'</div>':'')
-    +(bgGuide?'<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:9px;padding:9px 12px;font-size:12px;color:#5a3e00;font-weight:600;margin-bottom:8px;line-height:1.6">BG '+esc(dkaBG)+' mg/dL ('+bgM+' mmol/L): '+bgGuide+'</div>':'')
-    +(corrNa!==null?'<div style="background:#e8f4fd;border:1.5px solid #1565c0;border-radius:9px;padding:9px 12px;font-size:12px;color:#0d3c6e;margin-bottom:8px;line-height:1.6">Corrected Na = '+esc(dkaNa)+' + 0.3 x ('+bgM+' - 5.6) = <b>'+corrNa+' mEq/L</b><br>'+naGuide+'</div>':'')
-    +'<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr);margin-bottom:10px">'
-    +'<table style="width:100%;border-collapse:collapse;min-width:360px"><thead><tr style="background:#1565c0;color:#fff">'
-    +'<th style="padding:8px 10px;text-align:left;font-size:11px">K+ LEVEL</th><th style="padding:8px 10px;text-align:left;font-size:11px">ACTION</th><th style="padding:8px 10px;text-align:left;font-size:11px">KCl IN FLUIDS</th>'
-    +'</tr></thead><tbody>'+kRows+'</tbody></table></div>'
-    +'<div style="background:#f3f0ff;border-radius:9px;padding:10px 13px;font-size:12px;color:#3d1a78;line-height:1.7">'
-    +'<b>KPhos (ISPAD 2022):</b> Routine phosphate replacement in severe DKA. &lt;1 mg/dL: treat promptly.'
-    +(wt?' For '+wt+' kg: '+(0.1*wt).toFixed(1)+'-'+(0.2*wt).toFixed(1)+' mmol/hr KPhos (0.1-0.2 mmol/kg/hr).':' Enter weight for KPhos dose.')
-    +'</div></div>'
-    +'<div class="section"><div class="section-title">Monitoring Schedule</div>'
-    +'<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">'
-    +'<table style="width:100%;border-collapse:collapse;min-width:360px"><thead><tr style="background:#2e7d32;color:#fff">'
-    +'<th style="padding:8px 10px;text-align:left;font-size:11px">PARAMETER</th><th style="padding:8px 10px;text-align:left;font-size:11px">FREQUENCY</th><th style="padding:8px 10px;text-align:left;font-size:11px">TARGET</th>'
-    +'</tr></thead><tbody>'+monRows+'</tbody></table></div></div>'
-    +'<div class="section"><div class="section-title">&#9888;&#65039; Cerebral Oedema</div>'
-    +'<div style="background:#fff0f0;border:2px solid #b71c1c;border-radius:11px;padding:12px 14px">'
-    +'<div style="font-size:12px;font-weight:800;color:#b71c1c;margin-bottom:6px">SIGNS (treat immediately)</div>'
-    +'<div style="font-size:12px;color:#5a0000;margin-bottom:8px;line-height:1.7">GCS fall &middot; New headache &middot; Confusion &middot; Unequal pupils &middot; Focal neurology &middot; Cushing triad</div>'
-    +'<div style="font-size:12px;font-weight:700;color:#b71c1c;margin-bottom:6px">RISK: Age &lt;5yr &middot; pH &lt;7.1 &middot; pCO&#8322; &lt;21 &middot; BUN &gt;20 mg/dL &middot; New DKA</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">'+coBtns+'</div></div></div>'
-    +'<div class="section"><div class="section-title">Resolution &amp; SC Switch</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
-    +'<div style="background:#e8f5e9;border-radius:10px;padding:11px 13px;border:1.5px solid #2e7d32">'
-    +'<div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:6px">RESOLUTION (all needed)</div>'
-    +'<div style="font-size:12px;color:#1b4d20;line-height:1.8">pH &gt;7.3 AND HCO&#8323; &gt;15 AND BG normal AND tolerating oral fluids</div></div>'
-    +'<div style="background:#e8f4fd;border-radius:10px;padding:11px 13px;border:1.5px solid #1565c0">'
-    +'<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:6px">SC SWITCH</div>'
-    +'<div style="font-size:12px;color:#0d3c6e;line-height:1.8">1. Give SC insulin<br>2. Wait 30 min<br>3. THEN stop IV insulin</div></div></div></div>'
-    +'<div class="section"><div style="background:var(--bg3);border-radius:9px;padding:10px 13px;font-size:11px;color:var(--dim);line-height:1.8">'
-    +'<b>Refs:</b> ISPAD 2022 (Glaser N et al. Pediatr Diabetes 2022;23:835) &middot; BSPED DKA Guideline 2021 v3 &middot; PECARN DKA Fluid Trial (NEJM 2018;378:2275) &middot; CPS Paediatric DKA 2023'
-    +'</div></div></div>';
-}
-
 function selectAbx(i){
   selectedAbx=i;
   abxEgfr=''; abxCreat=''; abxHeight=''; abxAge='';
@@ -3905,18 +3009,7 @@ function renderAll(){
   renderGIR();
   renderWeightBanner();
   renderUnitToggleBar();
-  // Direct routing for special tabs
-  if(activeCategory==='dka'){
-    renderDKATab();
-  } else if(activeCategory==='intubation'){
-    renderIntubationTab();
-  } else if(activeCategory==='references'){
-    renderReferencesTab();
-  } else if(activeCategory==='antibiotics'){
-    renderAbxTab();
-  } else {
-    renderDrugDisplay();
-  }
+  renderDrugDisplay();
 }
 
 // ── Actions ───────────────────────────────────────────────────
@@ -4013,9 +3106,40 @@ function calcRate(){
 
 // ── Init ──────────────────────────────────────────────────────
 renderAll();
+</script>
+<!-- Install banner -->
+<div id="install-banner">
+  <div class="ib-icon">＋</div>
+  <div class="ib-text">
+    <div class="ib-title">PICU Reckoner</div>
+    <div class="ib-sub">Add to home screen for offline use</div>
+  </div>
+  <button class="ib-btn" id="install-btn">Install</button>
+  <button class="ib-close" id="install-close">✕</button>
+</div>
 
-
-
+<script>
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  }
+});
+document.getElementById('install-close').addEventListener('click', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
 </script>
 </body>
 </html>
