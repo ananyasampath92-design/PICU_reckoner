@@ -265,6 +265,11 @@ const CATEGORIES = [
   {id:"calcium",      label:"Calcium & Magnesium",      icon:"◇"},
   {id:"hypoglycemia", label:"Hypoglycemia",             icon:"◆"},
   {id:"antibiotics",  label:"Antibiotics",              icon:"🦠"},
+  {id:"diuretics",    label:"Diuretics",                icon:"💧"},
+  {id:"hepatic",        label:"Hepatic",                  icon:"🫐"},
+  {id:"dka",           label:"DKA Management",           icon:"🩸"},
+  {id:"neuroprotection", label:"Neuroprotection & ICP",   icon:"🧠"},
+  {id:"antidotes",    label:"Antidotes",                icon:"⚕️"},
   {id:"intubation",   label:"Intubation",               icon:"🫁"},
   {id:"references",   label:"References & Verify",       icon:"📚"},
 ];
@@ -1964,6 +1969,479 @@ function renderAbxTab() {
     </div>`;
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// DIURETICS DATA
+// ══════════════════════════════════════════════════════════════
+DRUGS.diuretics = [
+ {name:"Furosemide — IV Infusion",color:"#0277bd",warn:false,
+  prep:"Continuous infusion: dilute to 1 mg/mL in NS/D5W (fixed concentration)",
+  prepFn:w=>`Loading dose: ${(0.1*w).toFixed(1)} mg (0.1 mg/kg) IV over 5–10 min.\nInfusion prep: dilute furosemide 10 mg/mL to 1 mg/mL in NS.\nStarting rate: ${(0.1*w).toFixed(1)} mL/hr (0.1 mg/kg/hr)`,
+  rule:"Rate = dose × wt  mL/hr  [1 mg/mL fixed conc — wt-dependent]",
+  doseUnit:"mg/kg/hr",isBolus:false,
+  rateFn:(w,d)=>+(d*w).toFixed(2),
+  commonDoses:[0.05,0.1,0.2,0.3,0.4],
+  bolus:"IV bolus (intermittent): 0.5–2 mg/kg/dose q6–12h. Max 40 mg/dose (child); 80 mg (adolescent). Oral: 1–4 mg/kg/day divided q6–12h (max 6 mg/kg/day).",
+  ranges:[
+   {dose:"Loading: 0.1 mg/kg",lbl:"Before starting infusion",eff:"IV bolus over 5–10 min; minimum 1 mg"},
+   {dose:"Starting: 0.1",lbl:"mg/kg/hr",eff:"Initial infusion rate; titrate every 2 hr"},
+   {dose:"Titrate: 0.2",lbl:"mg/kg/hr",eff:"Double if UO <1 mL/kg/hr after 2 hr"},
+   {dose:"Maximum: 0.4",lbl:"mg/kg/hr",eff:"Max infusion rate; reassess if no response"},
+  ],
+  notes:"Continuous infusion preferred in PICU — more controlled UO, less electrolyte loss. Target UO ≥1–2 mL/kg/hr. Monitor K+, Na+, Mg2+ at least q12h. Ref: Frontiers Pediatrics 2023."},
+ {name:"Furosemide — IV Bolus / Oral",color:"#0277bd",warn:false,
+  prep:"IV: 10 mg/mL ampoule. Oral: 10 mg/mL solution or 40 mg tablets",
+  prepFn:w=>`IV dose: ${(0.5*w).toFixed(1)}–${Math.min(2*w,80).toFixed(0)} mg (0.5–2 mg/kg, max 80 mg).`,
+  rule:"BOLUS. Total mg = dose × wt  (max 40 mg child; 80 mg adolescent)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,80)).toFixed(1),
+  commonDoses:[0.5,1,1.5,2],
+  bolus:"Rate of IV administration: max 0.5 mg/kg/min. Oral bioavailability ~60% — oral dose usually 2× IV dose.",
+  ranges:[
+   {dose:"0.5–1 mg/kg/dose",lbl:"Standard IV/oral",eff:"q6–12h; max 40 mg/dose (child)"},
+   {dose:"1–2 mg/kg/dose",lbl:"Resistant oedema",eff:"q6–8h; max 80 mg/dose (adolescent)"},
+   {dose:"1–4 mg/kg/day",lbl:"Oral maintenance",eff:"Divided q6–12h; max 6 mg/kg/day"},
+  ],
+  notes:"Max rate IV push: 0.5 mg/kg/min (faster → ototoxicity). Oral bioavailability ~60% — oral dose typically 2× IV dose. Neonates <32 wks: limit duration (nephrocalcinosis). Ref: BNFc 2024."},
+ {name:"Spironolactone",color:"#2e7d32",warn:false,
+  prep:"Oral: 25 mg tablets or 5 mg/mL suspension (compounded)",
+  prepFn:w=>`Dose: ${(1*w).toFixed(0)}–${(3*w).toFixed(0)} mg/day. Give in 1–2 divided doses with food.`,
+  rule:"ORAL only. Total mg/day = dose × wt  (max 100 mg/day)",
+  doseUnit:"mg/kg/day",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,200)).toFixed(1),
+  commonDoses:[1,1.5,2,3],
+  bolus:"Give with food. Onset 2–3 days; max effect 3–5 days. No IV form.",
+  ranges:[
+   {dose:"1–3.3 mg/kg/day",lbl:"Oedema / heart failure",eff:"Once daily or q12h; max 100 mg/day"},
+   {dose:"1–2 mg/kg/day",lbl:"Hypertension",eff:"Once daily; max 100 mg/day"},
+  ],
+  notes:"Potassium-sparing — risk of HYPERKALAEMIA with ACE inhibitors, ARBs, K+ supplements. Avoid GFR <30. Onset slow — not for acute diuresis. Ref: BNFc 2024."},
+ {name:"Metolazone",color:"#6a1b9a",warn:false,
+  prep:"Oral: 2.5 mg or 5 mg tablets (crush and disperse)",
+  prepFn:w=>`Dose: ${(0.1*w).toFixed(2)}–${(0.2*w).toFixed(2)} mg. Give 30 min BEFORE furosemide for synergy.`,
+  rule:"ORAL only. Total mg = dose × wt  (max 10 mg/day)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
+  commonDoses:[0.1,0.15,0.2],
+  bolus:"Give 30–60 min before furosemide for sequential nephron blockade. Start low; titrate.",
+  ranges:[
+   {dose:"0.1–0.2 mg/kg/dose",lbl:"Once daily (standard)",eff:"Max 10 mg/day; give 30 min before furosemide"},
+  ],
+  notes:"Potent synergy with furosemide — can dramatically increase UO in furosemide-resistant oedema. Start with low intermittent dosing. Monitor U&E closely (q12h when starting). Ref: Harriet Lane 23rd Ed 2024."},
+];
+
+// ══════════════════════════════════════════════════════════════
+// NEUROPROTECTION & ICP
+// ══════════════════════════════════════════════════════════════
+DRUGS.neuroprotection = [
+ {name:"ICP Management Bundle — Reference",color:"#1a237e",warn:false,
+  prep:"General neuroprotective measures — apply BEFORE and ALONGSIDE osmotherapy",
+  prepFn:w=>`Patient weight: ${w} kg. Apply full ICP bundle. See tier-based approach below.`,
+  rule:"Reference card — no weight-based calculation. See tiered approach.",
+  doseUnit:"Reference",isBolus:true,
+  rateFn:(w,d)=>0,
+  commonDoses:[],bolus:null,
+  ranges:[
+   {dose:"HEAD POSITION",lbl:"30° elevation",eff:"Head midline, bed 30° HOB; avoids jugular compression"},
+   {dose:"pCO₂",lbl:"Normoventilation",eff:"Target PaCO₂ 35–40 mmHg (tier 1); mild hyperventilation 32–35 tier 2 only"},
+   {dose:"Na TARGET",lbl:"Osmotherapy",eff:"Serum Na 145–160 mEq/L (HTS); osmolality <320 mOsm/kg (mannitol)"},
+   {dose:"TEMP",lbl:"Normothermia",eff:"Target 36–37.5°C; avoid hyperthermia"},
+   {dose:"GLUCOSE",lbl:"Euglycaemia",eff:"Target 4–10 mmol/L; avoid hypo- and hyperglycaemia"},
+   {dose:"SEIZURE",lbl:"Prophylaxis",eff:"Levetiracetam 60 mg/kg loading (TBI)"},
+  ],
+  notes:"TIERED ICP MANAGEMENT (CREVICE Protocol 2024):\nTIER 1: HOB 30°, normoCO₂, normothermia, adequate sedation, osmotherapy, euglycaemia, seizure prophylaxis.\nTIER 2: Deep sedation, NMB, mild hyperventilation PaCO₂ 32–35 mmHg (temporary), osmotherapy.\nTIER 3: Barbiturate coma, decompressive craniectomy (specialist centres). Refs: BTF Paediatric TBI Guidelines 3rd Ed 2019; CREVICE Protocol 2024."},
+ {name:"Mannitol 20%",color:"#1565c0",warn:true,
+  prep:"20% solution = 200 mg/mL. Use in-line 5 micron filter. May crystallise — warm before use.",
+  prepFn:w=>`Dose: ${(0.5*w).toFixed(0)}–${Math.min(1*w,100).toFixed(0)} g (0.5–1 g/kg). Volume of 20%: ${(0.5*w/0.2).toFixed(0)}–${Math.min(1*w/0.2,500).toFixed(0)} mL. Infuse over 15–30 min.`,
+  rule:"BOLUS. Total dose (g) = dose × wt  (max 100g). IN-LINE FILTER mandatory.",
+  doseUnit:"g/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,100)).toFixed(1),
+  commonDoses:[0.25,0.5,0.75,1.0],
+  bolus:"STOP if: serum osmolality ≥320 mOsm/kg OR osmolar gap ≥20 OR serum Na >155 mEq/L.",
+  ranges:[
+   {dose:"0.25–0.5 g/kg",lbl:"Standard ICP elevation",eff:"Over 15–30 min; q4–6h PRN; monitor osmolality"},
+   {dose:"0.5–1 g/kg",lbl:"Acute ICP crisis / herniation",eff:"Over 15 min; reassess after 30 min"},
+  ],
+  notes:"⚠ STOP if osmolality ≥320 mOsm/kg. Causes intravascular volume depletion — avoid in haemodynamic instability. Rebound ICP with repeated dosing. Current evidence favours HTS over mannitol in paediatric TBI. Ref: BTF 2019; Texas Children's TBI Protocol 2023."},
+ {name:"3% Hypertonic Saline — Bolus",color:"#c62828",warn:true,
+  prep:"3% NaCl = 513 mmol/L. Central line preferred.",
+  prepFn:w=>`Dose: ${(2*w).toFixed(0)}–${Math.min(5*w,100).toFixed(0)} mL (2–5 mL/kg, max 100 mL). Infuse over 10–20 min.`,
+  rule:"BOLUS. Total volume (mL) = dose × wt  (max 100 mL). Central line preferred.",
+  doseUnit:"mL/kg (of 3% NaCl)",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,100)).toFixed(1),
+  commonDoses:[2,3,4,5],
+  bolus:"Repeat PRN q4–6h. Monitor Na q2–4h. Target Na 145–155 mEq/L. STOP if Na >160 mEq/L.",
+  ranges:[
+   {dose:"2–3 mL/kg",lbl:"ICP elevation (standard)",eff:"Over 10–20 min; repeat PRN q4–6h"},
+   {dose:"3–5 mL/kg",lbl:"Acute ICP crisis / herniation",eff:"Over 10 min; max 100 mL"},
+  ],
+  notes:"⚠ Central line strongly preferred. STOP if Na >160 mEq/L. HTS preferred over mannitol in hypotensive patients. Ref: BTF 2019; Texas Children's TBI Protocol 2023."},
+ {name:"Dexamethasone (Vasogenic Oedema)",color:"#1a237e",warn:false,
+  prep:"IV: 4 mg/mL ampoule. Oral: 2 mg/5mL elixir.",
+  prepFn:w=>`Loading: ${(0.25*w).toFixed(2)} mg (0.25 mg/kg IV). Maintenance: ${(0.1*w).toFixed(2)} mg/kg/dose q6h.`,
+  rule:"BOLUS. Total mg = dose × wt  (max 10 mg loading; 4 mg/dose maintenance)",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
+  commonDoses:[0.1,0.15,0.25],
+  bolus:"Loading: 0.25–0.5 mg/kg IV (max 10 mg). Maintenance: 0.1 mg/kg/dose q6h (max 4 mg/dose). Duration 5–7 days then taper.",
+  ranges:[
+   {dose:"0.25–0.5 mg/kg",lbl:"Loading — vasogenic oedema",eff:"CNS tumour/abscess only; NOT for TBI"},
+   {dose:"NOT indicated",lbl:"Traumatic brain injury",eff:"⚠ CONTRAINDICATED in TBI — worsens outcome (CRASH trial)"},
+  ],
+  notes:"ONLY for VASOGENIC OEDEMA (CNS tumour, abscess). CONTRAINDICATED in TBI (CRASH trial). NOT for cytotoxic oedema (stroke, hypoxia). Ref: Harriet Lane 23rd Ed 2024; CRASH Trial Lancet 2004."},
+];
+
+// ══════════════════════════════════════════════════════════════
+// ANTIDOTES
+// ══════════════════════════════════════════════════════════════
+DRUGS.antidotes = [
+ {name:"N-Acetylcysteine (NAC) — Paracetamol Overdose",color:"#e65100",warn:true,
+  prep:"IV: 200 mg/mL ampoule. Dilute each bag in D5W. 3-bag 21-hour IV protocol.",
+  prepFn:w=>`
+BAG 1: ${(150*w).toFixed(0)} mg NAC in ${(3*w).toFixed(0)} mL D5W → infuse over 1 HOUR
+BAG 2: ${(50*w).toFixed(0)} mg NAC in ${(7*w).toFixed(0)} mL D5W → infuse over 4 HOURS
+BAG 3: ${(100*w).toFixed(0)} mg NAC in ${(14*w).toFixed(0)} mL D5W → infuse over 16 HOURS
+TOTAL: ${(300*w).toFixed(0)} mg NAC over 21 hours`,
+  rule:"3-BAG PROTOCOL: 150 + 50 + 100 mg/kg = 300 mg/kg total over 21 hours",
+  doseUnit:"See 3-bag protocol",isBolus:true,
+  rateFn:(w,d)=>+(300*w).toFixed(0),
+  commonDoses:[],
+  bolus:"Oral: 140 mg/kg loading then 70 mg/kg q4h × 17 doses = 1330 mg/kg total over 72hr.",
+  ranges:[
+   {dose:"150 mg/kg",lbl:"BAG 1 — over 1 hour",eff:"Highest anaphylactoid risk in first 15 min"},
+   {dose:"50 mg/kg",lbl:"BAG 2 — over 4 hours",eff:"Continuing hepatoprotection"},
+   {dose:"100 mg/kg",lbl:"BAG 3 — over 16 hours",eff:"Extend if INR rising, encephalopathy, or ALT >1000"},
+  ],
+  notes:"Use Rumack-Matthew nomogram. Start within 8–10hr for maximum efficacy. Anaphylactoid reaction: slow/pause, chlorphenamine 0.2 mg/kg IV. Extend if INR >2 at 24hr. Ref: BNFc 2024; Rumack BH. Clin Toxicol 1981."},
+ {name:"Atropine — Bradycardia / Organophosphate",color:"#2e7d32",warn:false,
+  prep:"600 mcg/mL (0.6 mg/mL) ampoule. Draw up undiluted for emergency.",
+  prepFn:w=>`Bradycardia: ${Math.max(0.1,Math.min(0.02*w,0.5)).toFixed(2)} mg (0.02 mg/kg, min 0.1mg, max 0.5mg).\nOrganophosphate: ${(0.05*w).toFixed(2)} mg (0.05 mg/kg) → titrate to secretion control.`,
+  rule:"BOLUS. Min 0.1 mg. No ceiling in OP poisoning — titrate to dry secretions.",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.max(0.1,Math.min(d*w,3))).toFixed(2),
+  commonDoses:[0.02,0.05],
+  bolus:"Bradycardia: 0.02 mg/kg IV (min 0.1 mg, max 0.5 mg). OP poisoning: 0.05 mg/kg q5-10min — no ceiling.",
+  ranges:[
+   {dose:"0.02 mg/kg",lbl:"Symptomatic bradycardia",eff:"Min 0.1 mg; max 0.5 mg; IV rapid"},
+   {dose:"0.05 mg/kg",lbl:"Organophosphate — initial",eff:"Repeat q5–10 min; endpoint = dry secretions"},
+   {dose:"No ceiling",lbl:"Organophosphate — titration",eff:"Titrate to: dry secretions, clear chest, HR normalised"},
+  ],
+  notes:"No minimum dose ceiling in OP poisoning — may require hundreds of mg. Endpoint is drying of secretions, not HR. Ref: BNFc 2024; WHO OP guidelines."},
+ {name:"Naloxone — Opioid Reversal",color:"#2e7d32",warn:false,
+  prep:"400 mcg/mL (0.4 mg/mL) ampoule. Dilute for accurate paediatric dosing.",
+  prepFn:w=>`Dose: ${Math.min(0.01*w,2).toFixed(3)} mg (0.01 mg/kg, max 2 mg) IV/IM/IN.`,
+  rule:"BOLUS. Total mg = dose × wt  (max 2 mg). Titrate for opioid-dependent patients.",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,2)).toFixed(3),
+  commonDoses:[0.01,0.1],
+  bolus:"Duration 45–90 min — shorter than most opioids. May need repeat doses or infusion (2/3 of reversal dose per hour).",
+  ranges:[
+   {dose:"0.01 mg/kg",lbl:"Respiratory depression (slow reversal)",eff:"Titrate slowly — avoid acute withdrawal"},
+   {dose:"0.1 mg/kg",lbl:"Complete reversal / cardiac arrest",eff:"Max 2 mg; may precipitate withdrawal"},
+  ],
+  notes:"Duration shorter than most opioids — monitor for re-narcotisation. Avoid aggressive reversal in opioid-dependent patients. Ref: BNFc 2024."},
+ {name:"Flumazenil — Benzodiazepine Reversal",color:"#2e7d32",warn:true,
+  prep:"100 mcg/mL (0.1 mg/mL) ampoule. Give IV slowly.",
+  prepFn:w=>`Dose: ${Math.min(0.01*w,0.2).toFixed(3)} mg (0.01 mg/kg, max 0.2 mg) IV over 15 sec.`,
+  rule:"BOLUS. Total mg = dose × wt  (max 0.2 mg per dose; 1 mg total).",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,0.2)).toFixed(3),
+  commonDoses:[0.01,0.02],
+  bolus:"Repeat 0.01 mg/kg q1 min until response. Max total 0.05 mg/kg (or 1 mg). Duration 30–60 min.",
+  ranges:[
+   {dose:"0.01 mg/kg",lbl:"Initial dose",eff:"Over 15 sec; repeat q1 min; max 0.2 mg/dose"},
+   {dose:"Max total 0.05 mg/kg",lbl:"Total dose",eff:"Or 1 mg total; monitor for re-sedation"},
+  ],
+  notes:"⚠ CONTRAINDICATED if BZD given for seizure control — reversal may precipitate status epilepticus. Short duration — re-sedation common. Ref: BNFc 2024."},
+];
+
+// ══════════════════════════════════════════════════════════════
+// HEPATIC TAB
+// ══════════════════════════════════════════════════════════════
+DRUGS.hepatic = [
+ {name:"N-Acetylcysteine (NAC) — Paracetamol Overdose",color:"#e65100",warn:true,
+  prep:"IV 200 mg/mL ampoule. 3-stage 21-hour protocol.",
+  prepFn:w=>`
+STAGE 1 — Loading: ${(150*w).toFixed(0)} mg/kg IV over 1 HR
+STAGE 2: ${(50*w).toFixed(0)} mg/kg IV over 4 HR
+STAGE 3: ${(100*w).toFixed(0)} mg/kg IV over 16 HR
+TOTAL: ${(300*w).toFixed(0)} mg/kg over 21 hours`,
+  rule:"LOADING 150 mg/kg → 50 mg/kg → 100 mg/kg = 300 mg/kg total over 21 hr",
+  doseUnit:"mg/kg (see stages)",isBolus:true,
+  rateFn:(w,d)=>+(300*w).toFixed(0),
+  commonDoses:[],
+  bolus:"Oral: 140 mg/kg load then 70 mg/kg q4h × 17 doses. Use Rumack-Matthew nomogram.",
+  ranges:[
+   {dose:"150 mg/kg",lbl:"Stage 1 — 1 hour",eff:"Highest anaphylactoid risk in first 15 min"},
+   {dose:"50 mg/kg",lbl:"Stage 2 — 4 hours",eff:"Continuing hepatoprotection"},
+   {dose:"100 mg/kg",lbl:"Stage 3 — 16 hours",eff:"Extend if INR rising or encephalopathy"},
+  ],
+  notes:"Start within 8–10hr for maximum efficacy. Extend beyond 21hr if INR >2, encephalopathy, or ALT still rising. Ref: BNFc 2024; Rumack BH 1981."},
+ {name:"Vitamin K (Phytomenadione)",color:"#2e7d32",warn:false,
+  prep:"IV: 1 mg/mL or 10 mg/mL ampoule — dilute; give SLOWLY IV. Oral: 2 mg/0.2 mL drops.",
+  prepFn:w=>`IV dose: ${Math.min(0.3*w,10).toFixed(1)} mg (0.3 mg/kg, max 10 mg). Dilute in 20 mL D5W. Infuse over 20–30 min.`,
+  rule:"BOLUS. Total mg = 0.3 × wt  (max 10 mg). Anaphylaxis risk with rapid IV.",
+  doseUnit:"mg/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,10)).toFixed(2),
+  commonDoses:[0.1,0.3,0.5],
+  bolus:"IV: give SLOWLY over 20–30 min (anaphylaxis risk). Response in 6–12hr (IV), 12–24hr (oral).",
+  ranges:[
+   {dose:"0.3 mg/kg IV/oral",lbl:"Liver disease coagulopathy",eff:"Max 10 mg; repeat in 24–48hr if INR not improving"},
+   {dose:"0.1 mg/kg/day",lbl:"Chronic cholestasis",eff:"Oral; daily or alternate days; max 5 mg/day"},
+  ],
+  notes:"⚠ Anaphylaxis with rapid IV — always dilute and give over 20–30 min. Limited response in severe synthetic failure. Does NOT replace FFP for acute bleeding. Ref: BNFc 2024."},
+ {name:"Lactulose",color:"#795548",warn:false,
+  prep:"Oral/NG: 3.3 g/5 mL solution. Rectal: 300 mL lactulose + 700 mL water as enema.",
+  prepFn:w=>`Oral/NG: ${(0.5*w).toFixed(1)}–${Math.min(1*w,30).toFixed(0)} mL/dose (0.5–1 mL/kg, max 30 mL). Aim for 2–3 soft stools/day.`,
+  rule:"ORAL/NG. Volume = 0.5–1 mL/kg/dose (max 30 mL). Titrate to 2–3 stools/day.",
+  doseUnit:"mL/kg/dose",isBolus:true,
+  rateFn:(w,d)=>+(Math.min(d*w,30)).toFixed(1),
+  commonDoses:[0.5,0.75,1.0],
+  bolus:"Enema (if comatose): 300 mL lactulose + 700 mL water per rectum, q4–6h.",
+  ranges:[
+   {dose:"0.5–1 mL/kg/dose",lbl:"Hepatic encephalopathy (oral/NG)",eff:"q6–8h; target 2–3 soft stools/day"},
+   {dose:"300 mL retention enema",lbl:"Comatose / cannot take oral",eff:"Lactulose 300 mL + water 700 mL; q4–6h PR"},
+  ],
+  notes:"First-line for HE. Target 2–3 soft stools/day — excessive diarrhoea worsens HE (dehydration, hyponatraemia). Ref: EASL HE Guidelines 2022; BNFc 2024."},
+ {name:"LOLA (L-Ornithine L-Aspartate)",color:"#6a1b9a",warn:false,
+  prep:"IV: 5 g/10 mL ampoule — dilute in NS or D5W. Oral: 3 g sachets.",
+  prepFn:w=>`IV CONTINUOUS: ${Math.min(0.75*w,30).toFixed(1)} g/day = ${(Math.min(0.75*w,30)/24).toFixed(2)} g/hr`,
+  rule:"IV: 0.75 g/kg/day continuous (max 30 g/day). Oral: 3–6 g TDS.",
+  doseUnit:"g/kg/day",isBolus:false,
+  rateFn:(w,d)=>+(Math.min(d*w,30)/24).toFixed(2),
+  commonDoses:[0.5,0.75,1.0],
+  bolus:"Oral: 3–6 g TDS (sachets). IV preferred for acute/overt HE in ICU.",
+  ranges:[
+   {dose:"0.75 g/kg/day",lbl:"Paediatric ALF — IV continuous",eff:"Max 30 g/day; duration 72hr–7 days"},
+   {dose:"3–6 g TDS",lbl:"Oral maintenance",eff:"Adjunct to lactulose for mild/minimal HE"},
+  ],
+  notes:"Lowers ammonia via urea cycle stimulation. Meta-analyses show benefit in adult overt and minimal HE. Paediatric RCT ongoing (ILBS India). Well tolerated. Ref: Butterworth RF et al. Drugs. 2019;79(suppl 1):31–37."},
+];
+
+// ══════════════════════════════════════════════════════════════
+// DKA MANAGEMENT CALCULATOR
+// Ref: ISPAD 2022; BSPED 2021 v3; PECARN NEJM 2018
+// ══════════════════════════════════════════════════════════════
+let dkaWt = '';
+let dkaSeverity = 'moderate';
+let dkaBolus = '0';
+let dkaK = '';
+let dkaBG = '';
+let dkaNa = '';
+let dkaInsulinDose = '0.05';
+
+const DKA_SEVERITY = {
+  mild:     {label:'Mild',     ph:'7.20–7.30', hco3:'10–15', deficit:5,  color:'#f57f17', dehydration:'~5%'},
+  moderate: {label:'Moderate', ph:'7.10–7.20', hco3:'5–10',  deficit:7,  color:'#e65100', dehydration:'~7%'},
+  severe:   {label:'Severe',   ph:'<7.10',     hco3:'<5',    deficit:10, color:'#b71c1c', dehydration:'~10%'},
+};
+
+function hollidaySegar(w) {
+  if(w<=10) return w*100;
+  if(w<=20) return 1000+(w-10)*50;
+  return 1500+(w-20)*20;
+}
+
+function correctedNa(na, bg_mmol) {
+  return (parseFloat(na) + 0.3*(parseFloat(bg_mmol)-5.6)).toFixed(1);
+}
+
+function renderDKATab() {
+  const el = document.getElementById('drug-display');
+  if(!el) return;
+
+  const wt = parseFloat(dkaWt)||0;
+  const sev = DKA_SEVERITY[dkaSeverity];
+  const bolusGiven = parseFloat(dkaBolus)||0;
+  const k = parseFloat(dkaK);
+  const bg = parseFloat(dkaBG);
+  const bgM = bg ? (bg/18).toFixed(1) : null;
+  const na = parseFloat(dkaNa);
+  const corrNa = (na && bgM) ? correctedNa(na, bgM) : null;
+  const insulinDose = parseFloat(dkaInsulinDose)||0.05;
+
+  const deficit = wt ? (sev.deficit/100)*wt*1000 : 0;
+  const maintenanceDay = wt ? hollidaySegar(wt) : 0;
+  const maintenance48 = maintenanceDay*2;
+  const replacementVol = Math.max(0, deficit - bolusGiven);
+  const totalVol = replacementVol + maintenance48;
+  const hourlyRate = wt ? (totalVol/48).toFixed(1) : null;
+  const insulinRate = wt ? (insulinDose * wt).toFixed(2) : null;
+
+  let kGuide = '', kColor = '#2e7d32';
+  if(!isNaN(k)){
+    if(k<3.0){kGuide='SEVERE HYPOKALAEMIA — Withhold insulin until K+ >3.0. Replace aggressively.';kColor='#b71c1c';}
+    else if(k<3.5){kGuide='Hypokalaemia — Add 40 mmol/L KCl to ALL fluids. Check K+ q1-2hr.';kColor='#e65100';}
+    else if(k<=5.5){kGuide='Normal — Add 40 mmol/L KCl to ALL fluids (except bolus).';kColor='#2e7d32';}
+    else{kGuide='Hyperkalaemia — DO NOT add K+ to fluids. Recheck in 2hr.';kColor='#f57f17';}
+  }
+  let naGuide = '';
+  if(corrNa!==null){
+    naGuide = parseFloat(corrNa)<130 ? 'LOW — risk of cerebral oedema. If falls >5 mmol/L in 4hr reduce fluid rate 50%.'
+      : parseFloat(corrNa)>150 ? 'HIGH — risk of hypernatraemia. Review fluid Na content.'
+      : 'Within expected range. Recheck every 4hr.';
+  }
+  let bgGuide = '';
+  if(!isNaN(bg)){
+    if(bg<72)bgGuide='HYPOGLYCAEMIA — Add 10% glucose NOW. Do NOT stop insulin.';
+    else if(bg<126)bgGuide='Add 5-10% glucose to fluid. Do NOT reduce insulin below 0.05 u/kg/hr.';
+    else if(bg<252)bgGuide='Add 5% glucose to fluid to prevent BG falling too fast.';
+    else bgGuide='Continue fluid and insulin. Target BG fall max 90 mg/dL/hr.';
+  }
+
+  const sevBtns = Object.entries(DKA_SEVERITY).map(function(e){
+    const key=e[0],s=e[1],active=dkaSeverity===key;
+    return '<button onclick="dkaSeverity=\''+key+'\';renderDKATab()" style="padding:10px 6px;border-radius:10px;border:2px solid '+(active?s.color:'var(--bdr)')+';background:'+(active?s.color+'18':'var(--bg3)')+';cursor:pointer;text-align:center">'
+      +'<div style="font-size:13px;font-weight:800;color:'+s.color+'">'+s.label+'</div>'
+      +'<div style="font-size:10px;color:var(--dim);margin-top:2px">pH '+s.ph+'</div>'
+      +'<div style="font-size:10px;color:var(--dim)">HCO&#8323; '+s.hco3+' mEq/L</div>'
+      +'<div style="font-size:10px;font-weight:700;color:'+s.color+'">Deficit '+s.dehydration+'</div></button>';
+  }).join('');
+
+  function numInput(lbl,val,key,mn,mx){
+    return '<div style="display:flex;flex-direction:column;gap:4px">'
+      +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.08em">'+lbl+'</label>'
+      +'<input type="number" value="'+esc(val)+'" min="'+mn+'" max="'+mx+'" step="any" inputmode="decimal" onchange="'+key+'=this.value;renderDKATab()"'
+      +' style="width:110px;padding:10px;background:var(--bg3);border:2px solid '+(val?'#b71c1c':'var(--bdr)')+';border-radius:9px;font-size:18px;font-family:var(--mono);font-weight:700;outline:none;color:'+(val?'#b71c1c':'var(--text)')+'"></div>';
+  }
+
+  const fluidBoxes = [
+    ['Deficit volume', deficit.toFixed(0)+' mL', sev.label+' = '+sev.deficit+'% x '+wt+' kg x 10', '#b71c1c'],
+    ['48hr maintenance', maintenance48.toFixed(0)+' mL', 'Holliday-Segar: '+maintenanceDay.toFixed(0)+' mL/day x 2', '#1565c0'],
+    ['Minus bolus given', '- '+bolusGiven.toFixed(0)+' mL', 'Subtract resuscitation fluid given', '#2e7d32'],
+    ['TOTAL over 48hr', totalVol.toFixed(0)+' mL', 'Replacement + maintenance', '#b71c1c'],
+  ].map(function(b){
+    return '<div style="background:#fff;border-radius:8px;padding:10px;border-left:3px solid '+b[3]+'">'
+      +'<div style="font-size:10px;font-weight:700;color:var(--dim2);letter-spacing:.07em">'+b[0]+'</div>'
+      +'<div style="font-size:22px;font-weight:900;color:'+b[3]+';font-family:var(--mono)">'+b[1]+'</div>'
+      +'<div style="font-size:10px;color:var(--dim);margin-top:2px">'+b[2]+'</div></div>';
+  }).join('');
+
+  const fluidSection = wt ? (
+    '<div class="section">'
+    +'<div class="section-title">Step 2 &mdash; Fluid Calculation (48hr replacement)</div>'
+    +'<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:10px">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+fluidBoxes+'</div>'
+    +'<div style="background:#b71c1c;color:#fff;border-radius:10px;padding:12px;text-align:center">'
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.1em;margin-bottom:4px">HOURLY IV RATE</div>'
+    +'<div style="font-size:42px;font-weight:900;font-family:var(--mono);line-height:1">'+hourlyRate+'</div>'
+    +'<div style="font-size:13px;margin-top:2px">mL/hr for 48 hours</div>'
+    +'<div style="font-size:11px;opacity:0.8;margin-top:4px">0.9% NaCl + 40 mmol/L KCl (if K+ &le;5.5 and urinating)</div>'
+    +'</div></div>'
+    +'<div style="background:#e8f4fd;border-radius:9px;padding:10px 13px;font-size:12px;color:#0d3c6e;line-height:1.7">'
+    +'Add 5% glucose when BG &lt;252 mg/dL &mdash; do NOT reduce insulin. Max fluid first 4hr (incl. bolus): 40&ndash;50 mL/kg. Replace deficit over 48hr.'
+    +'</div></div>'
+  ) : '';
+
+  const insulinBtns = [['0.05','Standard (BSPED 2021)'],['0.1','Severe DKA only']].map(function(p){
+    const d=p[0],lbl=p[1],active=dkaInsulinDose===d;
+    return '<button onclick="dkaInsulinDose=\''+d+'\';renderDKATab()" style="padding:8px 12px;border-radius:8px;border:2px solid '+(active?'#e65100':'var(--bdr)')+';background:'+(active?'#fff3e0':'var(--bg3)')+';cursor:pointer;font-size:11px;font-weight:700;color:'+(active?'#e65100':'var(--dim)')+'">'+d+' u/kg/hr<br><span style="font-size:10px;font-weight:400">'+lbl+'</span></button>';
+  }).join('');
+
+  const insulinRateBox = (wt&&insulinRate)?(
+    '<div style="background:#fff;border:2px solid #e65100;border-radius:10px;padding:10px 16px;text-align:center">'
+    +'<div style="font-size:10px;font-weight:700;color:#e65100;letter-spacing:.1em">INSULIN RATE</div>'
+    +'<div style="font-size:32px;font-weight:900;color:#e65100;font-family:var(--mono)">'+insulinRate+'</div>'
+    +'<div style="font-size:12px;color:#e65100">units/hr = mL/hr</div></div>'
+  ):'';
+
+  const elecInputs = [['K+ (mEq/L)',dkaK,'dkaK'],['BG (mg/dL)',dkaBG,'dkaBG'],['Na (mEq/L)',dkaNa,'dkaNa']].map(function(a){
+    return '<div style="display:flex;flex-direction:column;gap:3px">'
+      +'<label style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.07em">'+a[0]+'</label>'
+      +'<input type="number" value="'+esc(a[1])+'" inputmode="decimal" onchange="'+a[2]+'=this.value;renderDKATab()" style="width:100px;padding:8px;background:var(--bg3);border:2px solid '+(a[1]?'#1565c0':'var(--bdr)')+';border-radius:8px;font-size:16px;font-family:var(--mono);font-weight:700;outline:none"></div>';
+  }).join('');
+
+  const kRows = [
+    ['&lt;3.0','Withhold insulin. Aggressive K+ replacement.','Do not start until K+ >3.0'],
+    ['3.0-3.5','Hypokalaemia — Add KCl urgently. Check q1hr.','40 mmol/L + extra KCl bolus'],
+    ['3.5-5.5','Normal — Add KCl routinely to all fluids.','40 mmol/L KCl in all fluids'],
+    ['&gt;5.5','Hyperkalaemia — No K+ in fluids. Recheck 2hr.','No potassium — recheck in 2hr'],
+  ].map(function(r,i){
+    return '<tr style="background:'+(i%2===0?'#fafbff':'#fff')+'">'
+      +'<td style="padding:8px 10px;font-size:13px;font-weight:700;font-family:var(--mono);color:#1565c0">'+r[0]+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px">'+r[1]+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td></tr>';
+  }).join('');
+
+  const monRows = [
+    ['Blood glucose','Every 1 hour','BG fall <90 mg/dL/hr; add glucose if <252 mg/dL'],
+    ['Potassium','q1-2hr, then q2hr','Target 3.5-5.5 mEq/L; adjust KCl'],
+    ['pH / HCO&#8323;','q2-4hr','Target pH >7.3, HCO&#8323; >15 for resolution'],
+    ['Corrected Na','Every 4 hours','If falls >5 mmol/L in 4hr reduce fluid rate 50%'],
+    ['GCS / Neuro','Every hour','Any deterioration = cerebral oedema until proved otherwise'],
+    ['Urine output','Hourly','Confirm before adding K+'],
+  ].map(function(r,i){
+    return '<tr style="background:'+(i%2===0?'#f8fff8':'#fff')+'">'
+      +'<td style="padding:8px 10px;font-size:12px;font-weight:700;color:#2e7d32">'+r[0]+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px">'+r[1]+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px;color:var(--dim)">'+r[2]+'</td></tr>';
+  }).join('');
+
+  const coBtns = [
+    ['3% HTS (first line)','2.5-5 mL/kg over 10-15 min'+(wt?' = '+(2.5*wt).toFixed(0)+'-'+Math.min(5*wt,100).toFixed(0)+' mL':''),'#c62828'],
+    ['OR Mannitol 20%','0.5-1 g/kg over 20 min'+(wt?' = '+(0.5*wt).toFixed(0)+'-'+Math.min(wt,100).toFixed(0)+' g':''),'#1565c0'],
+    ['Reduce fluid rate','Reduce by 50% immediately','#e65100'],
+    ['Head-up 30°','Position immediately','#2e7d32'],
+  ].map(function(b){
+    return '<div style="background:#fff;border-radius:8px;padding:9px 10px;border-left:3px solid '+b[2]+'">'
+      +'<div style="font-size:11px;font-weight:700;color:'+b[2]+'">'+b[0]+'</div>'
+      +'<div style="font-size:11px;color:var(--dim);margin-top:2px;line-height:1.4">'+b[1]+'</div></div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="drug-panel" style="--drug-color:#b71c1c">'
+    +'<div class="drug-panel-header"><div class="drug-color-bar" style="background:#b71c1c"></div>'
+    +'<div class="drug-header-info"><div class="drug-name">&#x1FA78; DKA Management Calculator</div>'
+    +'<div class="drug-badges"><span class="badge badge-type" style="background:#fff0f0;color:#b71c1c">ISPAD 2022 &middot; BSPED 2021</span>'
+    +'<span class="badge badge-type" style="background:#e8f5e9;color:#2e7d32">PECARN DKA Fluid Trial 2018</span></div></div></div>'
+    +'<div class="section"><div class="section-title">Step 1 &mdash; Severity &amp; Patient Details</div>'
+    +'<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#5a3e00;line-height:1.7">'
+    +'<b>DKA:</b> BG &gt;200 mg/dL + pH &lt;7.3 or HCO&#8323; &lt;15 + ketonaemia. Exclude HHS (BG &gt;600, minimal ketones).</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">'+sevBtns+'</div>'
+    +'<div style="display:flex;gap:12px;flex-wrap:wrap">'+numInput('Weight (kg)',dkaWt,'dkaWt','0.5','100')+numInput('Bolus given (mL)',dkaBolus,'dkaBolus','0','500')+'</div></div>'
+    +fluidSection
+    +'<div class="section"><div class="section-title">Step 3 &mdash; Insulin (start 1hr AFTER fluids)</div>'
+    +'<div style="background:#fff3e0;border:1.5px solid #e65100;border-radius:9px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#5a2a00;line-height:1.6">'
+    +'Start insulin at least 1hr after IV fluids. No bolus insulin. Only start when K+ &gt;3.0. Never stop insulin for hypoglycaemia &mdash; add glucose instead.</div>'
+    +'<div style="background:var(--bg3);border-radius:10px;padding:12px">'
+    +'<div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:8px">PREP: 1 unit/mL &mdash; 50 units Actrapid in 50 mL NS</div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
+    +'<div><label style="font-size:10px;font-weight:700;color:var(--dim);display:block;margin-bottom:4px">DOSE (units/kg/hr)</label>'
+    +'<div style="display:flex;gap:6px">'+insulinBtns+'</div></div>'+insulinRateBox+'</div>'
+    +'<div style="background:#e8f5e9;border-radius:8px;padding:9px 12px;font-size:12px;color:#1b4d20;line-height:1.7">'
+    +'Minimum 0.05 u/kg/hr. BG &lt;252 mg/dL: add 5% glucose. BG &lt;126 mg/dL: add 10% glucose.</div></div></div>'
+    +'<div class="section"><div class="section-title">Step 4 &mdash; Electrolytes</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+elecInputs+'</div>'
+    +(kGuide?'<div style="background:'+kColor+'15;border:1.5px solid '+kColor+';border-radius:9px;padding:9px 12px;font-size:12px;color:'+kColor+';font-weight:600;margin-bottom:8px;line-height:1.6">K+ '+esc(dkaK)+' mEq/L: '+kGuide+'</div>':'')
+    +(bgGuide?'<div style="background:#fff8e1;border:1.5px solid #f9a825;border-radius:9px;padding:9px 12px;font-size:12px;color:#5a3e00;font-weight:600;margin-bottom:8px;line-height:1.6">BG '+esc(dkaBG)+' mg/dL ('+bgM+' mmol/L): '+bgGuide+'</div>':'')
+    +(corrNa!==null?'<div style="background:#e8f4fd;border:1.5px solid #1565c0;border-radius:9px;padding:9px 12px;font-size:12px;color:#0d3c6e;margin-bottom:8px;line-height:1.6">Corrected Na = '+esc(dkaNa)+' + 0.3 x ('+bgM+' - 5.6) = <b>'+corrNa+' mEq/L</b><br>'+naGuide+'</div>':'')
+    +'<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr);margin-bottom:10px">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:360px"><thead><tr style="background:#1565c0;color:#fff">'
+    +'<th style="padding:8px 10px;text-align:left;font-size:11px">K+ LEVEL</th><th style="padding:8px 10px;text-align:left;font-size:11px">ACTION</th><th style="padding:8px 10px;text-align:left;font-size:11px">KCl IN FLUIDS</th>'
+    +'</tr></thead><tbody>'+kRows+'</tbody></table></div></div>'
+    +'<div class="section"><div class="section-title">Monitoring Schedule</div>'
+    +'<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:360px"><thead><tr style="background:#2e7d32;color:#fff">'
+    +'<th style="padding:8px 10px;text-align:left;font-size:11px">PARAMETER</th><th style="padding:8px 10px;text-align:left;font-size:11px">FREQUENCY</th><th style="padding:8px 10px;text-align:left;font-size:11px">TARGET/ACTION</th>'
+    +'</tr></thead><tbody>'+monRows+'</tbody></table></div></div>'
+    +'<div class="section"><div class="section-title">&#9888;&#65039; Cerebral Oedema — Treat Immediately</div>'
+    +'<div style="background:#fff0f0;border:2px solid #b71c1c;border-radius:11px;padding:12px 14px">'
+    +'<div style="font-size:12px;font-weight:800;color:#b71c1c;margin-bottom:6px">SIGNS: GCS fall &middot; New headache &middot; Unequal pupils &middot; Focal neurology &middot; Cushing triad</div>'
+    +'<div style="font-size:12px;font-weight:700;color:#b71c1c;margin-bottom:8px">RISK: Age &lt;5yr &middot; pH &lt;7.1 &middot; pCO&#8322; &lt;21 &middot; New DKA</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+coBtns+'</div></div></div>'
+    +'<div class="section"><div class="section-title">Resolution &amp; SC Switch</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +'<div style="background:#e8f5e9;border-radius:10px;padding:11px 13px;border:1.5px solid #2e7d32">'
+    +'<div style="font-size:12px;font-weight:800;color:#2e7d32;margin-bottom:6px">RESOLUTION (all needed)</div>'
+    +'<div style="font-size:12px;color:#1b4d20;line-height:1.8">pH &gt;7.3 AND HCO&#8323; &gt;15 AND BG normal AND tolerating oral fluids</div></div>'
+    +'<div style="background:#e8f4fd;border-radius:10px;padding:11px 13px;border:1.5px solid #1565c0">'
+    +'<div style="font-size:12px;font-weight:800;color:#1565c0;margin-bottom:6px">SC SWITCH</div>'
+    +'<div style="font-size:12px;color:#0d3c6e;line-height:1.8">1. Give SC insulin<br>2. Wait 30 min<br>3. THEN stop IV insulin</div></div></div></div>'
+    +'<div class="section"><div style="background:var(--bg3);border-radius:9px;padding:10px 13px;font-size:11px;color:var(--dim);line-height:1.8">'
+    +'<b>Refs:</b> ISPAD 2022 (Glaser N et al. Pediatr Diabetes 2022;23:835) &middot; BSPED DKA Guideline 2021 v3 &middot; PECARN DKA Fluid Trial (NEJM 2018;378:2275)'
+    +'</div></div></div>';
+}
+
 // ── Build flat index ──────────────────────────────────────────
 const ALL_DRUGS = [];
 Object.entries(DRUGS).forEach(([cat, arr]) => {
@@ -2201,6 +2679,11 @@ function renderPillBar(){
       `<button class="drug-pill active" style="background:#c1121f;border-color:#c1121f;color:#fff">🫁 Intubation Drug Calculator</button>`;
     return;
   }
+  if(activeCategory==='dka'){
+    document.getElementById('pill-bar').innerHTML =
+      `<button class="drug-pill active" style="background:#b71c1c;border-color:#b71c1c;color:#fff">🩸 DKA Management Calculator</button>`;
+    return;
+  }
   if(activeCategory==='references'){
     document.getElementById('pill-bar').innerHTML =
       `<button class="drug-pill active" style="background:#1565c0;border-color:#1565c0;color:#fff">📚 References & Verification</button>`;
@@ -2224,6 +2707,10 @@ function renderDrugDisplay(){
   const el = document.getElementById('drug-display');
   if(activeCategory==='intubation'){
     renderIntubationTab();
+    return;
+  }
+  if(activeCategory==='dka'){
+    renderDKATab();
     return;
   }
   if(activeCategory==='references'){
@@ -2253,7 +2740,7 @@ function renderGIR(){
 }
 
 function renderWeightBanner(){
-  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references')?'none':'flex';
+  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references'||activeCategory==='dka')?'none':'flex';
 }
 
 
