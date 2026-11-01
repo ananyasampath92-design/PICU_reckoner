@@ -271,6 +271,7 @@ const CATEGORIES = [
   {id:"neuroprotection", label:"Neuroprotection & ICP",   icon:"🧠"},
   {id:"antidotes",    label:"Antidotes",                icon:"⚕️"},
   {id:"intubation",   label:"Intubation",               icon:"🫁"},
+  {id:"ysite",         label:"Y-Site Compatibility",       icon:"🔀"},
   {id:"references",   label:"References & Verify",       icon:"📚"},
 ];
 
@@ -2442,6 +2443,152 @@ function renderDKATab() {
     +'</div></div></div>';
 }
 
+// ── Y-SITE COMPATIBILITY ─────────────────────────────────────
+var YS_DRUGS = [
+ {id:'epi',n:'Adrenaline',g:'Inotrope'},{id:'nor',n:'Noradrenaline',g:'Inotrope'},
+ {id:'dopa',n:'Dopamine',g:'Inotrope'},{id:'dobu',n:'Dobutamine',g:'Inotrope'},
+ {id:'mil',n:'Milrinone',g:'Inotrope'},{id:'vaso',n:'Vasopressin',g:'Inotrope'},
+ {id:'mdz',n:'Midazolam',g:'Sedation'},{id:'fent',n:'Fentanyl',g:'Sedation'},
+ {id:'morph',n:'Morphine',g:'Sedation'},{id:'ket',n:'Ketamine',g:'Sedation'},
+ {id:'dex',n:'Dexmedetomidine',g:'Sedation'},{id:'prop',n:'Propofol',g:'Sedation',note:'Lipid emulsion - dedicated line preferred; Y-site data limited to the drugs listed.'},
+ {id:'pht',n:'Phenytoin',g:'Anti-epileptic',ded:1,note:'Precipitates with almost all drugs and with dextrose. Dedicated line; flush NS before and after.'},
+ {id:'pb',n:'Phenobarbitone',g:'Anti-epileptic',ded:1,note:'Alkaline (pH 9-10). Dedicated line; flush NS before and after.'},
+ {id:'lev',n:'Levetiracetam',g:'Anti-epileptic',note:'Few incompatibilities documented, but Y-site data are limited. Do not assume compatibility.'},
+ {id:'bicarb',n:'Sodium bicarbonate',g:'Electrolyte'},{id:'ca',n:'Calcium gluconate',g:'Electrolyte'},
+ {id:'kcl',n:'Potassium chloride',g:'Electrolyte'},{id:'mg',n:'Magnesium sulfate',g:'Electrolyte'},
+ {id:'furo',n:'Furosemide',g:'Diuretic'},{id:'hep',n:'Heparin',g:'Other'},{id:'ins',n:'Insulin (regular)',g:'Other',note:'Adsorbs to tubing - flush/prime line. In DKA keep on its own line.'},
+ {id:'cro',n:'Ceftriaxone',g:'Antibiotic'},{id:'vanc',n:'Vancomycin',g:'Antibiotic'},
+ {id:'mero',n:'Meropenem',g:'Antibiotic'},{id:'pip',n:'Piperacillin-tazobactam',g:'Antibiotic'},
+ {id:'ampho',n:'Amphotericin B',g:'Antifungal/antiviral',ded:1,note:'Conventional amphotericin: dedicated line, D5W only (precipitates in saline).'},
+ {id:'acv',n:'Acyclovir',g:'Antifungal/antiviral',note:'Highly alkaline (pH ~11). Prefer separate line.'}
+];
+var YS_PAIRS = [
+ ['bicarb','epi','I','Catecholamine inactivated in alkaline solution'],
+ ['bicarb','nor','I','Catecholamine inactivated in alkaline solution'],
+ ['bicarb','dopa','I','Catecholamine inactivated in alkaline solution'],
+ ['bicarb','dobu','I','Catecholamine inactivated in alkaline solution'],
+ ['bicarb','ca','I','Calcium carbonate precipitate'],
+ ['bicarb','mdz','I','Precipitate'],
+ ['bicarb','vanc','I','Precipitate'],
+ ['ca','cro','I','Fatal ceftriaxone-calcium precipitates reported (esp. neonates). Never co-infuse; flush NS between if sequential.'],
+ ['furo','mil','I','Precipitate (well documented)'],
+ ['furo','mdz','I','Precipitate'],
+ ['furo','dobu','I','Precipitate'],
+ ['cro','vanc','I','Precipitate'],
+ ['cro','mdz','I','Precipitate'],
+ ['acv','dobu','I','Incompatible (alkaline)'],
+ ['acv','dopa','I','Incompatible (alkaline)'],
+ ['acv','mdz','I','Incompatible (alkaline)'],
+ ['pb','ket','I','Precipitate'],['pb','mdz','I','Precipitate'],['pb','vanc','I','Precipitate'],
+ ['pb','nor','I','pH incompatibility'],['pb','epi','I','pH incompatibility'],['pb','dobu','I','pH incompatibility'],['pb','morph','I','Incompatible'],
+ ['vanc','pip','V','Concentration-dependent precipitate; avoid co-infusion, flush between'],
+ ['vanc','mero','V','Compatible at low concentrations only; flush between'],
+ ['vanc','hep','V','Precipitates at higher heparin concentrations'],
+ ['vanc','furo','V','Precipitate reported at some concentrations'],
+ ['dobu','hep','V','Concentration-dependent precipitate'],
+ ['nor','furo','V','Alkaline furosemide may degrade catecholamine'],
+ ['epi','furo','V','Alkaline furosemide may degrade catecholamine'],
+ ['dopa','furo','V','Variable; reported both compatible and incompatible'],
+ ['fent','furo','V','Variable'],['morph','furo','V','Variable'],
+ ['mg','bicarb','V','Possible precipitate'],
+ ['ca','mdz','V','Variable; avoid if possible'],
+ ['ins','mdz','V','Limited data'],
+ ['mdz','fent','C',''],['mdz','morph','C',''],['mdz','dex','C',''],['mdz','nor','C',''],['mdz','epi','C',''],
+ ['mdz','dobu','C',''],['mdz','mil','C',''],['mdz','vaso','C',''],
+ ['fent','morph','C',''],['fent','dex','C',''],['fent','nor','C',''],['fent','epi','C',''],['fent','dobu','C',''],
+ ['fent','mil','C',''],['fent','vaso','C',''],['morph','dex','C',''],['morph','nor','C',''],['morph','epi','C',''],
+ ['dex','nor','C',''],['dex','epi','C',''],['dex','dopa','C',''],['dex','dobu','C',''],['dex','mil','C',''],['dex','vaso','C',''],['dex','ket','C',''],
+ ['epi','nor','C',''],['dopa','dobu','C',''],['dopa','mil','C',''],['dobu','mil','C',''],['nor','mil','C',''],['epi','mil','C',''],
+ ['vaso','nor','C',''],['vaso','epi','C',''],['vaso','dopa','C',''],['vaso','dobu','C',''],['vaso','mil','C',''],
+ ['prop','fent','C',''],['prop','morph','C',''],['prop','dex','C',''],['prop','mdz','C',''],['prop','ket','C',''],
+ ['prop','epi','C',''],['prop','nor','C',''],['prop','dobu','C',''],['prop','dopa','C',''],
+ ['kcl','ins','C',''],['kcl','hep','C',''],['mg','ca','C',''],['ins','dopa','C',''],['ins','dobu','C','']
+];
+var ysA = '', ysB = '';
+function ysDrug(id){ for(var i=0;i<YS_DRUGS.length;i++){ if(YS_DRUGS[i].id===id) return YS_DRUGS[i]; } return null; }
+function ysPair(a,b){
+  for(var i=0;i<YS_PAIRS.length;i++){ var p=YS_PAIRS[i];
+    if((p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a)) return p; }
+  return null;
+}
+function ysSetA(v){ ysA=v; renderYSiteTab(); }
+function ysSetB(v){ ysB=v; renderYSiteTab(); }
+function ysOpts(sel){
+  var h = '<option value="">- select drug -</option>';
+  for(var i=0;i<YS_DRUGS.length;i++){ var d=YS_DRUGS[i];
+    h += '<option value="'+d.id+'"'+(sel===d.id?' selected':'')+'>'+esc(d.n)+'</option>'; }
+  return h;
+}
+function ysBadge(s){
+  if(s==='I') return '<span style="background:#c1121f;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800">INCOMPATIBLE</span>';
+  if(s==='V') return '<span style="background:#e08e00;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800">VARIABLE / CAUTION</span>';
+  if(s==='C') return '<span style="background:#1b873f;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800">COMPATIBLE</span>';
+  return '<span style="background:#6b6f8a;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800">NO DATA</span>';
+}
+function ysResult(){
+  if(!ysA||!ysB) return '<div style="color:var(--dim);font-size:13px">Select two drugs to check Y-site compatibility.</div>';
+  if(ysA===ysB) return '<div style="color:var(--dim);font-size:13px">Select two different drugs.</div>';
+  var a=ysDrug(ysA), b=ysDrug(ysB), p=ysPair(ysA,ysB), st, note='';
+  if(p){ st=p[2]; note=p[3]; }
+  else if(a.ded||b.ded){ st='I'; note=(a.ded?a.n:b.n)+' needs a dedicated line - do not Y-site with other drugs.'; }
+  else { st='N'; note='No data in this table. Do NOT assume compatible - use a separate line or check with pharmacy / Trissel / Stabilis.'; }
+  var extra='';
+  if(a.note) extra += '<div style="font-size:12px;color:var(--text2);margin-top:6px"><b>'+esc(a.n)+':</b> '+esc(a.note)+'</div>';
+  if(b.note) extra += '<div style="font-size:12px;color:var(--text2);margin-top:4px"><b>'+esc(b.n)+':</b> '+esc(b.note)+'</div>';
+  return '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px">'+esc(a.n)+' + '+esc(b.n)+'</div>'+ysBadge(st)+
+    (note?'<div style="font-size:13px;color:var(--text2);margin-top:8px;line-height:1.6">'+esc(note)+'</div>':'')+extra;
+}
+function ysList(id){
+  var inc=[],va=[],co=[];
+  for(var i=0;i<YS_PAIRS.length;i++){ var p=YS_PAIRS[i], o=null;
+    if(p[0]===id) o=p[1]; else if(p[1]===id) o=p[0];
+    if(!o) continue;
+    var od=ysDrug(o);
+    var item='<div style="font-size:12px;margin:3px 0"><b>'+esc(od.n)+'</b>'+(p[3]?' - '+esc(p[3]):'')+'</div>';
+    if(p[2]==='I') inc.push(item); else if(p[2]==='V') va.push(item); else co.push('<span style="display:inline-block;background:#e8f5ec;border-radius:10px;padding:2px 9px;margin:2px;font-size:11px;font-weight:600">'+esc(od.n)+'</span>');
+  }
+  var d=ysDrug(id), h='<div style="font-size:14px;font-weight:800;margin-bottom:6px">'+esc(d.n)+' <span style="font-weight:500;color:var(--dim);font-size:11px">('+esc(d.g)+')</span></div>';
+  if(d.note) h+='<div style="background:#fff4e5;border-left:3px solid #e08e00;padding:6px 9px;font-size:12px;margin-bottom:8px;border-radius:4px">'+esc(d.note)+'</div>';
+  if(inc.length) h+='<div style="margin-top:6px"><div style="color:#c1121f;font-weight:800;font-size:12px">INCOMPATIBLE</div>'+inc.join('')+'</div>';
+  if(va.length) h+='<div style="margin-top:8px"><div style="color:#b36b00;font-weight:800;font-size:12px">VARIABLE / CAUTION</div>'+va.join('')+'</div>';
+  if(co.length) h+='<div style="margin-top:8px"><div style="color:#1b873f;font-weight:800;font-size:12px">COMPATIBLE (documented)</div>'+co.join('')+'</div>';
+  if(!inc.length&&!va.length&&!co.length) h+='<div style="font-size:12px;color:var(--dim)">No pair data in this table.</div>';
+  return h;
+}
+function renderYSiteTab(){
+  var el=document.getElementById('drug-display');
+  var card='background:#fff;border-radius:11px;border:1.5px solid var(--bdr);padding:13px 15px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,0.05)';
+  var sel='width:100%;padding:9px;border-radius:8px;border:1.5px solid var(--bdr);font-size:14px;background:#fff;color:var(--text)';
+  var h='';
+  h+='<div style="'+card+'"><div style="font-size:14px;font-weight:800;margin-bottom:8px">Pair checker</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap"><div style="flex:1;min-width:140px"><select style="'+sel+'" onchange="ysSetA(this.value)">'+ysOpts(ysA)+'</select></div>'+
+    '<div style="flex:1;min-width:140px"><select style="'+sel+'" onchange="ysSetB(this.value)">'+ysOpts(ysB)+'</select></div></div>'+
+    '<div style="margin-top:12px;padding:10px;background:#f7f8fc;border-radius:8px">'+ysResult()+'</div>'+
+    '<div style="margin-top:8px;font-size:11.5px;font-weight:700;color:#b36b00">Compatibility depends on concentration and diluent. Results apply to usual PICU concentrations in NS or D5W only.</div></div>';
+  if(ysA) h+='<div style="'+card+'">'+ysList(ysA)+'</div>';
+  if(ysB&&ysB!==ysA) h+='<div style="'+card+'">'+ysList(ysB)+'</div>';
+  h+='<div style="'+card+'"><div style="font-size:14px;font-weight:800;margin-bottom:6px">Bedside rules</div><ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.7;color:var(--text2)">'+
+    '<li>Dedicated line: phenytoin, phenobarbitone, amphotericin B, blood products, TPN / lipid, insulin in DKA.</li>'+
+    '<li>Never run drugs through a line carrying blood products; NS only.</li>'+
+    '<li>Ceftriaxone and calcium: never together in the same line.</li>'+
+    '<li>Catecholamines: avoid alkaline drugs (bicarbonate, furosemide, phenytoin, phenobarbitone) in the same line.</li>'+
+    '<li>Flush with NS between incompatible drugs; ensure the flush volume clears the dead space of the line.</li>'+
+    '<li>Compatibility depends on concentration, diluent, pH, contact time and brand. A pair marked compatible here applies to usual PICU concentrations only.</li>'+
+    '<li>If a pair is not listed, treat it as unknown and use a separate lumen.</li></ul></div>';
+  h+='<div style="'+card+'"><div style="font-size:14px;font-weight:800;margin-bottom:6px">References</div><ol style="margin:0;padding-left:20px;font-size:12px;line-height:1.7;color:var(--text2)">'+
+    '<li>Trissel LA. <i>Handbook on Injectable Drugs</i>. American Society of Health-System Pharmacists (ASHP); current edition. (Also available as Trissel\'s IV Compatibility database, Merative Micromedex.)</li>'+
+    '<li>Bing CM, Nowobilski-Vasilios A. <i>King Guide to Parenteral Admixtures</i>. King Guide Publications.</li>'+
+    '<li>Stabilis 4.0 - database of drug stability and compatibility. <a href="https://www.stabilis.org" target="_blank" rel="noopener">stabilis.org</a></li>'+
+    '<li>Paediatric Formulary Committee. <i>BNF for Children (BNFc)</i>. London: BMJ Group / Pharmaceutical Press; current edition. Medicines Complete.</li>'+
+    '<li>Taketomo CK, et al. <i>Harriet Lane Handbook</i>, 23rd ed. Elsevier; 2023.</li>'+
+    '<li>U.S. FDA. Safety communication: ceftriaxone and calcium-containing IV solutions - risk of fatal precipitates (2009). Ceftriaxone prescribing information.</li>'+
+    '<li>Product information (package inserts) for phenytoin, amphotericin B, acyclovir and phenobarbitone injections.</li>'+
+    '</ol></div>';
+  h+='<div style="background:#fff4e5;border:1.5px solid #e08e00;border-radius:11px;padding:11px 14px;font-size:12px;color:var(--text2);line-height:1.6">'+
+    '<b>Compatibility depends on concentration and diluent.</b> <b>Verify before use.</b> Compiled from standard references (Trissel\'s Handbook on Injectable Drugs, King Guide to Parenteral Admixtures, Stabilis, Micromedex IV Compatibility, BNFc, Harriet Lane). It is not exhaustive. Confirm with your hospital pharmacist; local brands and concentrations may differ.</div>';
+  el.innerHTML=h;
+}
+
 // ── Build flat index ──────────────────────────────────────────
 const ALL_DRUGS = [];
 Object.entries(DRUGS).forEach(([cat, arr]) => {
@@ -2684,6 +2831,11 @@ function renderPillBar(){
       `<button class="drug-pill active" style="background:#b71c1c;border-color:#b71c1c;color:#fff">🩸 DKA Management Calculator</button>`;
     return;
   }
+  if(activeCategory==='ysite'){
+    document.getElementById('pill-bar').innerHTML =
+      '<button class="drug-pill active" style="background:#6a1b9a;border-color:#6a1b9a;color:#fff">🔀 Y-Site Compatibility Checker</button>';
+    return;
+  }
   if(activeCategory==='references'){
     document.getElementById('pill-bar').innerHTML =
       `<button class="drug-pill active" style="background:#1565c0;border-color:#1565c0;color:#fff">📚 References & Verification</button>`;
@@ -2713,6 +2865,10 @@ function renderDrugDisplay(){
     renderDKATab();
     return;
   }
+  if(activeCategory==='ysite'){
+    renderYSiteTab();
+    return;
+  }
   if(activeCategory==='references'){
     renderReferencesTab();
     return;
@@ -2740,7 +2896,7 @@ function renderGIR(){
 }
 
 function renderWeightBanner(){
-  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references'||activeCategory==='dka')?'none':'flex';
+  document.getElementById('wt-banner').style.display = (weight||activeCategory==='antibiotics'||activeCategory==='intubation'||activeCategory==='references'||activeCategory==='dka'||activeCategory==='ysite')?'none':'flex';
 }
 
 
@@ -3503,7 +3659,7 @@ function renderAll(){
 function setCategory(id){
   activeCategory=id;
   doseInput='';
-  if(id!=='antibiotics' && id!=='intubation'){
+  if(id!=='antibiotics' && id!=='intubation' && id!=='dka' && id!=='ysite' && id!=='references'){
     const first=ALL_DRUGS.find(d=>d.cat===id);
     if(first)selectedDrugId=first.id;
   }
